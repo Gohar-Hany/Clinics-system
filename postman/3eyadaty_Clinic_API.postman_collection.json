@@ -1,0 +1,413 @@
+{
+  "info": {
+    "_postman_id": "3eyadaty-clinic-api-v1",
+    "name": "🏥 3eyadaty (عيادتي) — Clinic AI System API",
+    "description": "# 🏥 3eyadaty (عيادتي) API Documentation\n\n## Overview\nComplete Enterprise REST API for **3eyadaty**, an autonomous AI-powered clinic management and real-time queue platform built with **FastAPI**, **LangGraph**, **Redis Distributed Locks**, and **PostgreSQL**.\n\n## Environments\n- **Production**: `{{prod_url}}` (https://3eyadaty-api.up.railway.app)\n- **Development**: `{{base_url}}` (http://localhost:8000)\n\n## Authentication & Headers\n- **Public Endpoints** (`/chat`, `/queue/position/...`, `/health`): No token required.\n- **Clinic Protected Endpoints** (`/queue/state/...`, queue operations): Requires header `X-Clinic-Token: {{clinic_token}}`.\n\n## Response Standard\nAll API endpoints return standard JSON responses with descriptive error keys (`slot_taken`, `already_booked_today`, `off_day`, `past_date`, `unauthorized`).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🏥 System Health",
+      "description": "System healthchecks, discovery, and OpenAPI specifications.",
+      "item": [
+        {
+          "name": "🔵 GET Health Check - Server Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "## Health Check\nReturns the current health status of the API server and version number.\n\n### Response (200 OK)\n```json\n{\n  \"status\": \"healthy\",\n  \"version\": \"0.1.0\",\n  \"service\": \"Clinic AI System\"\n}\n```"
+          }
+        },
+        {
+          "name": "🔵 GET Root Welcome & API Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "## API Discovery\nReturns service name, version, and links to documentation and healthcheck."
+          }
+        },
+        {
+          "name": "🔵 GET OpenAPI JSON Schema",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/openapi.json",
+              "host": ["{{base_url}}"],
+              "path": ["openapi.json"]
+            },
+            "description": "Returns the complete OpenAPI v3.1 JSON schema generated dynamically by FastAPI."
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 AI Booking Chat Agent",
+      "description": "Autonomous multi-turn conversational AI endpoints powered by LangGraph, Egyptian Arabic NLP, and Redis checkpointer.",
+      "item": [
+        {
+          "name": "🟢 POST Send Message - Inquire Available Slots",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"السلام عليكم، عايز اعرف المواعيد المتاحة يوم 2026-09-02 ورقمي 01284709314\",\n  \"clinic_id\": \"{{clinic_id}}\",\n  \"patient_phone\": \"{{patient_phone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "chat"]
+            },
+            "description": "## Inquire Slots\nQueries available appointment slots for a specific date using natural Arabic dialogue.\n\n### Request Body\n- `message`: User message in natural dialect.\n- `clinic_id`: Clinic identifier (default: `default-clinic`).\n- `patient_phone`: Optional patient phone for session binding."
+          }
+        },
+        {
+          "name": "🟢 POST Send Message - Multi-turn Booking Confirmation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"تمام احجزلي الساعة 12:00 الضهر\",\n  \"clinic_id\": \"{{clinic_id}}\",\n  \"thread_id\": \"{{thread_id}}\",\n  \"patient_phone\": \"{{patient_phone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "chat"]
+            },
+            "description": "## Confirm Booking (Multi-turn Memory)\nConfirms appointment booking while preserving context and phone number from `thread_id`.\n\n### Success Response (200 OK)\n```json\n{\n  \"response\": \"تم حجز موعدك بنجاح! 🎉\\n- التاريخ: 2026-09-02\\n- الساعة: 12:00 ظهرًا\\n- رقمك في الطابور: 1\",\n  \"thread_id\": \"...\",\n  \"intent\": \"booking\",\n  \"data\": {\n    \"patient_phone\": \"01284709314\",\n    \"appointment_id\": \"dcff149e-3151-4fbb-91bb-a578a3c8de81\",\n    \"queue_number\": 1\n  }\n}\n```"
+          }
+        },
+        {
+          "name": "🟢 POST Send Message - Query Live Queue Position",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"عايز اعرف مكاني في الطابور كام دلوقتي\",\n  \"clinic_id\": \"{{clinic_id}}\",\n  \"thread_id\": \"{{thread_id}}\",\n  \"patient_phone\": \"{{patient_phone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "chat"]
+            },
+            "description": "## Check Queue via Chat\nAsks the AI assistant for current queue position and estimated waiting time."
+          }
+        },
+        {
+          "name": "🟢 POST Send Message - Reschedule Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"عايز اغير معادي اخليه الساعة 2 الظهر بدل 12\",\n  \"clinic_id\": \"{{clinic_id}}\",\n  \"thread_id\": \"{{thread_id}}\",\n  \"patient_phone\": \"{{patient_phone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "chat"]
+            },
+            "description": "## Reschedule via AI\nAtomically vacates the old booked slot and reallocates the new requested slot."
+          }
+        },
+        {
+          "name": "🟢 POST Send Message - Cancel Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"عايز الغي حجزي\",\n  \"clinic_id\": \"{{clinic_id}}\",\n  \"thread_id\": \"{{thread_id}}\",\n  \"patient_phone\": \"{{patient_phone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "chat"]
+            },
+            "description": "## Cancel via AI\nCancels the patient's active booking and frees the slot in Redis and database."
+          }
+        }
+      ]
+    },
+    {
+      "name": "⏱️ Live Queue Operations",
+      "description": "High-speed real-time queue management powered by Redis Single Source of Truth (SSOT).",
+      "item": [
+        {
+          "name": "📁 CRUD Operations",
+          "description": "Core queue interactions for patients and receptionists.",
+          "item": [
+            {
+              "name": "🔵 GET Live Queue Position by Appointment ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/queue/position/{{clinic_id}}/{{doctor_id}}/{{appointment_id}}?queue_date=2026-09-01",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "queue", "position", "{{clinic_id}}", "{{doctor_id}}", "{{appointment_id}}"],
+                  "query": [
+                    { "key": "queue_date", "value": "2026-09-01", "description": "Optional date filter (YYYY-MM-DD)" }
+                  ]
+                },
+                "description": "## Patient Queue Position Tracker\nUsed by `/queue` for live polling every 5-10 seconds.\n\n### Success Response (200 OK)\n```json\n{\n  \"queue_number\": 4,\n  \"current_serving\": 2,\n  \"patients_ahead\": 2,\n  \"total_in_queue\": 8,\n  \"avg_consultation_minutes\": 20,\n  \"estimated_wait_minutes\": 40\n}\n```"
+              }
+            },
+            {
+              "name": "🔵 GET Reception Full Queue State",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/queue/state/{{clinic_id}}/{{doctor_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "queue", "state", "{{clinic_id}}", "{{doctor_id}}"]
+                },
+                "description": "## Full Queue Roster (Reception Dashboard)\nReturns all active waiting patients, current serving number, and rolling average.\n\n🔒 **Protected**: Requires `X-Clinic-Token` header."
+              }
+            },
+            {
+              "name": "🟢 POST Patient Arrival Check-In",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/queue/check-in/{{appointment_id}}?clinic_id={{clinic_id}}&doctor_id={{doctor_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "queue", "check-in", "{{appointment_id}}"],
+                  "query": [
+                    { "key": "clinic_id", "value": "{{clinic_id}}" },
+                    { "key": "doctor_id", "value": "{{doctor_id}}" }
+                  ]
+                },
+                "description": "## Patient Check-In\nMarks a patient as arrived at the clinic and registers them into the active Redis queue."
+              }
+            },
+            {
+              "name": "🟢 POST Start Next Consultation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/queue/start/{{appointment_id}}?clinic_id={{clinic_id}}&doctor_id={{doctor_id}}&queue_number=1",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "queue", "start", "{{appointment_id}}"],
+                  "query": [
+                    { "key": "clinic_id", "value": "{{clinic_id}}" },
+                    { "key": "doctor_id", "value": "{{doctor_id}}" },
+                    { "key": "queue_number", "value": "1" }
+                  ]
+                },
+                "description": "## Start Consultation\nSets the active `current_serving` number to this patient's queue number across all live displays."
+              }
+            },
+            {
+              "name": "🟢 POST Complete Consultation & Recalculate ETA",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/queue/complete/{{appointment_id}}?clinic_id={{clinic_id}}&doctor_id={{doctor_id}}&duration_minutes=25",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "queue", "complete", "{{appointment_id}}"],
+                  "query": [
+                    { "key": "clinic_id", "value": "{{clinic_id}}" },
+                    { "key": "doctor_id", "value": "{{doctor_id}}" },
+                    { "key": "duration_minutes", "value": "25", "description": "Actual elapsed consultation duration in minutes" }
+                  ]
+                },
+                "description": "## Complete Consultation\nRemoves the patient from active queue, records duration, updates rolling average, and recalculates dynamic ETA."
+              }
+            },
+            {
+              "name": "🔴 POST Skip / Cancel No-Show Patient",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/queue/cancel/{{appointment_id}}?clinic_id={{clinic_id}}&doctor_id={{doctor_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "queue", "cancel", "{{appointment_id}}"],
+                  "query": [
+                    { "key": "clinic_id", "value": "{{clinic_id}}" },
+                    { "key": "doctor_id", "value": "{{doctor_id}}" }
+                  ]
+                },
+                "description": "## Skip No-Show Patient\nRemoves an absent or non-attending patient from the active queue roster."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📅 Appointments Management",
+      "description": "Direct CRUD & Query operations for appointment records in the clinic.",
+      "item": [
+        {
+          "name": "📁 CRUD Operations",
+          "description": "Core appointment management operations.",
+          "item": [
+            {
+              "name": "🔵 GET List All Clinic Appointments",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/appointments/{{clinic_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "appointments", "{{clinic_id}}"]
+                },
+                "description": "## List Appointments\nRetrieves all appointment records for the specified clinic."
+              }
+            },
+            {
+              "name": "🔵 GET Get Appointment by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/appointments/{{clinic_id}}/{{appointment_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "appointments", "{{clinic_id}}", "{{appointment_id}}"]
+                },
+                "description": "## Get Appointment Details\nFetches a single appointment object by its unique UUID."
+              }
+            },
+            {
+              "name": "🟠 PATCH Update Appointment Status",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"completed\",\n  \"cancellation_reason\": null\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/appointments/{{appointment_id}}/status",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "appointments", "{{appointment_id}}", "status"]
+                },
+                "description": "## Update Appointment Status\nModifies appointment status: `scheduled`, `checked_in`, `in_progress`, `completed`, `cancelled`."
+              }
+            }
+          ]
+        },
+        {
+          "name": "📁 Query Operations",
+          "description": "Search, filtering, and query operations for clinic appointments.",
+          "item": [
+            {
+              "name": "🔎 GET Filter Appointments by Date",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/appointments/{{clinic_id}}?date=2026-09-01",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "appointments", "{{clinic_id}}"],
+                  "query": [
+                    { "key": "date", "value": "2026-09-01", "description": "Filter by date (YYYY-MM-DD)" }
+                  ]
+                },
+                "description": "Filters appointments by a specific schedule date."
+              }
+            },
+            {
+              "name": "🏷️ GET Filter Appointments by Doctor",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/appointments/{{clinic_id}}?doctor_id={{doctor_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "appointments", "{{clinic_id}}"],
+                  "query": [
+                    { "key": "doctor_id", "value": "{{doctor_id}}", "description": "Filter by doctor UUID" }
+                  ]
+                },
+                "description": "Filters appointments assigned to a specific physician."
+              }
+            },
+            {
+              "name": "🔍 GET Advanced Query - Date + Doctor Filter",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/appointments/{{clinic_id}}?date=2026-09-01&doctor_id={{doctor_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "appointments", "{{clinic_id}}"],
+                  "query": [
+                    { "key": "date", "value": "2026-09-01" },
+                    { "key": "doctor_id", "value": "{{doctor_id}}" }
+                  ]
+                },
+                "description": "Combined query filtering appointments by both date and doctor."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

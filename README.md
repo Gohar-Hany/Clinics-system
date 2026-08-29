@@ -9,13 +9,14 @@
 [![Redis](https://img.shields.io/badge/Redis-Distributed_Locks-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
 [![Next.js](https://img.shields.io/badge/Next.js-15_App_Router-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
 [![Tests](https://img.shields.io/badge/Tests-39%2F39_Passing_(100%25)-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](backend/run_all_tests.py)
+[![Postman](https://img.shields.io/badge/Postman-v2.1.0_Collection-FF6C37?style=for-the-badge&logo=postman&logoColor=white)](postman/README.md)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 <p align="center">
   <b>Production-grade, resilient clinic management platform featuring autonomous multi-turn LangGraph AI booking agents, Egyptian Arabic dialect NLP, millisecond-level distributed slot locking, and dynamic live queue tracking with rolling average ETA recalculation.</b>
 </p>
 
-[Frontend Guide (العربية)](FRONTEND_INTEGRATION_GUIDE.md) • [Frontend Guide (English)](FRONTEND_INTEGRATION_GUIDE_EN.md) • [Live Swagger Docs](https://3eyadaty-api.up.railway.app/docs) • [Live API Health](https://3eyadaty-api.up.railway.app/health)
+[Frontend Guide (العربية)](FRONTEND_INTEGRATION_GUIDE.md) • [Frontend Guide (English)](FRONTEND_INTEGRATION_GUIDE_EN.md) • [Postman Collection](postman/README.md) • [Live Swagger Docs](https://3eyadaty-api.up.railway.app/docs) • [Live API Health](https://3eyadaty-api.up.railway.app/health)
 
 </div>
 
