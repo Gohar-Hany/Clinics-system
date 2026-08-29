@@ -39,28 +39,29 @@ async def get_patient_queue_position(
         appt_data = json.loads(raw_appt)
         target_appt_id = appt_data.get("id", ident)
 
-    # 2. Try Reference Code lookup (e.g. "REF-C433" or "C433")
+    # 2. Try Reference Code lookup (e.g. "REF-C433" or "C433" or "#5")
     if not appt_data:
-        clean_ref = ident.upper().replace("REF-", "").replace("REF", "").strip()
-        ref_id = await redis_service.client.get(f"ref_code:{clean_ref}")
-        if not ref_id:
-            ref_id = await redis_service.client.get(f"ref_code:REF-{clean_ref}")
-        if ref_id:
-            resolved_id = ref_id.decode() if isinstance(ref_id, bytes) else ref_id
-            raw = await redis_service.client.get(f"appointment:{resolved_id}")
-            if raw:
-                appt_data = json.loads(raw)
-                target_appt_id = appt_data.get("id", resolved_id)
+        clean_ref = ident.upper().replace("REF-", "").replace("REF", "").replace("#", "").strip()
+        if clean_ref:
+            ref_id = await redis_service.client.get(f"ref_code:{clean_ref}")
+            if not ref_id:
+                ref_id = await redis_service.client.get(f"ref_code:REF-{clean_ref}")
+            if ref_id:
+                resolved_id = ref_id.decode() if isinstance(ref_id, bytes) else str(ref_id)
+                raw = await redis_service.client.get(f"appointment:{resolved_id}")
+                if raw:
+                    appt_data = json.loads(raw)
+                    target_appt_id = appt_data.get("id", resolved_id)
 
-    # 3. Try Prefix match on Reference Code / UUID
-    if not appt_data and len(ident) >= 4:
-        keys = await redis_service.client.keys(f"appointment:{ident.lower()}*")
-        if keys:
-            first_key = keys[0].decode() if isinstance(keys[0], bytes) else keys[0]
-            raw = await redis_service.client.get(first_key)
-            if raw:
-                appt_data = json.loads(raw)
-                target_appt_id = appt_data.get("id")
+            # Prefix scan on appointment UUIDs
+            if not appt_data and len(clean_ref) >= 3:
+                all_keys = await redis_service.client.keys(f"appointment:{clean_ref.lower()}*")
+                if all_keys:
+                    key_str = all_keys[0].decode() if isinstance(all_keys[0], bytes) else str(all_keys[0])
+                    raw = await redis_service.client.get(key_str)
+                    if raw:
+                        appt_data = json.loads(raw)
+                        target_appt_id = appt_data.get("id")
 
     # 4. Try Phone Number lookup (e.g. 01284709314)
     if not appt_data:
