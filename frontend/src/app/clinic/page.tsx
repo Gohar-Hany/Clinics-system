@@ -1,8 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import { clinicApi, QueueStateResponse } from "@/services/api";
+import {
+  LayoutDashboard,
+  UserCheck,
+  Play,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
+  Clock,
+  Users,
+  Activity,
+  Calendar,
+} from "lucide-react";
 
 interface Patient {
   id: string;
@@ -11,221 +24,240 @@ interface Patient {
   queue_number: number;
   appointment_time: string;
   status: "scheduled" | "checked_in" | "in_progress" | "completed" | "no_show";
-  started_at?: string;
   duration?: number;
 }
 
-const MOCK_PATIENTS: Patient[] = [
-  { id: "1", name: "أحمد محمد حسن", phone: "01012345678", queue_number: 1, appointment_time: "09:00", status: "completed", duration: 18 },
-  { id: "2", name: "سارة أحمد عبدالله", phone: "01098765432", queue_number: 2, appointment_time: "09:30", status: "completed", duration: 22 },
-  { id: "3", name: "محمد علي إبراهيم", phone: "01122334455", queue_number: 3, appointment_time: "10:00", status: "in_progress", started_at: "10:05" },
-  { id: "4", name: "فاطمة حسن محمود", phone: "01234567890", queue_number: 4, appointment_time: "10:30", status: "checked_in" },
-  { id: "5", name: "يوسف إبراهيم أحمد", phone: "01555666777", queue_number: 5, appointment_time: "11:00", status: "checked_in" },
-  { id: "6", name: "نورا خالد محمد", phone: "01666777888", queue_number: 6, appointment_time: "11:30", status: "scheduled" },
-  { id: "7", name: "عمر حسين سعيد", phone: "01777888999", queue_number: 7, appointment_time: "12:00", status: "scheduled" },
+const INITIAL_PATIENTS: Patient[] = [
+  { id: "1418cb92", name: "أحمد محمد حسن", phone: "01284709314", queue_number: 1, appointment_time: "09:30", status: "in_progress" },
+  { id: "fcc22546", name: "سارة أحمد عبدالله", phone: "01098765432", queue_number: 2, appointment_time: "10:00", status: "checked_in" },
+  { id: "0d0fd8e8", name: "محمد علي إبراهيم", phone: "01122334455", queue_number: 3, appointment_time: "10:30", status: "checked_in" },
+  { id: "685c6f41", name: "فاطمة حسن محمود", phone: "01234567890", queue_number: 4, appointment_time: "11:00", status: "scheduled" },
+  { id: "f1357499", name: "يوسف إبراهيم أحمد", phone: "01555666777", queue_number: 5, appointment_time: "11:30", status: "scheduled" },
+  { id: "c32e9e05", name: "نورا خالد محمد", phone: "01666777888", queue_number: 6, appointment_time: "12:00", status: "scheduled" },
 ];
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  scheduled: { label: "محجوز", color: "text-slate-400", bg: "bg-slate-700/50" },
-  checked_in: { label: "وصل ✅", color: "text-brand-400", bg: "bg-brand-500/10" },
-  in_progress: { label: "جوا الكشف 🔵", color: "text-success-400", bg: "bg-success-500/10" },
-  completed: { label: "خلص", color: "text-slate-500", bg: "bg-slate-800/30" },
-  no_show: { label: "لم يحضر", color: "text-error-400", bg: "bg-error-500/10" },
+  scheduled: { label: "محجوز", color: "text-slate-400", bg: "bg-slate-800" },
+  checked_in: { label: "وصل العيادة ✅", color: "text-brand-400", bg: "bg-brand-500/20" },
+  in_progress: { label: "جوا الكشف 🔵", color: "text-cyan-400", bg: "bg-cyan-500/20" },
+  completed: { label: "انتهى الكشف", color: "text-emerald-400", bg: "bg-emerald-500/20" },
+  no_show: { label: "لم يحضر", color: "text-rose-400", bg: "bg-rose-500/20" },
 };
 
 export default function ClinicDashboard() {
-  const [patients, setPatients] = useState<Patient[]>(MOCK_PATIENTS);
+  const [patients, setPatients] = useState<Patient[]>(INITIAL_PATIENTS);
+  const [queueState, setQueueState] = useState<QueueStateResponse | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  const fetchLiveState = async () => {
+    try {
+      const state = await clinicApi.getQueueState();
+      setQueueState(state);
+    } catch {
+      // Fallback
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveState();
+    const interval = setInterval(fetchLiveState, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleAction = async (patientId: string, action: string, queueNum: number) => {
+    setActionLoading(patientId);
+    try {
+      if (action === "check_in") {
+        await clinicApi.checkIn(patientId);
+      } else if (action === "start") {
+        await clinicApi.startConsultation(patientId, queueNum);
+      } else if (action === "complete") {
+        await clinicApi.completeConsultation(patientId, 20);
+      }
+
+      setPatients((prev) =>
+        prev.map((p) => {
+          if (p.id === patientId) {
+            switch (action) {
+              case "check_in":
+                return { ...p, status: "checked_in" as const };
+              case "start":
+                return { ...p, status: "in_progress" as const };
+              case "complete":
+                return { ...p, status: "completed" as const };
+              case "no_show":
+                return { ...p, status: "no_show" as const };
+              default:
+                return p;
+            }
+          }
+          return p;
+        })
+      );
+      await fetchLiveState();
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const currentServing = patients.find((p) => p.status === "in_progress");
   const waitingCount = patients.filter((p) => p.status === "checked_in").length;
   const completedCount = patients.filter((p) => p.status === "completed").length;
 
-  const handleAction = (patientId: string, action: string) => {
-    setPatients((prev) =>
-      prev.map((p) => {
-        if (p.id === patientId) {
-          switch (action) {
-            case "check_in":
-              return { ...p, status: "checked_in" as const };
-            case "start":
-              return { ...p, status: "in_progress" as const, started_at: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }) };
-            case "complete":
-              return { ...p, status: "completed" as const, duration: 20 };
-            case "no_show":
-              return { ...p, status: "no_show" as const };
-            default:
-              return p;
-          }
-        }
-        return p;
-      })
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-animate flex flex-col">
-      {/* Header */}
-      <header className="glass border-b border-slate-800/50 px-6 py-4 flex items-center gap-4 sticky top-0 z-10">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500 to-brand-500 flex items-center justify-center text-xl shrink-0">
-          🏥
-        </div>
-        <div className="flex-1">
-          <h1 className="font-bold text-lg text-white">لوحة تحكم العيادة</h1>
-          <p className="text-xs text-slate-400">ريسبشن — إدارة الطابور</p>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            href="/"
-            className="px-3 py-2 glass-light rounded-xl text-xs text-slate-400 hover:text-white transition-colors"
-          >
-            ← الرئيسية
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      <Navbar />
 
-      <main className="flex-1 px-6 py-6 max-w-6xl mx-auto w-full">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            {
-              label: "جوا الكشف",
-              value: currentServing?.queue_number ?? "—",
-              sub: currentServing?.name ?? "لا يوجد",
-              icon: "🔵",
-              glow: "glow-brand",
-            },
-            {
-              label: "في الانتظار",
-              value: waitingCount,
-              sub: "مريض وصلوا",
-              icon: "⏳",
-              glow: "",
-            },
-            {
-              label: "خلصوا",
-              value: completedCount,
-              sub: `من ${patients.length} إجمالي`,
-              icon: "✅",
-              glow: "",
-            },
-            {
-              label: "متوسط الكشف",
-              value: "20د",
-              sub: "آخر 20 مريض",
-              icon: "⏱️",
-              glow: "",
-            },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 * i }}
-              className={`glass rounded-2xl p-5 ${stat.glow}`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs text-slate-400">{stat.label}</span>
-                <span className="text-xl">{stat.icon}</span>
-              </div>
-              <p className="text-3xl font-bold text-white">{stat.value}</p>
-              <p className="text-xs text-slate-500 mt-1">{stat.sub}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Patients Table */}
-        <div className="glass rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-800/50">
-            <h2 className="font-semibold text-white">مواعيد اليوم</h2>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+        {/* Title & Live Status */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white">لوحة تحكم الريسبشن وإدارة الطابور</h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              متابعة وصول المرضى، بدء الكشوفات، وتحديث شاشات الانتظار لحظياً في السحابة.
+            </p>
           </div>
-          <div className="divide-y divide-slate-800/30">
-            <AnimatePresence>
-              {patients.map((patient, i) => {
-                const config = statusConfig[patient.status];
-                const isActive = patient.status === "in_progress";
+          <button
+            onClick={fetchLiveState}
+            className="self-start sm:self-auto px-4 py-2 rounded-xl glass-light border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-2 transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            تحديث البيانات
+          </button>
+        </div>
 
-                return (
-                  <motion.div
-                    key={patient.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.03 * i }}
-                    className={`flex items-center gap-4 px-6 py-4 transition-colors ${
-                      isActive ? "bg-success-500/5" : "hover:bg-slate-800/30"
-                    }`}
-                  >
-                    {/* Queue Number */}
-                    <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shrink-0 ${
-                        isActive
-                          ? "bg-success-500/20 text-success-400"
-                          : patient.status === "completed"
-                          ? "bg-slate-800/50 text-slate-600"
-                          : "bg-brand-500/10 text-brand-400"
-                      }`}
-                    >
-                      {patient.queue_number}
-                    </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="glass rounded-2xl p-5 border border-brand-500/30 glow-brand">
+            <span className="text-xs text-slate-400 mb-1 block">جوا الكشف الآن</span>
+            <p className="text-3xl font-black text-brand-400">
+              {currentServing ? `#${currentServing.queue_number}` : "—"}
+            </p>
+            <span className="text-xs text-slate-300 font-medium truncate block mt-1">
+              {currentServing?.name || "لا يوجد كشف جاري"}
+            </span>
+          </div>
 
-                    {/* Patient Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-medium ${patient.status === "completed" ? "text-slate-500" : "text-white"}`}>
-                        {patient.name}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {patient.phone} • الموعد: {patient.appointment_time}
-                        {patient.duration ? ` • المدة: ${patient.duration}د` : ""}
-                      </p>
-                    </div>
+          <div className="glass rounded-2xl p-5 border border-slate-800">
+            <span className="text-xs text-slate-400 mb-1 block">في غرفة الانتظار</span>
+            <p className="text-3xl font-black text-cyan-400">{waitingCount}</p>
+            <span className="text-xs text-slate-500 block mt-1">مرضى جاهزون للدخول</span>
+          </div>
 
-                    {/* Status Badge */}
-                    <span
-                      className={`px-3 py-1 rounded-lg text-xs font-medium ${config.color} ${config.bg}`}
-                    >
-                      {isActive && (
-                        <span className="inline-block w-2 h-2 rounded-full bg-success-400 pulse-dot ml-1.5" />
-                      )}
-                      {config.label}
-                    </span>
+          <div className="glass rounded-2xl p-5 border border-slate-800">
+            <span className="text-xs text-slate-400 mb-1 block">تم الكشف عليهم</span>
+            <p className="text-3xl font-black text-emerald-400">{completedCount}</p>
+            <span className="text-xs text-slate-500 block mt-1">حالات مكتملة اليوم</span>
+          </div>
 
-                    {/* Actions */}
-                    <div className="flex gap-2 shrink-0">
-                      {patient.status === "scheduled" && (
-                        <button
-                          onClick={() => handleAction(patient.id, "check_in")}
-                          className="px-3 py-1.5 bg-brand-600/80 hover:bg-brand-600 rounded-lg text-xs font-medium transition-colors"
+          <div className="glass rounded-2xl p-5 border border-slate-800">
+            <span className="text-xs text-slate-400 mb-1 block">متوسط مدة الكشف</span>
+            <p className="text-3xl font-black text-accent-400">
+              {queueState?.avg_consultation_minutes || 20} دقيقة
+            </p>
+            <span className="text-xs text-slate-500 block mt-1">حساب ديناميكي متجدد</span>
+          </div>
+        </div>
+
+        {/* Patients Queue Roster Table */}
+        <div className="glass rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-lg text-white flex items-center gap-2">
+              <Users className="w-5 h-5 text-brand-400" />
+              كشف قائمة المرضى اليوم (Live Patient Roster)
+            </h3>
+            <span className="text-xs text-slate-400">
+              إجمالي المسجلين: <strong>{patients.length}</strong>
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-right text-xs sm:text-sm">
+              <thead>
+                <tr className="border-b border-slate-800 text-slate-400">
+                  <th className="pb-4 font-semibold">الدور</th>
+                  <th className="pb-4 font-semibold">اسم المريض</th>
+                  <th className="pb-4 font-semibold">رقم الموبايل</th>
+                  <th className="pb-4 font-semibold">الموعد</th>
+                  <th className="pb-4 font-semibold">الحالة</th>
+                  <th className="pb-4 font-semibold text-center">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60">
+                {patients.map((p) => {
+                  const status = statusConfig[p.status] || statusConfig.scheduled;
+                  const isLoading = actionLoading === p.id;
+                  return (
+                    <tr key={p.id} className="text-slate-200 hover:bg-slate-900/40 transition-colors">
+                      <td className="py-4">
+                        <span className="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-brand-400">
+                          #{p.queue_number}
+                        </span>
+                      </td>
+                      <td className="py-4 font-bold text-white">{p.name}</td>
+                      <td className="py-4 font-mono text-slate-400 text-xs">{p.phone}</td>
+                      <td className="py-4 font-semibold text-slate-300">{p.appointment_time}</td>
+                      <td className="py-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${status.bg} ${status.color}`}
                         >
-                          تسجيل وصول
-                        </button>
-                      )}
-                      {patient.status === "checked_in" && (
-                        <button
-                          onClick={() => handleAction(patient.id, "start")}
-                          className="px-3 py-1.5 bg-success-500/80 hover:bg-success-500 rounded-lg text-xs font-medium transition-colors"
-                        >
-                          ابدأ الكشف
-                        </button>
-                      )}
-                      {patient.status === "in_progress" && (
-                        <button
-                          onClick={() => handleAction(patient.id, "complete")}
-                          className="px-3 py-1.5 bg-accent-600/80 hover:bg-accent-600 rounded-lg text-xs font-medium transition-colors"
-                        >
-                          خلّص الكشف
-                        </button>
-                      )}
-                      {(patient.status === "scheduled" || patient.status === "checked_in") && (
-                        <button
-                          onClick={() => handleAction(patient.id, "no_show")}
-                          className="px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-xs font-medium text-slate-400 transition-colors"
-                        >
-                          لم يحضر
-                        </button>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+                          {status.label}
+                        </span>
+                      </td>
+                      <td className="py-4 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          {p.status === "scheduled" && (
+                            <button
+                              onClick={() => handleAction(p.id, "check_in", p.queue_number)}
+                              disabled={isLoading}
+                              className="px-3 py-1.5 rounded-xl bg-brand-500/20 hover:bg-brand-500/30 text-brand-300 text-xs font-semibold flex items-center gap-1 transition-colors"
+                            >
+                              <UserCheck className="w-3.5 h-3.5" />
+                              تسجيل وصول
+                            </button>
+                          )}
+
+                          {p.status === "checked_in" && (
+                            <button
+                              onClick={() => handleAction(p.id, "start", p.queue_number)}
+                              disabled={isLoading}
+                              className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold flex items-center gap-1 transition-colors shadow-md shadow-cyan-500/20"
+                            >
+                              <Play className="w-3.5 h-3.5" />
+                              نداء للكشف
+                            </button>
+                          )}
+
+                          {p.status === "in_progress" && (
+                            <button
+                              onClick={() => handleAction(p.id, "complete", p.queue_number)}
+                              disabled={isLoading}
+                              className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-1 transition-colors shadow-md shadow-emerald-500/20"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              إنهاء الكشف
+                            </button>
+                          )}
+
+                          {p.status !== "completed" && (
+                            <button
+                              onClick={() => handleAction(p.id, "no_show", p.queue_number)}
+                              disabled={isLoading}
+                              className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                              title="لم يحضر"
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </main>
