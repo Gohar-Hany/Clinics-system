@@ -52,9 +52,10 @@ graph TD
 ## 2. بيئة التشغيل والإعدادات الأساسية
 
 ### عناوين الخادم والتوثيق التفاعلي (Base URLs & Interactive Docs):
+- **الخادم السحابي الحي (Live Production API):** `https://backend-production-e1e33.up.railway.app` 🌍
 - **الخادم المحلي (Local API):** `http://localhost:8000`
-- **واجهة تجربة الـ APIs التفاعلية (Interactive Swagger UI):** `http://localhost:8000/docs` 🚀 *(يمكنه فتح هذا الرابط وتجربة أي API بضغطة زر مباشرة من المتصفح)*
-- **توثيق ReDoc المتقدم:** `http://localhost:8000/redoc`
+- **واجهة تجربة الـ APIs التفاعلية الحية (Live Interactive Swagger UI):** `https://backend-production-e1e33.up.railway.app/docs` 🚀
+- **توثيق ReDoc المتقدم:** `https://backend-production-e1e33.up.railway.app/redoc`
 - **الترويسات الإجبارية (Headers):**
   ```http
   Content-Type: application/json
