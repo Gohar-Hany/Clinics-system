@@ -1,0 +1,461 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Egyptian pharmacy drug database for entity normalization",
+    "last_updated": "2026-08-28",
+    "total_entries": 50,
+    "note": "Starting with common medications. Expand as needed."
+  },
+  "drugs": [
+    {
+      "brand_name": "Augmentin",
+      "generic_name": "Amoxicillin/Clavulanate",
+      "active_ingredients": ["amoxicillin", "clavulanic acid"],
+      "dosages": ["156mg/5ml", "228mg/5ml", "312mg/5ml", "457mg/5ml", "625mg", "1g"],
+      "forms": ["tablet", "suspension"],
+      "category": "antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Amoxil",
+      "generic_name": "Amoxicillin",
+      "active_ingredients": ["amoxicillin"],
+      "dosages": ["250mg", "500mg", "125mg/5ml", "250mg/5ml"],
+      "forms": ["capsule", "suspension"],
+      "category": "antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Clavimox",
+      "generic_name": "Amoxicillin/Clavulanate",
+      "active_ingredients": ["amoxicillin", "clavulanic acid"],
+      "dosages": ["625mg", "1g"],
+      "forms": ["tablet"],
+      "category": "antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Zithromax",
+      "generic_name": "Azithromycin",
+      "active_ingredients": ["azithromycin"],
+      "dosages": ["200mg/5ml", "250mg", "500mg"],
+      "forms": ["tablet", "capsule", "suspension"],
+      "category": "antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Zithrocin",
+      "generic_name": "Azithromycin",
+      "active_ingredients": ["azithromycin"],
+      "dosages": ["250mg", "500mg"],
+      "forms": ["capsule"],
+      "category": "antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Cipro",
+      "generic_name": "Ciprofloxacin",
+      "active_ingredients": ["ciprofloxacin"],
+      "dosages": ["250mg", "500mg", "750mg"],
+      "forms": ["tablet"],
+      "category": "antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Flagyl",
+      "generic_name": "Metronidazole",
+      "active_ingredients": ["metronidazole"],
+      "dosages": ["250mg", "500mg", "125mg/5ml"],
+      "forms": ["tablet", "suspension", "suppository"],
+      "category": "antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Cefotrix",
+      "generic_name": "Ceftriaxone",
+      "active_ingredients": ["ceftriaxone"],
+      "dosages": ["250mg", "500mg", "1g"],
+      "forms": ["injection"],
+      "category": "antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Panadol",
+      "generic_name": "Paracetamol",
+      "active_ingredients": ["paracetamol"],
+      "dosages": ["500mg", "120mg/5ml", "250mg/5ml"],
+      "forms": ["tablet", "syrup", "suppository"],
+      "category": "analgesic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Cataflam",
+      "generic_name": "Diclofenac Potassium",
+      "active_ingredients": ["diclofenac potassium"],
+      "dosages": ["25mg", "50mg"],
+      "forms": ["tablet"],
+      "category": "nsaid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Voltaren",
+      "generic_name": "Diclofenac Sodium",
+      "active_ingredients": ["diclofenac sodium"],
+      "dosages": ["25mg", "50mg", "75mg", "100mg"],
+      "forms": ["tablet", "injection", "gel", "suppository"],
+      "category": "nsaid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Brufen",
+      "generic_name": "Ibuprofen",
+      "active_ingredients": ["ibuprofen"],
+      "dosages": ["200mg", "400mg", "600mg", "100mg/5ml"],
+      "forms": ["tablet", "syrup"],
+      "category": "nsaid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Ketofan",
+      "generic_name": "Ketoprofen",
+      "active_ingredients": ["ketoprofen"],
+      "dosages": ["50mg", "100mg", "200mg"],
+      "forms": ["capsule", "suppository"],
+      "category": "nsaid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Nexium",
+      "generic_name": "Esomeprazole",
+      "active_ingredients": ["esomeprazole"],
+      "dosages": ["20mg", "40mg"],
+      "forms": ["capsule", "sachet"],
+      "category": "ppi",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Pantoloc",
+      "generic_name": "Pantoprazole",
+      "active_ingredients": ["pantoprazole"],
+      "dosages": ["20mg", "40mg"],
+      "forms": ["tablet"],
+      "category": "ppi",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Losec",
+      "generic_name": "Omeprazole",
+      "active_ingredients": ["omeprazole"],
+      "dosages": ["20mg", "40mg"],
+      "forms": ["capsule"],
+      "category": "ppi",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Antinal",
+      "generic_name": "Nifuroxazide",
+      "active_ingredients": ["nifuroxazide"],
+      "dosages": ["200mg", "220mg/5ml"],
+      "forms": ["capsule", "suspension"],
+      "category": "antidiarrheal",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Motilium",
+      "generic_name": "Domperidone",
+      "active_ingredients": ["domperidone"],
+      "dosages": ["10mg", "5mg/5ml"],
+      "forms": ["tablet", "suspension"],
+      "category": "antiemetic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Aerius",
+      "generic_name": "Desloratadine",
+      "active_ingredients": ["desloratadine"],
+      "dosages": ["5mg", "2.5mg/5ml"],
+      "forms": ["tablet", "syrup"],
+      "category": "antihistamine",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Zyrtec",
+      "generic_name": "Cetirizine",
+      "active_ingredients": ["cetirizine"],
+      "dosages": ["10mg", "5mg/5ml"],
+      "forms": ["tablet", "syrup", "drops"],
+      "category": "antihistamine",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Telfast",
+      "generic_name": "Fexofenadine",
+      "active_ingredients": ["fexofenadine"],
+      "dosages": ["120mg", "180mg"],
+      "forms": ["tablet"],
+      "category": "antihistamine",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Ventolin",
+      "generic_name": "Salbutamol",
+      "active_ingredients": ["salbutamol"],
+      "dosages": ["2mg", "4mg", "2mg/5ml", "100mcg/dose"],
+      "forms": ["tablet", "syrup", "inhaler", "nebulizer"],
+      "category": "bronchodilator",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Symbicort",
+      "generic_name": "Budesonide/Formoterol",
+      "active_ingredients": ["budesonide", "formoterol"],
+      "dosages": ["80/4.5mcg", "160/4.5mcg", "320/9mcg"],
+      "forms": ["inhaler"],
+      "category": "bronchodilator",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Concor",
+      "generic_name": "Bisoprolol",
+      "active_ingredients": ["bisoprolol"],
+      "dosages": ["2.5mg", "5mg", "10mg"],
+      "forms": ["tablet"],
+      "category": "beta_blocker",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Lipitor",
+      "generic_name": "Atorvastatin",
+      "active_ingredients": ["atorvastatin"],
+      "dosages": ["10mg", "20mg", "40mg", "80mg"],
+      "forms": ["tablet"],
+      "category": "statin",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Crestor",
+      "generic_name": "Rosuvastatin",
+      "active_ingredients": ["rosuvastatin"],
+      "dosages": ["5mg", "10mg", "20mg", "40mg"],
+      "forms": ["tablet"],
+      "category": "statin",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Glucophage",
+      "generic_name": "Metformin",
+      "active_ingredients": ["metformin"],
+      "dosages": ["500mg", "850mg", "1000mg"],
+      "forms": ["tablet"],
+      "category": "antidiabetic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Amaryl",
+      "generic_name": "Glimepiride",
+      "active_ingredients": ["glimepiride"],
+      "dosages": ["1mg", "2mg", "3mg", "4mg"],
+      "forms": ["tablet"],
+      "category": "antidiabetic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Januvia",
+      "generic_name": "Sitagliptin",
+      "active_ingredients": ["sitagliptin"],
+      "dosages": ["25mg", "50mg", "100mg"],
+      "forms": ["tablet"],
+      "category": "antidiabetic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Tritace",
+      "generic_name": "Ramipril",
+      "active_ingredients": ["ramipril"],
+      "dosages": ["1.25mg", "2.5mg", "5mg", "10mg"],
+      "forms": ["tablet"],
+      "category": "ace_inhibitor",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Cozaar",
+      "generic_name": "Losartan",
+      "active_ingredients": ["losartan"],
+      "dosages": ["25mg", "50mg", "100mg"],
+      "forms": ["tablet"],
+      "category": "arb",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Norvasc",
+      "generic_name": "Amlodipine",
+      "active_ingredients": ["amlodipine"],
+      "dosages": ["5mg", "10mg"],
+      "forms": ["tablet"],
+      "category": "calcium_channel_blocker",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Aspocid",
+      "generic_name": "Aspirin",
+      "active_ingredients": ["acetylsalicylic acid"],
+      "dosages": ["75mg", "100mg"],
+      "forms": ["tablet"],
+      "category": "antiplatelet",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Plavix",
+      "generic_name": "Clopidogrel",
+      "active_ingredients": ["clopidogrel"],
+      "dosages": ["75mg"],
+      "forms": ["tablet"],
+      "category": "antiplatelet",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Clexane",
+      "generic_name": "Enoxaparin",
+      "active_ingredients": ["enoxaparin"],
+      "dosages": ["20mg", "40mg", "60mg", "80mg"],
+      "forms": ["injection"],
+      "category": "anticoagulant",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Xanax",
+      "generic_name": "Alprazolam",
+      "active_ingredients": ["alprazolam"],
+      "dosages": ["0.25mg", "0.5mg", "1mg"],
+      "forms": ["tablet"],
+      "category": "anxiolytic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Cipralex",
+      "generic_name": "Escitalopram",
+      "active_ingredients": ["escitalopram"],
+      "dosages": ["5mg", "10mg", "20mg"],
+      "forms": ["tablet"],
+      "category": "ssri",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Lyrica",
+      "generic_name": "Pregabalin",
+      "active_ingredients": ["pregabalin"],
+      "dosages": ["25mg", "50mg", "75mg", "150mg", "300mg"],
+      "forms": ["capsule"],
+      "category": "neuropathic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Eltroxin",
+      "generic_name": "Levothyroxine",
+      "active_ingredients": ["levothyroxine"],
+      "dosages": ["25mcg", "50mcg", "75mcg", "100mcg"],
+      "forms": ["tablet"],
+      "category": "thyroid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Prednisolone",
+      "generic_name": "Prednisolone",
+      "active_ingredients": ["prednisolone"],
+      "dosages": ["5mg", "20mg", "15mg/5ml"],
+      "forms": ["tablet", "syrup"],
+      "category": "corticosteroid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Dexamethasone",
+      "generic_name": "Dexamethasone",
+      "active_ingredients": ["dexamethasone"],
+      "dosages": ["0.5mg", "4mg", "8mg"],
+      "forms": ["tablet", "injection"],
+      "category": "corticosteroid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Fucidin",
+      "generic_name": "Fusidic Acid",
+      "active_ingredients": ["fusidic acid"],
+      "dosages": ["2%"],
+      "forms": ["cream", "ointment"],
+      "category": "topical_antibiotic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Dermovate",
+      "generic_name": "Clobetasol Propionate",
+      "active_ingredients": ["clobetasol propionate"],
+      "dosages": ["0.05%"],
+      "forms": ["cream", "ointment"],
+      "category": "topical_corticosteroid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Tobradex",
+      "generic_name": "Tobramycin/Dexamethasone",
+      "active_ingredients": ["tobramycin", "dexamethasone"],
+      "dosages": ["0.3%/0.1%"],
+      "forms": ["eye_drops", "eye_ointment"],
+      "category": "ophthalmic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Otrivin",
+      "generic_name": "Xylometazoline",
+      "active_ingredients": ["xylometazoline"],
+      "dosages": ["0.05%", "0.1%"],
+      "forms": ["nasal_spray", "nasal_drops"],
+      "category": "decongestant",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Prospan",
+      "generic_name": "Ivy Leaf Extract",
+      "active_ingredients": ["hedera helix"],
+      "dosages": ["35mg/5ml", "65mg/5ml"],
+      "forms": ["syrup"],
+      "category": "cough_suppressant",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Mucosol",
+      "generic_name": "Carbocisteine",
+      "active_ingredients": ["carbocisteine"],
+      "dosages": ["250mg/5ml", "375mg/5ml"],
+      "forms": ["syrup"],
+      "category": "mucolytic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Gaviscon",
+      "generic_name": "Sodium Alginate/Sodium Bicarbonate",
+      "active_ingredients": ["sodium alginate", "sodium bicarbonate"],
+      "dosages": ["500mg/267mg/10ml"],
+      "forms": ["suspension", "tablet"],
+      "category": "antacid",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Buscopan",
+      "generic_name": "Hyoscine Butylbromide",
+      "active_ingredients": ["hyoscine butylbromide"],
+      "dosages": ["10mg", "20mg"],
+      "forms": ["tablet", "injection"],
+      "category": "antispasmodic",
+      "available_in_egypt": true
+    },
+    {
+      "brand_name": "Vitamin D3",
+      "generic_name": "Cholecalciferol",
+      "active_ingredients": ["cholecalciferol"],
+      "dosages": ["1000IU", "5000IU", "10000IU", "50000IU"],
+      "forms": ["tablet", "capsule", "drops"],
+      "category": "vitamin",
+      "available_in_egypt": true
+    }
+  ]
+}

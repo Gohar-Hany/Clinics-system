@@ -1,0 +1,51 @@
+# === Web Framework ===
+fastapi[standard]==0.115.*
+uvicorn[standard]==0.34.*
+python-multipart==0.0.*
+
+# === LangGraph + LangChain ===
+langgraph==0.4.*
+langchain==0.3.*
+langchain-openai==0.3.*
+langchain-community==0.3.*
+langgraph-checkpoint-postgres==2.0.*
+
+# === Database ===
+sqlalchemy[asyncio]==2.0.*
+asyncpg==0.30.*
+psycopg[binary,pool]==3.2.*
+alembic==1.14.*
+
+# === Redis ===
+redis[hiredis]==5.2.*
+
+# === Celery (Task Queue) ===
+celery[redis]==5.4.*
+
+# === Supabase ===
+supabase==2.11.*
+
+# === AI / LLM ===
+openai==1.60.*
+httpx==0.28.*
+
+# === Search ===
+tavily-python==0.5.*
+
+# === Speech-to-Text ===
+google-cloud-speech==2.28.*
+
+# === Data Validation ===
+pydantic==2.10.*
+pydantic-settings==2.7.*
+
+# === Utilities ===
+python-dotenv==1.0.*
+python-jose[cryptography]==3.3.*
+passlib[bcrypt]==1.7.*
+thefuzz[speedup]==0.22.*
+
+# === Testing ===
+pytest==8.3.*
+pytest-asyncio==0.24.*
+httpx==0.28.*
