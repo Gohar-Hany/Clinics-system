@@ -5,6 +5,48 @@
     "description": "# 🏥 3eyadaty (عيادتي) API Documentation\n\n## Overview\nComplete Enterprise REST API for **3eyadaty**, an autonomous AI-powered clinic management and real-time queue platform built with **FastAPI**, **LangGraph**, **Redis Distributed Locks**, and **PostgreSQL**.\n\n## Environments\n- **Production**: `{{prod_url}}` (https://3eyadaty-api.up.railway.app)\n- **Development**: `{{base_url}}` (http://localhost:8000)\n\n## Authentication & Headers\n- **Public Endpoints** (`/chat`, `/queue/position/...`, `/health`): No token required.\n- **Clinic Protected Endpoints** (`/queue/state/...`, queue operations): Requires header `X-Clinic-Token: {{clinic_token}}`.\n\n## Response Standard\nAll API endpoints return standard JSON responses with descriptive error keys (`slot_taken`, `already_booked_today`, `off_day`, `past_date`, `unauthorized`).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://3eyadaty-api.up.railway.app",
+      "type": "string"
+    },
+    {
+      "key": "clinic_id",
+      "value": "default-clinic",
+      "type": "string"
+    },
+    {
+      "key": "doctor_id",
+      "value": "default-doctor",
+      "type": "string"
+    },
+    {
+      "key": "patient_id",
+      "value": "default-patient",
+      "type": "string"
+    },
+    {
+      "key": "clinic_token",
+      "value": "clinic-secret-2026",
+      "type": "string"
+    },
+    {
+      "key": "patient_phone",
+      "value": "01284709314",
+      "type": "string"
+    },
+    {
+      "key": "thread_id",
+      "value": "postman-chat-thread-01",
+      "type": "string"
+    },
+    {
+      "key": "appointment_id",
+      "value": "c43345fa-f1c9-418c-8bed-6e3aedd9d1d2",
+      "type": "string"
+    }
+  ],
   "item": [
     {
       "name": "🏥 System Health",
