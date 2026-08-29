@@ -85,7 +85,7 @@ async def get_my_appointments(
         patient_phone: Patient's phone number
 
     Returns:
-        Dict with list of appointments (date, time, status, queue_number)
+        Dict with list of appointments (date, time, status, queue_number, reference_code)
     """
     appts = await appointment_service.get_patient_appointments(patient_phone)
     if not appts:
@@ -96,12 +96,26 @@ async def get_my_appointments(
             "message": f"لا توجد أي حجوزات مسجلة برقم الهاتف {patient_phone} حالياً."
         }
 
+    formatted_appts = []
+    for a in appts:
+        short_ref = a.get("id", "")[:4].upper() if a.get("id") else "CONF"
+        ref_code = f"REF-{short_ref}"
+        formatted_appts.append({
+            "appointment_id": a.get("id"),
+            "reference_code": ref_code,
+            "date": a.get("date"),
+            "time": a.get("time"),
+            "status": a.get("status"),
+            "queue_number": a.get("queue_number", 1),
+            "doctor_id": a.get("doctor_id", "default-doctor"),
+        })
+
     return {
         "success": True,
         "patient_phone": patient_phone,
-        "appointments": appts,
-        "total": len(appts),
-        "message": f"تم العثور على {len(appts)} حجز مسجل برقمك."
+        "appointments": formatted_appts,
+        "total": len(formatted_appts),
+        "message": f"تم العثور على {len(formatted_appts)} حجز مسجل برقمك."
     }
 
 
