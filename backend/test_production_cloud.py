@@ -21,7 +21,7 @@ YELLOW = "\033[93m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
-PROD_URL = "https://backend-production-e1e33.up.railway.app"
+PROD_URL = "https://3eyadaty-api.up.railway.app"
 client = httpx.Client(base_url=PROD_URL, timeout=60.0)
 
 test_results = []

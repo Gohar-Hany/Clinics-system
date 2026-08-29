@@ -56,10 +56,10 @@ graph TD
 ## 2. Environment Configuration & Base URLs
 
 ### Base URLs & Interactive Documentation:
-- **Live Cloud Production API:** `https://backend-production-e1e33.up.railway.app` 🌍
+- **Live Cloud Production API:** `https://3eyadaty-api.up.railway.app` 🌍
 - **Local API Base URL:** `http://localhost:8000`
-- **Live Interactive Swagger UI:** `https://backend-production-e1e33.up.railway.app/docs` 🚀
-- **Live ReDoc Documentation:** `https://backend-production-e1e33.up.railway.app/redoc`
+- **Live Interactive Swagger UI:** `https://3eyadaty-api.up.railway.app/docs` 🚀
+- **Live ReDoc Documentation:** `https://3eyadaty-api.up.railway.app/redoc`
 - **Required Headers:**
   ```http
   Content-Type: application/json
