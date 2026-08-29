@@ -12,6 +12,8 @@ from app.core.security import verify_clinic_token
 router = APIRouter()
 
 
+import json
+
 @router.get("/position/{clinic_id}/{doctor_id}/{appointment_id}")
 async def get_patient_queue_position(
     clinic_id: str,
@@ -21,18 +23,39 @@ async def get_patient_queue_position(
 ) -> QueuePositionResponse:
     """
     Get patient's current position in the queue.
-    Reads directly from Redis SSOT — no database query needed.
+    Reads directly from Redis SSOT — auto-resolves appointment scheduled date if not passed.
     """
-    today = queue_date or str(date_type.today())
+    target_date = queue_date
 
+    # 1. If date not explicitly passed by frontend, look up the appointment record in Redis
+    raw_appt = await redis_service.client.get(f"appointment:{appointment_id}")
+    appt_data = json.loads(raw_appt) if raw_appt else None
+
+    if not target_date and appt_data:
+        target_date = appt_data.get("date")
+
+    target_date = target_date or str(date_type.today())
+
+    # 2. Query Redis queue SSOT for this date
     result = await redis_service.get_queue_position(
         clinic_id=clinic_id,
         doctor_id=doctor_id,
-        date=today,
+        date=target_date,
         appointment_id=appointment_id,
     )
 
     if "error" in result:
+        # 3. Fallback: if appointment exists in Redis but queue state is pending
+        if appt_data:
+            queue_num = appt_data.get("queue_number", 1)
+            return QueuePositionResponse(
+                queue_number=queue_num,
+                current_serving=0,
+                patients_ahead=max(0, queue_num - 1),
+                total_in_queue=queue_num,
+                avg_consultation_minutes=20,
+                estimated_wait_minutes=max(0, queue_num - 1) * 20,
+            )
         raise HTTPException(status_code=404, detail="المريض مش في الطابور")
 
     return QueuePositionResponse(**result)
