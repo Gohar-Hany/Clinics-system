@@ -258,8 +258,10 @@ class AppointmentService:
             appointment_id = str(uuid.uuid4())
             queue_number = await redis_service.get_next_queue_number(clinic_id, doctor_id, date_str)
 
+            ref_code = f"REF-{appointment_id[:4].upper()}"
             appt_data = {
                 "id": appointment_id,
+                "reference_code": ref_code,
                 "patient_phone": patient_phone,
                 "patient_id": patient_id,
                 "doctor_id": doctor_id,
@@ -274,6 +276,8 @@ class AppointmentService:
 
             # 8. Save appointment & mark slot as permanently booked
             await redis_service.client.set(self._appointment_key(appointment_id), json.dumps(appt_data))
+            await redis_service.client.set(f"ref_code:{appointment_id[:4].upper()}", appointment_id)
+            await redis_service.client.set(f"ref_code:{ref_code}", appointment_id)
             await redis_service.client.sadd(self._doctor_date_slots_key(doctor_id, date_str), time_str)
             await redis_service.client.set(self._slot_key(doctor_id, date_str, time_str), appointment_id)
             await redis_service.client.sadd(self._patient_appointments_key(patient_phone), appointment_id)
@@ -281,16 +285,17 @@ class AppointmentService:
             # 9. Add to live queue
             await redis_service.add_to_queue(clinic_id, doctor_id, date_str, appointment_id, queue_number)
 
-            logger.info(f"Appointment booked: {appointment_id} for {patient_phone} at {date_str} {time_str} (Queue #{queue_number})")
+            logger.info(f"Appointment booked: {appointment_id} ({ref_code}) for {patient_phone} at {date_str} {time_str} (Queue #{queue_number})")
 
             return {
                 "success": True,
                 "appointment_id": appointment_id,
+                "reference_code": ref_code,
                 "queue_number": queue_number,
                 "doctor_id": doctor_id,
                 "date": date_str,
                 "time": time_str,
-                "message": f"تم الحجز بنجاح ✅ يوم {date_str} الساعة {time_str}. رقمك في الطابور: {queue_number}",
+                "message": f"تم الحجز بنجاح ✅ يوم {date_str} الساعة {time_str}. رقمك في الطابور: {queue_number} (كود الحجز: {ref_code})",
             }
         finally:
             await lock_service.release_slot_lock(doctor_id, date_str, time_str)
