@@ -37,11 +37,11 @@ const INITIAL_PATIENTS: Patient[] = [
 ];
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  scheduled: { label: "محجوز", color: "text-slate-600", bg: "bg-slate-100 border border-slate-200" },
-  checked_in: { label: "وصل العيادة ✅", color: "text-teal-800", bg: "bg-teal-50 border border-teal-200" },
-  in_progress: { label: "جوا الكشف 🔵", color: "text-sky-800", bg: "bg-sky-50 border border-sky-200" },
-  completed: { label: "انتهى الكشف", color: "text-emerald-800", bg: "bg-emerald-50 border border-emerald-200" },
-  no_show: { label: "لم يحضر", color: "text-rose-800", bg: "bg-rose-50 border border-rose-200" },
+  scheduled: { label: "محجوز", color: "text-slate-700", bg: "bg-slate-100 border border-slate-300" },
+  checked_in: { label: "وصل العيادة ✅", color: "text-teal-900", bg: "bg-teal-100 border border-teal-300" },
+  in_progress: { label: "جوا الكشف 🔵", color: "text-sky-900", bg: "bg-sky-100 border border-sky-300" },
+  completed: { label: "انتهى الكشف", color: "text-emerald-900", bg: "bg-emerald-100 border border-emerald-300" },
+  no_show: { label: "لم يحضر", color: "text-rose-900", bg: "bg-rose-100 border border-rose-300" },
 };
 
 export default function ClinicDashboard() {
@@ -107,23 +107,23 @@ export default function ClinicDashboard() {
   const completedCount = patients.filter((p) => p.status === "completed").length;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
-        {/* Title & Live Status */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {/* Title Card */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-md">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900">لوحة تحكم الريسبشن وإدارة الطابور</h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
               متابعة وصول المرضى، بدء الكشوفات، وتحديث شاشات الانتظار لحظياً في السحابة.
             </p>
           </div>
           <button
             onClick={fetchLiveState}
-            className="self-start sm:self-auto px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 hover:text-slate-900 flex items-center gap-2 transition-colors shadow-2xs"
+            className="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-xs font-black text-slate-800 flex items-center gap-2 transition-colors shadow-2xs"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className="w-3.5 h-3.5 text-teal-700" />
             تحديث البيانات
           </button>
         </div>
@@ -131,77 +131,77 @@ export default function ClinicDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-3xl p-5 border-2 border-teal-500 shadow-md">
-            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1 block">جوا الكشف الآن</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1 block">جوا الكشف الآن</span>
             <p className="text-4xl font-black text-teal-700">
               {currentServing ? `#${currentServing.queue_number}` : "—"}
             </p>
-            <span className="text-xs text-slate-800 font-bold truncate block mt-1.5">
+            <span className="text-xs text-slate-900 font-black truncate block mt-2">
               {currentServing?.name || "لا يوجد كشف جاري"}
             </span>
           </div>
 
           <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
-            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1 block">في غرفة الانتظار</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1 block">في غرفة الانتظار</span>
             <p className="text-4xl font-black text-sky-700">{waitingCount}</p>
-            <span className="text-xs text-slate-500 font-medium block mt-1.5">مرضى جاهزون للدخول</span>
+            <span className="text-xs text-slate-600 font-bold block mt-2">مرضى جاهزون للدخول</span>
           </div>
 
           <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
-            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1 block">تم الكشف عليهم</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1 block">تم الكشف عليهم</span>
             <p className="text-4xl font-black text-emerald-700">{completedCount}</p>
-            <span className="text-xs text-slate-500 font-medium block mt-1.5">حالات مكتملة اليوم</span>
+            <span className="text-xs text-slate-600 font-bold block mt-2">حالات مكتملة اليوم</span>
           </div>
 
           <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
-            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1 block">متوسط مدة الكشف</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1 block">متوسط مدة الكشف</span>
             <p className="text-4xl font-black text-indigo-700">
-              {queueState?.avg_consultation_minutes || 20} <span className="text-xl">د</span>
+              {queueState?.avg_consultation_minutes || 20} <span className="text-xl">دقيقة</span>
             </p>
-            <span className="text-xs text-slate-500 font-medium block mt-1.5">حساب ديناميكي متجدد</span>
+            <span className="text-xs text-slate-600 font-bold block mt-2">حساب ديناميكي متجدد</span>
           </div>
         </div>
 
         {/* Patients Queue Roster Table */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md">
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-            <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
+            <h2 className="font-black text-xl text-slate-900 flex items-center gap-2">
               <Users className="w-5 h-5 text-teal-600" />
               كشف قائمة المرضى اليوم (Live Patient Roster)
-            </h3>
-            <span className="text-xs font-semibold text-slate-600 px-3 py-1 rounded-lg bg-slate-100 border border-slate-200">
-              إجمالي المسجلين: <strong className="text-slate-900">{patients.length}</strong>
+            </h2>
+            <span className="text-xs font-black text-slate-800 px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-300">
+              إجمالي المسجلين: <strong className="text-teal-700 text-sm">{patients.length}</strong>
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-right text-xs sm:text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-500 bg-slate-50">
-                  <th className="py-3 px-4 font-bold rounded-r-xl">الدور</th>
-                  <th className="py-3 px-3 font-bold">اسم المريض</th>
-                  <th className="py-3 px-3 font-bold">رقم الموبايل</th>
-                  <th className="py-3 px-3 font-bold">الموعد</th>
-                  <th className="py-3 px-3 font-bold">الحالة</th>
-                  <th className="py-3 px-4 font-bold text-center rounded-l-xl">الإجراءات</th>
+                <tr className="border-b-2 border-slate-200 text-slate-600 bg-slate-100/70">
+                  <th className="py-3.5 px-4 font-black rounded-r-xl">الدور</th>
+                  <th className="py-3.5 px-3 font-black">اسم المريض</th>
+                  <th className="py-3.5 px-3 font-black">رقم الموبايل</th>
+                  <th className="py-3.5 px-3 font-black">الموعد</th>
+                  <th className="py-3.5 px-3 font-black">الحالة</th>
+                  <th className="py-3.5 px-4 font-black text-center rounded-l-xl">الإجراءات</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-200">
                 {patients.map((p) => {
                   const status = statusConfig[p.status] || statusConfig.scheduled;
                   const isLoading = actionLoading === p.id;
                   return (
-                    <tr key={p.id} className="text-slate-800 hover:bg-teal-50/20 transition-colors">
+                    <tr key={p.id} className="text-slate-900 hover:bg-teal-50/40 transition-colors">
                       <td className="py-4 px-4">
-                        <span className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-teal-800">
+                        <span className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-300 flex items-center justify-center font-black text-base text-teal-800 shadow-xs">
                           #{p.queue_number}
                         </span>
                       </td>
-                      <td className="py-4 px-3 font-bold text-slate-900">{p.name}</td>
-                      <td className="py-4 px-3 font-mono text-slate-500 text-xs">{p.phone}</td>
-                      <td className="py-4 px-3 font-semibold text-slate-700">{p.appointment_time}</td>
+                      <td className="py-4 px-3 font-black text-slate-900 text-sm">{p.name}</td>
+                      <td className="py-4 px-3 font-mono text-slate-600 text-xs font-bold">{p.phone}</td>
+                      <td className="py-4 px-3 font-black text-slate-700">{p.appointment_time}</td>
                       <td className="py-4 px-3">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold ${status.bg} ${status.color}`}
+                          className={`px-3 py-1 rounded-full text-xs font-black shadow-2xs ${status.bg} ${status.color}`}
                         >
                           {status.label}
                         </span>
@@ -212,7 +212,7 @@ export default function ClinicDashboard() {
                             <button
                               onClick={() => handleAction(p.id, "check_in", p.queue_number)}
                               disabled={isLoading}
-                              className="px-3.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-300 text-teal-800 text-xs font-bold flex items-center gap-1 transition-colors shadow-2xs"
+                              className="px-4 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-300 text-teal-900 text-xs font-black flex items-center gap-1.5 transition-colors shadow-2xs"
                             >
                               <UserCheck className="w-3.5 h-3.5" />
                               تسجيل وصول
@@ -223,7 +223,7 @@ export default function ClinicDashboard() {
                             <button
                               onClick={() => handleAction(p.id, "start", p.queue_number)}
                               disabled={isLoading}
-                              className="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1 transition-colors shadow-md shadow-teal-600/20"
+                              className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-black flex items-center gap-1.5 transition-colors shadow-md shadow-teal-600/20"
                             >
                               <Play className="w-3.5 h-3.5" />
                               نداء للكشف
@@ -234,7 +234,7 @@ export default function ClinicDashboard() {
                             <button
                               onClick={() => handleAction(p.id, "complete", p.queue_number)}
                               disabled={isLoading}
-                              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 transition-colors shadow-md shadow-emerald-600/20"
+                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black flex items-center gap-1.5 transition-colors shadow-md shadow-emerald-600/20"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               إنهاء الكشف
@@ -245,7 +245,7 @@ export default function ClinicDashboard() {
                             <button
                               onClick={() => handleAction(p.id, "no_show", p.queue_number)}
                               disabled={isLoading}
-                              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                               title="لم يحضر"
                             >
                               <XCircle className="w-4 h-4" />
