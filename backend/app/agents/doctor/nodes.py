@@ -14,27 +14,27 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-DOCTOR_SYSTEM_PROMPT = """أنت 'طبيب استشاري ومساعد سريري ذكي' (Senior Clinical AI Co-Pilot) لنظام عيادتي.
-مهمتك تحليل نص المحادثة أو كشف الطبيب مع المريض وتوليد المخرجات الطبية المنظمة بدقة سريرية متناهية:
+DOCTOR_SYSTEM_PROMPT = """You are a Senior Consultant Physician and Clinical AI Co-Pilot for the 3eyadaty Clinic Management System.
+Your task is to analyze doctor-patient consultation dialogues, audio transcripts, or physician notes, and synthesize comprehensive, evidence-based clinical outputs in structured JSON:
 
-1. 📋 **تقرير SOAP الطبي القياسي (Standard Clinical SOAP Note)**:
-   - **Subjective (S)**: الشكوى الرئيسية (Chief Complaint)، تفاصيل الأعراض ومدتها وشدتها، والتاريخ المرضي والدوائي السابق.
-   - **Objective (O)**: المؤشرات الحيوية المقاسة (ضغط، نبض، حرارة، سكر) ونتائج الفحص السريري والتحاليل المعملية المذكورة.
-   - **Assessment (A)**: التشخيص الأولي المؤكد (Primary Diagnosis) + التشخيصات التفريقية المحتملة (Differential Diagnoses) مع نسبة الترجيح.
-   - **Plan (P)**: الخطة العلاجية الكاملة، التحاليل والأشعة المطلوبة، ونصائح نمط الحياة، وموعد الاستشارة/الإعادة القادم.
+1. 📋 Standard Clinical SOAP Note:
+   - Subjective (S): Chief Complaint (CC), History of Present Illness (HPI), symptom duration, severity, and relevant past medical/medication history.
+   - Objective (O): Vital signs (BP, HR, RR, Temp, SpO2, BMI), physical examination findings, and recorded lab/investigative values.
+   - Assessment (A): Primary clinical diagnosis and differential diagnoses with likelihood probabilities and clinical rationale.
+   - Plan (P): Comprehensive treatment plan, pharmacotherapy, diagnostic workup requests (labs/imaging), patient education, lifestyle modifications, and follow-up timing.
 
-2. 💊 **الروشتة الطبية الذكية (Smart Prescription Rx)**:
-   - استخراج جميع الأدوية ببياناتها الدقيقة:
-     - `name`: اسم الدواء (العلمي والتجاري).
-     - `dosage`: الجرعة (مثل: 500mg, 10mg).
-     - `frequency`: التكرار اليومي (مثل: كل 8 ساعات بعد الأكل, قرص واحد صباحاً).
-     - `duration`: مدة العلاج (مثل: 5 أيام, شهر).
-     - `instructions`: تعليمات الاستخدام الخاصة للمريض.
+2. 💊 Smart Prescription Formulation (Rx):
+   - Extract all prescribed medications with exact attributes:
+     - `name`: Generic and/or brand drug name.
+     - `dosage`: Strength and dose (e.g. 500mg, 10mg, 5ml).
+     - `frequency`: Dosing interval (e.g. Once daily, Every 8 hours with meals, PRN).
+     - `duration`: Course duration (e.g. 5 days, 30 days, Chronic).
+     - `instructions`: Patient-directed administration guidelines.
 
-3. ⚠️ **فحص تعارض الأدوية (Drug Interactions & Safety)**:
-   - تنبيه الطبيب فوراً لأي تعارضات دوائية خطيرة (مثل مسكنات NSAIDs مع أدوية الضغط أو مضادات التجلط).
+3. ⚠️ Drug-Drug Interaction Safety Audit:
+   - Detect and flag potential contraindications or severe drug interactions.
 
-يجب أن تكون مخرجاتك بتنسيق JSON نظيف وصارم وقابل للتحليل البرمجي وفق الهيكل المطلوب دائماً.
+All output MUST be returned strictly as valid JSON according to the specified schema.
 """
 
 
@@ -53,50 +53,50 @@ async def clinical_consultation_node(state: DoctorAssistantState) -> dict:
     """
     Main Clinical Reasoning Node:
     Processes consultation transcript or text notes, generates structured SOAP notes,
-    differential diagnoses, and prescription.
+    differential diagnoses, and prescription in English.
     """
     transcript = state.get("transcript") or ""
     clinical_notes = state.get("patient_history", {})
     
-    user_prompt = f"""يرجى تحليل جلسة الكشف الطبي التالية وتوليد تقرير SOAP الكامل والروشتة الطبية بتنسيق JSON:
+    user_prompt = f"""Please analyze the following clinical encounter dialogue and generate a complete, structured SOAP note and prescription in JSON format:
 
-### 🎙️ نص المحادثة / الكشف الطبي:
+### 🎙️ Consultation Transcript / Clinical Dialogue:
 \"\"\"{transcript}\"\"\"
 
-### 📝 الملاحظات السريرية الإضافية:
-{json.dumps(clinical_notes, ensure_ascii=False) if clinical_notes else "لا توجد ملاحظات إضافية"}
+### 📝 Additional Clinical Context / Patient History:
+{json.dumps(clinical_notes, ensure_ascii=False) if clinical_notes else "No prior notes provided."}
 
-أخرج النتيجة بتنسيق JSON حصراً بهذا الهيكل الدقيق:
+Return the clinical evaluation strictly as a valid JSON object matching this schema:
 ```json
 {{
   "soap_notes": {{
-    "subjective": "نص تفصيلي لشكوى المريض والأعراض",
-    "objective": "المؤشرات الحيوية والفحص السريري",
-    "assessment": "التشخيص الطبي المؤكد والتفريقي",
-    "plan": "الخطة العلاجية والتعليمات وموعد الإعادة"
+    "subjective": "Detailed narrative of patient presentation, chief complaint, symptom onset, and history.",
+    "objective": "Recorded vital signs, physical exam observations, and clinical findings.",
+    "assessment": "Primary clinical diagnosis and differential assessment.",
+    "plan": "Complete therapeutic regimen, diagnostic orders, patient guidance, and follow-up."
   }},
-  "primary_diagnosis": "التشخيص الرئيسي",
+  "primary_diagnosis": "Primary Clinical Diagnosis",
   "differential_diagnoses": [
-    {{"diagnosis": "اسم التشخيص", "probability": "80%", "rationale": "سبب الترجيح"}}
+    {{"diagnosis": "Condition Name", "probability": "85%", "rationale": "Clinical rationale based on presentation"}}
   ],
-  "symptoms_extracted": ["عرض 1", "عرض 2"],
+  "symptoms_extracted": ["Symptom 1", "Symptom 2"],
   "vital_signs": {{
-    "blood_pressure": "120/80",
+    "blood_pressure": "120/80 mmHg",
     "heart_rate": "72 bpm",
     "temperature": "37.0 C"
   }},
   "prescription": [
     {{
-      "name": "اسم الدواء",
-      "dosage": "الجرعة",
-      "frequency": "التكرار",
-      "duration": "المدة",
-      "instructions": "التعليمات"
+      "name": "Drug Name",
+      "dosage": "Strength/Dose",
+      "frequency": "Frequency",
+      "duration": "Duration",
+      "instructions": "Patient Instructions"
     }}
   ],
-  "lab_requests": ["تحليل مطلوب إن وجد"],
-  "follow_up_recommendation": "موعد الزيارة القادمة",
-  "lifestyle_advice": ["نصيحة 1", "نصيحة 2"]
+  "lab_requests": ["Requested laboratory or diagnostic workup"],
+  "follow_up_recommendation": "Recommended follow-up timeframe",
+  "lifestyle_advice": ["Lifestyle guidance 1", "Lifestyle guidance 2"]
 }}
 ```
 """

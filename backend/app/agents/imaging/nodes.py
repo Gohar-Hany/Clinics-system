@@ -13,23 +13,23 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-IMAGING_SYSTEM_PROMPT = """أنت 'أخصائي أشعة وتحاليل طبية واستشاري ذكاء اصطناعي' (Senior Radiologist & Medical Imaging AI Specialist).
-مهمتك فحص الصور الطبية (X-Ray, MRI, CT Scan, Ultrasound, أو صور تقارير التحاليل الطبية) واستخراج تقرير سريري منظم فائق الدقة:
+IMAGING_SYSTEM_PROMPT = """You are a Senior Radiologist and Medical Imaging AI Specialist for the 3eyadaty Clinic Management System.
+Your task is to thoroughly analyze medical imaging scans (X-Ray, CT, MRI, Ultrasound, or photographed Laboratory Reports) and provide an authoritative, structured clinical radiological report:
 
-1. 🔬 **الفحص والملاحظات الإشعاعية (Radiological Findings)**:
-   - تحديد المنطقة التشريحية وجودة الصورة والوضعية (View/Modality).
-   - فحص الأنسجة، العظام، الأعضاء، وتحديد أي شذوذ أو تغيرات مرضية (Lesions, Fractures, Infiltrates, Effusion, Mass effect, Calcifications).
+1. 🔬 Radiological & Anatomical Findings:
+   - Identify anatomical region, projection/view, and image quality/penetration.
+   - Systematically inspect bone structures, soft tissues, lung fields, mediastinum, or organ systems for abnormalities, focal lesions, consolidations, effusion, fractures, or degenerative changes.
 
-2. 📋 **الانطباع التشخيصي (Diagnostic Impression)**:
-   - التشخيص الإشعاعي الأرجح (Most Likely Radiologic Diagnosis).
-   - التشخيصات البديلة الواجب استبعادها (Differential Radiologic Diagnoses).
+2. 📋 Diagnostic Impression:
+   - Primary radiological impression / most likely diagnosis.
+   - Ranked differential diagnoses to be clinically correlated.
 
-3. ⚠️ **علامات الخطر والتوصيات السريرية (Critical Findings & Next Steps)**:
-   - تنبيه فوري لأي حالة حرجة (Red Flag / Critical Finding).
-   - التوصيات الإضافية (مثل: طلب أشعة مقطعية بالصبغة، تحاليل مكملة، أو استشارة جراحية فورية).
+3. ⚠️ Critical Findings & Clinical Recommendations:
+   - Highlight any urgent/critical pathology requiring emergency intervention (e.g. pneumothorax, intracranial hemorrhage, acute fracture).
+   - Suggest appropriate confirmatory studies (e.g. Contrast CT, MRI, biopsy, repeat scan).
 
-ملاحظة هامة: هذا التحليل هو مسودة إرشادية لمساعدة ودعم قرار الطبيب المعالج (Clinical Decision Support).
-يجب أن يكون الرد بتنسيق JSON نظيف وصارم وفق الهيكل المحدد.
+NOTE: This evaluation serves as clinical decision support for attending healthcare providers.
+Return your evaluation strictly as a valid JSON object following the required schema.
 """
 
 
@@ -47,7 +47,7 @@ def get_imaging_llm():
 async def analyze_medical_image_node(state: ImagingState) -> dict:
     """
     Multimodal Vision Analysis Node:
-    Analyzes medical imaging or lab report image via VLM and returns structured findings.
+    Analyzes medical imaging or lab report image via VLM and returns structured findings in English.
     """
     image_url = state.get("image_url") or ""
     image_type = state.get("image_type", "medical_scan")
@@ -57,20 +57,20 @@ async def analyze_medical_image_node(state: ImagingState) -> dict:
     content_list = [
         {
             "type": "text",
-            "text": f"يرجى فحص الصورة الطبية المرفقة (نوع الصورة: {image_type}).\n"
-                    f"السياق السريري وشكوى المريض: {clinical_context or 'لا يوجد سياق إضافي'}\n"
-                    "أخرج التقرير بتنسيق JSON صارم بالهيكل التالي:\n"
+            "text": f"Please evaluate the attached medical image (Scan Modality: {image_type}).\n"
+                    f"Patient Clinical Context: {clinical_context or 'No prior clinical notes provided.'}\n"
+                    "Output a comprehensive radiological report strictly in valid JSON using this exact schema:\n"
                     "{\n"
                     '  "modality": "X-Ray / MRI / CT / Lab Report",\n'
-                    '  "anatomical_region": "المنطقة المصورة (مثال: Chest / Lumbar Spine)",\n'
-                    '  "quality_assessment": "Adequate / Optimal",\n'
+                    '  "anatomical_region": "Anatomical Region (e.g. Chest PA / Lumbar Spine)",\n'
+                    '  "quality_assessment": "Adequate / Optimal / Suboptimal",\n'
                     '  "findings": [\n'
-                    '    {"structure": "التركيب", "observation": "الملاحظة", "is_abnormal": false}\n'
+                    '    {"structure": "Anatomical Structure", "observation": "Observed finding", "is_abnormal": false}\n'
                     '  ],\n'
-                    '  "abnormal_flags": ["أي علامة مرضية غير طبيعية"],\n'
-                    '  "impression": "الانطباع والتشخيص الإشعاعي النهائي",\n'
+                    '  "abnormal_flags": ["List of any pathological flags"],\n'
+                    '  "impression": "Primary diagnostic impression",\n'
                     '  "confidence_level": "High / Moderate",\n'
-                    '  "recommendations": ["فحوصات مكملة أو إجراءات علاجية مقترحة"],\n'
+                    '  "recommendations": ["Recommended clinical actions or follow-up imaging"],\n'
                     '  "critical_alert": null\n'
                     "}"
         }

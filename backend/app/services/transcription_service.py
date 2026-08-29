@@ -14,11 +14,12 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-# Medical & Egyptian Dialect Prompt Priming for Whisper
+# Medical & Clinical Prompt Priming for Whisper
 WHISPER_PROMPT = (
-    "استشارة طبية، كشف في العيادة، المريض يشتكي من أعراض، تشخيص، علاج، روشتة، "
-    "Hypertension, Diabetes, Amoxicillin, Paracetamol, Blood Pressure, ECG, X-Ray, "
-    "صداع، دوخة، سخونية، كحة، ألم في الصدر، تحليل دم، سكر تراكمي HbA1c، مغص كلوي."
+    "Clinical consultation encounter, patient chief complaint, history of present illness, "
+    "physical examination, assessment, diagnosis, prescription, dosage, frequency, "
+    "Hypertension, Diabetes Mellitus, Amoxicillin, Paracetamol, Blood Pressure 120/80, "
+    "ECG, Chest X-Ray, HbA1c, Renal Function Panel, Amlodipine, Concor, Metformin."
 )
 
 
