@@ -408,6 +408,141 @@
           ]
         }
       ]
+    },
+    {
+      "name": "🩺 Doctor Assistant & Medical Co-Pilot (Phase 2)",
+      "description": "Clinical intelligence, Whisper audio consultation transcription, automated SOAP notes, smart prescription formulation, and VLM medical imaging analysis.",
+      "item": [
+        {
+          "name": "🎙️ POST Analyze Audio Consultation (Speech-to-Text -> SOAP + Rx)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Audio recording file (MP3, WAV, M4A, WEBM)"
+                },
+                {
+                  "key": "clinic_id",
+                  "value": "{{clinic_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "patient_phone",
+                  "value": "{{patient_phone}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/doctor/consultation/audio",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "doctor", "consultation", "audio"]
+            },
+            "description": "## Analyze Audio Consultation\nTranscribes Egyptian Arabic audio recording with medical terminology, generates standard SOAP notes, extracts symptoms, formulates smart prescription, and checks drug safety.\n\n🔒 **Protected**: Requires `X-Clinic-Token` header."
+          }
+        },
+        {
+          "name": "📝 POST Analyze Clinical Text / Dialogue (Instant SOAP Notes + Rx)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transcript\": \"المريض يشتكي من صداع مستمر في الجبهة وزغللة في العين ودوخة منذ 3 أيام، والضغط في المنزل 150/95. الفحص السريري: الضغط 150/95 mmHg، النبض 82 bpm. التشخيص: Stage 1 Hypertension. الخطة: Amlodipine 5mg قرص صباحاً مع Panadol عند اللزوم، ومتابعة الضغط يومياً.\",\n  \"clinic_id\": \"{{clinic_id}}\",\n  \"patient_phone\": \"{{patient_phone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/doctor/consultation/analyze-text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "doctor", "consultation", "analyze-text"]
+            },
+            "description": "## Analyze Clinical Text\nAccepts consultation dialogue or doctor notes and immediately generates structured SOAP notes, differential diagnosis, and prescription."
+          }
+        },
+        {
+          "name": "🔬 POST Analyze Medical Imaging & Lab Reports (Multimodal VLM GPT-4o)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image_url",
+                  "value": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg/600px-Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg",
+                  "type": "text"
+                },
+                {
+                  "key": "image_type",
+                  "value": "xray",
+                  "type": "text"
+                },
+                {
+                  "key": "clinical_context",
+                  "value": "Patient presents with cough and fever 38.5C. Evaluate for consolidation or effusion.",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/doctor/consultation/imaging",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "doctor", "consultation", "imaging"]
+            },
+            "description": "## Multimodal Medical Imaging Analysis (GPT-4o VLM)\nAnalyzes X-Ray, CT, MRI, Ultrasound, or Lab report image and produces structured radiological findings, impression, and recommendations."
+          }
+        },
+        {
+          "name": "⚠️ POST Validate Prescription & Check Drug Interactions",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medications\": [\n    \"Warfarin 5mg\",\n    \"Aspirin 81mg\",\n    \"Panadol 500mg\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/doctor/prescription/validate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "doctor", "prescription", "validate"]
+            },
+            "description": "## Check Drug-Drug Interactions\nEvaluates pharmacological safety between prescribed drugs and flags severe contraindications (e.g. Warfarin + Aspirin)."
+          }
+        },
+        {
+          "name": "📚 GET Retrieve Clinical Guidelines",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Clinic-Token", "value": "{{clinic_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/doctor/guidelines?condition=Hypertension",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "doctor", "guidelines"],
+              "query": [
+                { "key": "condition", "value": "Hypertension", "description": "Clinical condition or diagnosis" }
+              ]
+            },
+            "description": "## Clinical Management Guidelines\nRetrieves evidence-based first-line therapy protocols, dosing, and red flag warnings."
+          }
+        }
+      ]
     }
   ]
 }

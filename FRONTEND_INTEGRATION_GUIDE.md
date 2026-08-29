@@ -672,7 +672,142 @@ export function useChat(clinicId: string = "default-clinic") {
 
 ---
 
+## 7. المرحلة الثانية: مساعد الطبيب وتحليل الاستشارات والأشعة (Phase 2: Doctor AI Co-Pilot)
+
+### 7.1 تفريغ وتحليل الاستشارة الصوتية الطبية (`/api/v1/doctor/consultation/audio`):
+- **Method:** `POST`
+- **Content-Type:** `multipart/form-data`
+- **Headers:** `X-Clinic-Token: {{clinic_token}}`
+- **Body Fields:**
+  - `file`: ملف الصوت المسجل للكشف (MP3 / WAV / M4A / WEBM).
+  - `clinic_id`: معرف العيادة (`default-clinic`).
+  - `patient_phone`: رقم هاتف المريض (اختياري).
+
+**شكل الاستجابة (Success Response 200 OK):**
+```json
+{
+  "success": true,
+  "consultation_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+  "transcription": {
+    "transcript": "المريض يشتكي من صداع مستمر في الجبهة وزغللة...",
+    "duration_seconds": 65.5,
+    "provider": "openai-whisper"
+  },
+  "soap_notes": {
+    "subjective": "صداع مستمر منذ 4 أيام مصحوب بزغللة ودوخة وإرهاق عام.",
+    "objective": "ضغط الدم 150/95 mmHg، النبض 80 bpm، الصدر والقلب طبيعيان.",
+    "assessment": "Stage 1 Essential Hypertension.",
+    "plan": "بدء Amlodipine 5mg يومياً صباحاً، مع فحص وظائف الكلى ورسم قلب ومتابعة دورية."
+  },
+  "primary_diagnosis": "ارتفاع ضغط الدم الأولي Stage 1 Hypertension",
+  "differential_diagnoses": [
+    {
+      "diagnosis": "Tension Headache",
+      "probability": "20%",
+      "rationale": "وجود الصداع مع الإرهاق"
+    }
+  ],
+  "vital_signs": {
+    "blood_pressure": "150/95",
+    "heart_rate": "80 bpm"
+  },
+  "prescription": [
+    {
+      "name": "Amlodipine 5mg",
+      "dosage": "5mg",
+      "frequency": "مرة واحدة يومياً صباحاً",
+      "duration": "شهر",
+      "instructions": "يؤخذ بعد الإفطار مع قياس الضغط اليومي"
+    }
+  ],
+  "drug_interactions": {
+    "safe_to_prescribe": true,
+    "total_interactions_found": 0,
+    "interactions": []
+  },
+  "lab_requests": ["وظائف كلى Serum Creatinine", "تحليل بول كامل"],
+  "follow_up_recommendation": "إعادة الكشف بعد أسبوعين"
+}
+```
+
+---
+
+### 7.2 تحليل الأشعة والتحاليل بالرؤية الحاسوبية (`/api/v1/doctor/consultation/imaging`):
+- **Method:** `POST`
+- **Content-Type:** `multipart/form-data` أو `application/json`
+- **Headers:** `X-Clinic-Token: {{clinic_token}}`
+- **Body Fields:**
+  - `image_file`: ملف صورة الأشعة أو التحليل (JPEG / PNG).
+  - `image_url`: أو رابط الصورة المباشر.
+  - `image_type`: نوع الفحص (`xray`, `mri`, `ct`, `ultrasound`, `lab_report`).
+  - `clinical_context`: شكوى المريض أو سياق الفحص السريري.
+
+**شكل الاستجابة (Success Response 200 OK):**
+```json
+{
+  "success": true,
+  "consultation_id": "e4f8b912-...",
+  "modality": "CHEST X-RAY PA VIEW",
+  "anatomical_region": "Thoracic Cavity / Lungs",
+  "quality_assessment": "Adequate inspiration and penetration",
+  "findings": [
+    {
+      "structure": "Lung Parenchyma",
+      "observation": "Clear lung fields bilaterally. No consolidations or focal opacities.",
+      "is_abnormal": false
+    },
+    {
+      "structure": "Cardiothoracic Ratio",
+      "observation": "Normal cardiac silhouette and mediastinal contour.",
+      "is_abnormal": false
+    }
+  ],
+  "abnormal_flags": [],
+  "impression": "Normal chest radiograph. No active cardiopulmonary disease.",
+  "confidence_level": "High",
+  "recommendations": [
+    "Clinical correlation with symptoms. Conservative symptomatic therapy if viral."
+  ],
+  "critical_alert": null
+}
+```
+
+---
+
+### 7.3 التحقق من تعارض وتداخل الأدوية (`/api/v1/doctor/prescription/validate`):
+- **Method:** `POST`
+- **Headers:** `X-Clinic-Token: {{clinic_token}}`
+- **Request Body:**
+```json
+{
+  "medications": ["Warfarin 5mg", "Aspirin 81mg", "Panadol 500mg"]
+}
+```
+
+**شكل الاستجابة (Warning Response 200 OK):**
+```json
+{
+  "success": true,
+  "evaluated_medications": ["Warfarin 5mg", "Aspirin 81mg", "Panadol 500mg"],
+  "safety_audit": {
+    "safe_to_prescribe": false,
+    "total_interactions_found": 1,
+    "interactions": [
+      {
+        "drugs": ["warfarin", "aspirin"],
+        "severity": "CRITICAL",
+        "clinical_effect": "Severe risk of major bleeding and gastrointestinal hemorrhage.",
+        "recommendation": "Avoid combination or closely monitor INR and consider gastroprotection."
+      }
+    ],
+    "status": "WARNING_INTERACTION_DETECTED"
+  }
+}
+```
+
+---
+
 ## 🎯 ملخص سريع لصديقك مطور الويب:
-1. شغل الباك إند: `uvicorn app.main:app --port 8000`.
+1. شغل الباك إند: `uvicorn app.main:app --port 8000` أو اربط مباشرة بالسحابة: `https://3eyadaty-api.up.railway.app`.
 2. كل الـ Endpoints موثقة بالأعلى بالـ Request والـ Response والـ Types.
-3. ملف `useChat.ts` و `useLiveQueue.ts` يحتويان على اللوجيك كاملاً؛ يحتاج فقط لبناء التصميم (UI/Tailwind) واستدعاء الدوال! 🚀
+3. ملفات Postman الكاملة متاحة في مجلد `postman/` للاستيراد بضغطة زر واحدة! 🚀

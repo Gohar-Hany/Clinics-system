@@ -671,3 +671,94 @@ export function useChat(clinicId: string = "default-clinic") {
   return { messages, sendMessage, isLoading, threadId, patientPhone };
 }
 ```
+
+---
+
+## 7. Phase 2: Doctor Assistant & Clinical Intelligence (Phase 2)
+
+### 7.1 Audio Consultation Transcription & SOAP Generation (`/api/v1/doctor/consultation/audio`):
+- **Method:** `POST`
+- **Content-Type:** `multipart/form-data`
+- **Headers:** `X-Clinic-Token: {{clinic_token}}`
+- **Body Fields:**
+  - `file`: Consultation audio recording file (MP3 / WAV / M4A / WEBM).
+  - `clinic_id`: Clinic ID (`default-clinic`).
+  - `patient_phone`: Patient phone number (optional).
+
+**Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "consultation_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+  "transcription": {
+    "transcript": "Patient complains of 4-day persistent frontal headache...",
+    "duration_seconds": 65.5,
+    "provider": "openai-whisper"
+  },
+  "soap_notes": {
+    "subjective": "Persistent frontal headache for 4 days accompanied by dizziness and mild fatigue.",
+    "objective": "Blood Pressure 150/95 mmHg, Heart Rate 80 bpm, normal heart sounds, lungs clear.",
+    "assessment": "Stage 1 Essential Hypertension.",
+    "plan": "Initiate Amlodipine 5mg daily in the morning, renal function panel, ECG, follow-up in 2 weeks."
+  },
+  "primary_diagnosis": "Stage 1 Essential Hypertension",
+  "differential_diagnoses": [
+    {
+      "diagnosis": "Tension Headache",
+      "probability": "20%",
+      "rationale": "Presence of bilateral headache with fatigue"
+    }
+  ],
+  "vital_signs": {
+    "blood_pressure": "150/95",
+    "heart_rate": "80 bpm"
+  },
+  "prescription": [
+    {
+      "name": "Amlodipine 5mg",
+      "dosage": "5mg",
+      "frequency": "Once daily in the morning",
+      "duration": "30 days",
+      "instructions": "Take after breakfast with daily blood pressure logging"
+    }
+  ],
+  "drug_interactions": {
+    "safe_to_prescribe": true,
+    "total_interactions_found": 0,
+    "interactions": []
+  },
+  "lab_requests": ["Serum Creatinine & Electrolytes", "Complete Urinalysis"],
+  "follow_up_recommendation": "Follow-up consultation in 2 weeks"
+}
+```
+
+---
+
+### 7.2 Medical Imaging & Lab Report VLM Analysis (`/api/v1/doctor/consultation/imaging`):
+- **Method:** `POST`
+- **Content-Type:** `multipart/form-data` or `application/json`
+- **Headers:** `X-Clinic-Token: {{clinic_token}}`
+- **Body Fields:**
+  - `image_file`: Medical scan image (JPEG / PNG).
+  - `image_url`: Or direct image URL.
+  - `image_type`: Modality (`xray`, `mri`, `ct`, `ultrasound`, `lab_report`).
+  - `clinical_context`: Patient presentation and clinical suspicion.
+
+---
+
+### 7.3 Drug-Drug Interaction Safety Audit (`/api/v1/doctor/prescription/validate`):
+- **Method:** `POST`
+- **Headers:** `X-Clinic-Token: {{clinic_token}}`
+- **Request Body:**
+```json
+{
+  "medications": ["Warfarin 5mg", "Aspirin 81mg", "Panadol 500mg"]
+}
+```
+
+---
+
+## 🎯 Quick Summary for the Frontend Developer:
+1. Run Backend locally: `uvicorn app.main:app --port 8000` or connect directly to Live Cloud: `https://3eyadaty-api.up.railway.app`.
+2. All endpoints are documented above with schemas, types, and error states.
+3. Import the complete Postman v2.1.0 collection from `postman/` for 1-click testing! 🚀
