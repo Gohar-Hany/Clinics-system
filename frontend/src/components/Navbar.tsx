@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, Users, Stethoscope, LayoutDashboard, Activity } from "lucide-react";
+import { MessageSquare, Users, Stethoscope, LayoutDashboard, Sparkles, Activity } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -15,21 +15,21 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="glass border-b border-slate-800/80 px-4 sm:px-6 py-3.5 sticky top-0 z-50 backdrop-blur-xl">
+    <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 via-brand-500 to-accent-500 flex items-center justify-center text-xl shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-600 via-teal-500 to-sky-600 flex items-center justify-center text-xl shadow-md shadow-teal-600/20 group-hover:scale-105 transition-transform text-white">
             🏥
           </div>
           <div>
-            <span className="font-extrabold text-xl text-white tracking-tight flex items-center gap-1.5">
+            <span className="font-black text-xl text-slate-900 tracking-tight flex items-center gap-1.5">
               عيادتي
-              <span className="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-medium border border-brand-500/30">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 font-bold border border-teal-200">
                 AI Cloud
               </span>
             </span>
-            <p className="text-[10px] text-slate-400 hidden sm:block">3eyadaty Smart Clinic Platform</p>
+            <p className="text-[11px] text-slate-500 font-medium hidden sm:block">3eyadaty Smart Healthcare System</p>
           </div>
         </Link>
 
@@ -42,16 +42,22 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                className={`relative flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
                   isActive
-                    ? "bg-brand-500 text-white shadow-md shadow-brand-500/25"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/60"
+                    ? "bg-teal-600 text-white shadow-md shadow-teal-600/25"
+                    : "text-slate-600 hover:text-teal-700 hover:bg-teal-50/70"
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full bg-accent-500/20 text-accent-300 border border-accent-500/30 font-bold">
+                  <span
+                    className={`hidden md:inline-block text-[9px] px-1.5 py-0.2 rounded-full font-black ${
+                      isActive
+                        ? "bg-white/20 text-white border border-white/30"
+                        : "bg-sky-100 text-sky-800 border border-sky-200"
+                    }`}
+                  >
                     {item.badge}
                   </span>
                 )}
@@ -61,9 +67,9 @@ export default function Navbar() {
         </nav>
 
         {/* Live Server Indicator */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full glass-light border border-slate-700/50 text-[11px] text-slate-300">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Railway Live Cloud</span>
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] text-emerald-800 font-semibold shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>سيرفر السحابة لايف</span>
         </div>
       </div>
     </header>

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { clinicApi } from "@/services/api";
-import { Send, Bot, User, Ticket, Calendar, Clock, Phone, Sparkles, RefreshCw, ArrowRight } from "lucide-react";
+import { Send, Bot, User, Ticket, Calendar, Clock, Phone, Sparkles, RefreshCw, ArrowRight, CheckCircle2 } from "lucide-react";
 
 interface Message {
   id: string;
@@ -27,7 +27,7 @@ export default function ChatPage() {
       id: "welcome",
       role: "assistant",
       content:
-        "أهلاً بيك في عيادتي! 👋 أنا المساعد الذكي للحجز والاستعلام.\n\nتقدر تطلب مني:\n• حجز موعد جديد في أي وقت 📅\n• معرفة رقمك في الطابور والوقت المتبقي 📊\n• تعديل أو الاستفسار عن حجزك ✏️",
+        "أهلاً بك في عيادتي! 👋 أنا مساعدك الذكي لحجز المواعيد والاستعلامات السريرية.\n\nكيف يمكنني مساعدتك اليوم؟\n• حجز موعد جديد في العيادة 📅\n• متابعة رقم دورك في الطابور والوقت المتبقي 📊\n• تعديل أو الاستفسار عن تفاصيل حجزك ✏️",
       timestamp: new Date(),
     },
   ]);
@@ -90,7 +90,7 @@ export default function ChatPage() {
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "عفواً، حصلت مشكلة في الاتصال بالخدمة السحابية. يرجى المحاولة مرة أخرى. 🙏",
+        content: "عفواً، حدثت مشكلة في الاتصال بالخدمة السحابية. يرجى المحاولة مرة أخرى. 🙏",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -100,10 +100,32 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col">
+        {/* Chat Header Info */}
+        <div className="flex items-center justify-between p-4 mb-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center font-bold shadow-md shadow-teal-600/20">
+              <Bot className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="font-extrabold text-sm text-slate-900">مساعد حجز المواعيد الآلي</h2>
+              <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                متصل الآن بالسحابة
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/queue"
+            className="px-3.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold border border-teal-200 transition-colors"
+          >
+            📊 عرض الطابور المباشر
+          </Link>
+        </div>
+
         {/* Chat Messages Container */}
         <div className="flex-1 overflow-y-auto space-y-4 pb-4 pr-1">
           <AnimatePresence initial={false}>
@@ -116,7 +138,7 @@ export default function ChatPage() {
                 className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 {msg.role === "assistant" && (
-                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center text-white shrink-0 shadow-md shadow-brand-500/20">
+                  <div className="w-9 h-9 rounded-2xl bg-teal-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-teal-600/20">
                     <Bot className="w-5 h-5" />
                   </div>
                 )}
@@ -125,11 +147,11 @@ export default function ChatPage() {
                   <div
                     className={`rounded-3xl p-4 sm:p-5 text-xs sm:text-sm leading-relaxed ${
                       msg.role === "user"
-                        ? "bg-brand-500 text-white rounded-br-none shadow-lg shadow-brand-500/25"
-                        : "glass border border-slate-800 text-slate-200 rounded-bl-none shadow-md"
+                        ? "bg-teal-600 text-white rounded-br-none shadow-md shadow-teal-600/20"
+                        : "bg-white border border-slate-200/90 text-slate-800 rounded-bl-none shadow-sm"
                     }`}
                   >
-                    <p className="whitespace-pre-line">{msg.content}</p>
+                    <p className="whitespace-pre-line font-medium">{msg.content}</p>
                   </div>
 
                   {/* Smart Booking Card Badge */}
@@ -137,32 +159,32 @@ export default function ChatPage() {
                     <motion.div
                       initial={{ scale: 0.95, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="glass rounded-2xl p-3.5 border border-brand-500/30 glow-brand flex items-center justify-between gap-3 text-xs"
+                      className="bg-teal-50 rounded-2xl p-4 border border-teal-200 shadow-sm flex items-center justify-between gap-3 text-xs"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold text-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-black text-base shadow-sm">
                           #{msg.data.queue_number}
                         </div>
                         <div>
-                          <p className="font-bold text-white">تذكرة الحجز في الطابور</p>
-                          <p className="text-[11px] text-slate-400">
+                          <p className="font-extrabold text-slate-900 text-sm">تأكيد تذكرة الحجز</p>
+                          <p className="text-xs text-teal-800 font-semibold mt-0.5">
                             كود الحجز: <strong>REF-{msg.data.appointment_id?.slice(0, 4)?.toUpperCase() || "CONFIRMED"}</strong>
                           </p>
                         </div>
                       </div>
                       <Link
                         href={`/queue`}
-                        className="px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-white font-semibold text-xs flex items-center gap-1 transition-colors"
+                        className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-teal-600/20"
                       >
                         <span>متابعة دوري</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </motion.div>
                   )}
                 </div>
 
                 {msg.role === "user" && (
-                  <div className="w-9 h-9 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-300 shrink-0 border border-slate-700">
+                  <div className="w-9 h-9 rounded-2xl bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 border border-slate-300">
                     <User className="w-5 h-5" />
                   </div>
                 )}
@@ -172,11 +194,11 @@ export default function ChatPage() {
 
           {isLoading && (
             <div className="flex gap-3 items-center">
-              <div className="w-9 h-9 rounded-2xl bg-brand-600/50 flex items-center justify-center text-white shrink-0 animate-pulse">
+              <div className="w-9 h-9 rounded-2xl bg-teal-600/40 text-white flex items-center justify-center shrink-0 animate-pulse">
                 <Bot className="w-5 h-5" />
               </div>
-              <div className="glass rounded-2xl px-4 py-3 border border-slate-800 flex items-center gap-2 text-xs text-slate-400">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-400" />
+              <div className="bg-white rounded-2xl px-4 py-3 border border-slate-200 flex items-center gap-2 text-xs text-slate-600 shadow-sm">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-teal-600" />
                 <span>الذكاء الاصطناعي يكتب الرد...</span>
               </div>
             </div>
@@ -191,7 +213,7 @@ export default function ChatPage() {
             <button
               key={i}
               onClick={() => sendMessage(action)}
-              className="px-3.5 py-1.5 rounded-xl glass-light border border-slate-800 text-[11px] text-slate-300 hover:text-white hover:border-brand-500/50 whitespace-nowrap transition-all"
+              className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-teal-700 hover:border-teal-300 hover:bg-teal-50 text-[11px] font-semibold whitespace-nowrap transition-all shadow-2xs"
             >
               {action}
             </button>
@@ -199,7 +221,7 @@ export default function ChatPage() {
         </div>
 
         {/* Input Bar */}
-        <div className="glass rounded-3xl p-2 sm:p-2.5 border border-slate-800/80 shadow-2xl flex items-center gap-2">
+        <div className="bg-white rounded-3xl p-2 sm:p-2.5 border border-slate-300 shadow-lg flex items-center gap-2">
           <input
             ref={inputRef}
             type="text"
@@ -208,13 +230,13 @@ export default function ChatPage() {
             onKeyDown={(e) => {
               if (e.key === "Enter") sendMessage();
             }}
-            placeholder="اكتب رسالتك هنا (مثال: احجزلي يوم الثلاثاء الجاي الساعة 11 صباحاً)..."
-            className="flex-1 bg-transparent px-4 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none"
+            placeholder="اكتب رسالتك هنا (مثال: احجزلي موعد يوم الثلاثاء القادم الساعة 10:00 صباحاً)..."
+            className="flex-1 bg-transparent px-4 py-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
           />
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || isLoading}
-            className="w-11 h-11 rounded-2xl bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-white flex items-center justify-center transition-all shadow-md shadow-brand-500/25 shrink-0"
+            className="w-11 h-11 rounded-2xl bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white flex items-center justify-center transition-all shadow-md shadow-teal-600/25 shrink-0"
           >
             <Send className="w-4 h-4 rtl:rotate-180" />
           </button>

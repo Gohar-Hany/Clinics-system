@@ -1,151 +1,116 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════ */
-/*              Design System                  */
+/*        Clean Healthcare Design System       */
 /* ═══════════════════════════════════════════ */
 
 @theme {
-  /* Brand Colors */
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
+  /* Medical Teal & Emerald */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
 
-  /* Accent */
-  --color-accent-400: #a78bfa;
-  --color-accent-500: #8b5cf6;
-  --color-accent-600: #7c3aed;
+  /* Clinical Sky Blue */
+  --color-sky-50: #f0f9ff;
+  --color-sky-100: #e0f2fe;
+  --color-sky-200: #bae6fd;
+  --color-sky-300: #7dd3fc;
+  --color-sky-400: #38bdf8;
+  --color-sky-500: #0ea5e9;
+  --color-sky-600: #0284c7;
+  --color-sky-700: #0369a1;
 
-  /* Success / Queue */
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;
+  /* Accent Blue */
+  --color-accent-500: #2563eb;
+  --color-accent-600: #1d4ed8;
 
-  /* Warning */
-  --color-warning-400: #fbbf24;
+  /* Status Colors */
+  --color-success-500: #10b981;
   --color-warning-500: #f59e0b;
-
-  /* Error */
-  --color-error-400: #f87171;
   --color-error-500: #ef4444;
 }
 
 /* ═══════════════════════════════════════════ */
-/*          Global Styles                      */
+/*          Global Healthcare Styles           */
 /* ═══════════════════════════════════════════ */
 
-/* Custom scrollbar */
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom modern scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: #94a3b8;
 }
 
-/* Glass morphism utility */
+/* Crisp Clean Glassmorphism */
 .glass {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
 }
 
 .glass-light {
-  background: rgba(30, 41, 59, 0.6);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(241, 245, 249, 0.9);
 }
 
-/* Glow effects */
+/* Medical Glow & Elevation */
 .glow-brand {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15),
-              0 0 60px rgba(59, 130, 246, 0.05);
+  box-shadow: 0 10px 30px -5px rgba(13, 148, 136, 0.12),
+              0 4px 12px -2px rgba(2, 132, 199, 0.08);
 }
 
-.glow-accent {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15),
-              0 0 60px rgba(139, 92, 246, 0.05);
+.glow-card {
+  box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
 }
 
-.glow-success {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15),
-              0 0 60px rgba(34, 197, 94, 0.05);
-}
-
-/* Gradient text */
+/* High Contrast Gradient Text */
 .text-gradient {
-  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  background: linear-gradient(135deg, #0f766e 0%, #0284c7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Animated gradient background */
-.bg-gradient-animate {
-  background: linear-gradient(
-    -45deg,
-    #0f172a,
-    #1e293b,
-    #0f172a,
-    #1a1a3e
-  );
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Pulse indicator */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.08); }
 }
 
-/* Pulse dot for queue */
 .pulse-dot {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* Chat bubble animation */
-.chat-bubble-enter {
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Typing indicator */
-.typing-dot {
-  animation: typingBounce 1.4s infinite ease-in-out both;
-}
-
-.typing-dot:nth-child(1) { animation-delay: -0.32s; }
-.typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-@keyframes typingBounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-  40% { transform: scale(1); opacity: 1; }
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

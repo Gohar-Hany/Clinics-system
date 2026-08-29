@@ -24,6 +24,7 @@ import {
   Eye,
   ShieldCheck,
   Send,
+  HeartPulse,
 } from "lucide-react";
 
 export default function DoctorCoPilotPage() {
@@ -35,7 +36,7 @@ export default function DoctorCoPilotPage() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [transcriptInput, setTranscriptInput] = useState(
-    "المريض: يا دكتور بقالي 4 أيام بشتكي من صداع مستمر في الجبهة وزغللة في العين ودوخة، ولما قست الضغط في البيت كان 160 على 100. كمان بحس بنغزات خفيفة في الصدر مع المجهود.\nالطبيب: تمام، هل عندك تاريخ مرضي للضغط أو السكر في العائلة؟\nالمريض: والدي كان مريض ضغط، وأنا مش باخد أي علاج منتظم غير مسكنات بنادول أو بروفين وقت اللزوم.\nالطبيب: الفحص السريري: ضغط الدم 160/100 mmHg، النبض 78 bpm، فحص الصدر والقلب طبيعي. التشخيص: ارتفاع ضغط الدم الأولي Stage 2 Essential Hypertension. الخطة: هنبدأ علاج Amlodipine 5mg قرص صباحاً مع Concor 2.5mg، ونطلب رسم قلب ECG وتحليل وظائف كلى ومتابعة دورية مع تقليل الملح تماماً، ونشوفك بعد أسبوعين."
+    "المريض: يا دكتور بقالي 4 أيام بشتكي من صداع مستمر في مؤخرة الرأس وزغللة في العين مع دوخة، ولما قست الضغط في البيت كان 160 على 100. كمان بحس بنغزات خفيفة في الصدر مع المجهود.\nالطبيب: تمام، هل عندك تاريخ مرضي للضغط أو السكر في العائلة؟\nالمريض: والدي كان مريض ضغط، وأنا مش باخد أي علاج منتظم غير مسكنات بنادول أو بروفين وقت اللزوم.\nالطبيب: الفحص السريري: ضغط الدم 160/100 mmHg، النبض 78 bpm، فحص الصدر والقلب طبيعي. التشخيص: ارتفاع ضغط الدم الأولي Stage 2 Essential Hypertension. الخطة: هنبدأ علاج Amlodipine 5mg قرص صباحاً مع Concor 2.5mg، ونطلب رسم قلب ECG وتحليل وظائف كلى ومتابعة دورية مع تقليل الملح تماماً، ونشوفك بعد أسبوعين."
   );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [consultationResult, setConsultationResult] = useState<ConsultationResponse | null>(null);
@@ -161,36 +162,36 @@ export default function DoctorCoPilotPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Header Title */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 text-xs font-bold flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-bold flex items-center gap-1.5 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-teal-600" />
                 Phase 2 — Doctor AI Co-Pilot
               </span>
-              <span className="text-xs text-slate-400">GPT-4o Multimodal + Whisper</span>
+              <span className="text-xs text-slate-500 font-medium">GPT-4o Multimodal + Whisper</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              مساعد الطبيب الذكي والاستشارات السريرية
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              مساعد الطبيب والاستشارات السريرية الذكية
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
               تفريغ فوري للمحادثات، توليد تقارير SOAP، روشتات ذكية مع فحص التعارض، وفحص الأشعة بالرؤية الحاسوبية.
             </p>
           </div>
 
           {/* Mode Switcher */}
-          <div className="flex items-center p-1 rounded-2xl glass border border-slate-800 self-start md:self-auto">
+          <div className="flex items-center p-1.5 rounded-2xl bg-slate-100 border border-slate-200 self-start md:self-auto shadow-inner">
             <button
               onClick={() => setActiveTab("consultation")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                 activeTab === "consultation"
-                  ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <Stethoscope className="w-4 h-4" />
@@ -198,10 +199,10 @@ export default function DoctorCoPilotPage() {
             </button>
             <button
               onClick={() => setActiveTab("imaging")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                 activeTab === "imaging"
-                  ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <Eye className="w-4 h-4" />
@@ -209,10 +210,10 @@ export default function DoctorCoPilotPage() {
             </button>
             <button
               onClick={() => setActiveTab("guidelines")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                 activeTab === "guidelines"
-                  ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <Search className="w-4 h-4" />
@@ -229,23 +230,23 @@ export default function DoctorCoPilotPage() {
             {/* Left Column: Input Studio (Audio / Transcript) */}
             <div className="lg:col-span-5 space-y-6">
               {/* Voice Recording Card */}
-              <div className="glass rounded-3xl p-6 border border-slate-800/80 shadow-xl relative overflow-hidden">
-                <h3 className="font-bold text-base text-white mb-3 flex items-center gap-2">
-                  <Mic className="w-5 h-5 text-brand-400" />
+              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                <h3 className="font-extrabold text-base text-slate-900 mb-2 flex items-center gap-2">
+                  <Mic className="w-5 h-5 text-teal-600" />
                   تسجيل جلسة الكشف المباشرة
                 </h3>
-                <p className="text-xs text-slate-400 mb-6">
+                <p className="text-xs text-slate-500 mb-6">
                   سجل حديث الكشف بينك وبين المريض مباشرة وسيقوم الذكاء الاصطناعي بتفريغه وترجمته لتقرير طبي فوري.
                 </p>
 
                 {/* Mic Visualizer & Button */}
-                <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-900/60 border border-slate-800 mb-4">
+                <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-teal-50/50 border border-teal-100 mb-4">
                   <button
                     onClick={isRecording ? stopRecording : startRecording}
-                    className={`w-20 h-20 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-105 shadow-2xl ${
+                    className={`w-20 h-20 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-105 shadow-xl ${
                       isRecording
-                        ? "bg-rose-500 hover:bg-rose-600 animate-pulse shadow-rose-500/40"
-                        : "bg-gradient-to-tr from-brand-600 to-accent-500 shadow-brand-500/30"
+                        ? "bg-rose-600 hover:bg-rose-700 animate-pulse shadow-rose-600/40"
+                        : "bg-gradient-to-tr from-teal-600 to-sky-600 shadow-teal-600/30"
                     }`}
                   >
                     {isRecording ? <MicOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
@@ -254,18 +255,18 @@ export default function DoctorCoPilotPage() {
                   <div className="mt-4 text-center">
                     {isRecording ? (
                       <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping" />
-                        <span className="font-mono text-lg font-bold text-rose-400">
+                        <span className="w-3 h-3 rounded-full bg-rose-600 animate-ping" />
+                        <span className="font-mono text-lg font-bold text-rose-700">
                           {formatTimer(recordingDuration)}
                         </span>
-                        <span className="text-xs text-slate-400">(جاري التسجيل...)</span>
+                        <span className="text-xs text-slate-500">(جاري التسجيل...)</span>
                       </div>
                     ) : audioBlob ? (
-                      <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-4 h-4" /> تم تسجيل مقطع صوتي جاهز للتحليل
+                      <span className="text-xs text-emerald-700 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" /> تم تسجيل مقطع صوتي جاهز للتحليل
                       </span>
                     ) : (
-                      <span className="text-xs text-slate-500">اضغط على الميكروفون لبدء التسجيل</span>
+                      <span className="text-xs text-slate-500">اضغط على الميكروفون لبدء التسجيل الصوتي</span>
                     )}
                   </div>
 
@@ -275,7 +276,7 @@ export default function DoctorCoPilotPage() {
                 </div>
 
                 {/* Upload Audio File Alternative */}
-                <div className="relative border border-dashed border-slate-700 hover:border-brand-500 rounded-2xl p-4 text-center cursor-pointer transition-colors">
+                <div className="relative border-2 border-dashed border-slate-200 hover:border-teal-400 bg-slate-50 hover:bg-teal-50/30 rounded-2xl p-4 text-center cursor-pointer transition-colors">
                   <input
                     type="file"
                     accept="audio/*"
@@ -288,18 +289,18 @@ export default function DoctorCoPilotPage() {
                     }}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
-                  <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
-                    <Upload className="w-4 h-4 text-brand-400" />
+                  <div className="flex items-center justify-center gap-2 text-xs text-slate-600 font-medium">
+                    <Upload className="w-4 h-4 text-teal-600" />
                     <span>أو ارفع ملف تسجيل صوتي (MP3, WAV, M4A, WEBM)</span>
                   </div>
                 </div>
               </div>
 
               {/* Transcript Text Input Card */}
-              <div className="glass rounded-3xl p-6 border border-slate-800/80 shadow-xl">
+              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-base text-white flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-accent-400" />
+                  <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-sky-600" />
                     نص الحوار السريري / ملاحظات الطبيب
                   </h3>
                   <button
@@ -308,7 +309,7 @@ export default function DoctorCoPilotPage() {
                         "المريض يشتكي من ارتفاع في السكر التراكمي HbA1c 9.2% مع كثرة التبول والعطش الشديد. الفحص: الوزن 92 كجم، الضغط 130/80. الخطة: بدء Metformin 1000mg مرتين يومياً مع Jardiance 10mg ومتابعة سكر صائم وفاطر يومياً."
                       )
                     }
-                    className="text-[11px] text-brand-400 hover:underline"
+                    className="text-xs text-teal-700 font-bold hover:underline"
                   >
                     نموذج سكري 🧪
                   </button>
@@ -319,18 +320,18 @@ export default function DoctorCoPilotPage() {
                   onChange={(e) => setTranscriptInput(e.target.value)}
                   rows={7}
                   placeholder="اكتب أو الصق نص محادثة الكشف أو ملاحظاتك السريرية هنا..."
-                  className="w-full rounded-2xl bg-slate-900/80 border border-slate-800 p-4 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-brand-500 leading-relaxed resize-none"
+                  className="w-full rounded-2xl bg-slate-50 border border-slate-300 p-4 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white leading-relaxed resize-none transition-all shadow-inner"
                 />
 
                 <button
                   onClick={handleAnalyzeConsultation}
                   disabled={isAnalyzing}
-                  className="w-full mt-4 py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold text-sm shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full mt-4 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-700 hover:to-sky-700 text-white font-extrabold text-sm shadow-md shadow-teal-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {isAnalyzing ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      جاري المعالجة والتحليل السريري الذكي...
+                      جاري التحليل السريري الذكي وتوليد التقرير...
                     </>
                   ) : (
                     <>
@@ -351,16 +352,16 @@ export default function DoctorCoPilotPage() {
                   className="space-y-6"
                 >
                   {/* Diagnosis & Summary Banner */}
-                  <div className="glass rounded-3xl p-6 border border-slate-800 glow-brand">
+                  <div className="bg-white rounded-3xl p-6 border-2 border-teal-500 shadow-md">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                       <div>
-                        <span className="text-xs text-slate-400 font-medium">التشخيص الأولي (Primary Diagnosis)</span>
-                        <h2 className="text-xl sm:text-2xl font-black text-gradient">
+                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">التشخيص الأولي (Primary Diagnosis)</span>
+                        <h2 className="text-xl sm:text-2xl font-black text-teal-800">
                           {consultationResult.primary_diagnosis}
                         </h2>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
+                        <span className="px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black">
                           Consultation Completed ✅
                         </span>
                       </div>
@@ -368,12 +369,12 @@ export default function DoctorCoPilotPage() {
 
                     {/* Differential Diagnoses */}
                     {consultationResult.differential_diagnoses?.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800/80">
-                        <span className="text-xs text-slate-400 self-center">التشخيصات التفريقية:</span>
+                      <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
+                        <span className="text-xs text-slate-500 font-medium self-center">التشخيصات التفريقية:</span>
                         {consultationResult.differential_diagnoses.map((d, i) => (
                           <span
                             key={i}
-                            className="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 text-xs border border-slate-700"
+                            className="px-3 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200"
                           >
                             {d.diagnosis} ({d.probability})
                           </span>
@@ -385,33 +386,33 @@ export default function DoctorCoPilotPage() {
                   {/* SOAP Note Cards Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Subjective (S) */}
-                    <div className="glass rounded-2xl p-5 border border-slate-800">
-                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-brand-400 mb-2 flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-md bg-brand-500/20 flex items-center justify-center text-[11px]">
+                    <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-teal-700 mb-2 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center text-xs font-black">
                           S
                         </span>
                         Subjective (شكوى المريض والأعراض)
                       </h4>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
                         {consultationResult.soap_notes?.subjective}
                       </p>
                     </div>
 
                     {/* Objective (O) */}
-                    <div className="glass rounded-2xl p-5 border border-slate-800">
-                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-cyan-400 mb-2 flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-md bg-cyan-500/20 flex items-center justify-center text-[11px]">
+                    <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-sky-700 mb-2 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center text-xs font-black">
                           O
                         </span>
                         Objective (الفحص والمؤشرات)
                       </h4>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-2">
+                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-3">
                         {consultationResult.soap_notes?.objective}
                       </p>
                       {consultationResult.vital_signs && Object.keys(consultationResult.vital_signs).length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-2">
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
                           {Object.entries(consultationResult.vital_signs).map(([k, v]) => (
-                            <span key={k} className="text-[11px] px-2 py-0.5 rounded-lg bg-slate-900 text-cyan-300 border border-slate-800">
+                            <span key={k} className="text-[11px] px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 font-semibold">
                               {k}: <strong>{v}</strong>
                             </span>
                           ))}
@@ -420,27 +421,27 @@ export default function DoctorCoPilotPage() {
                     </div>
 
                     {/* Assessment (A) */}
-                    <div className="glass rounded-2xl p-5 border border-slate-800">
-                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-accent-400 mb-2 flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-md bg-accent-500/20 flex items-center justify-center text-[11px]">
+                    <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-indigo-700 mb-2 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-800 flex items-center justify-center text-xs font-black">
                           A
                         </span>
                         Assessment (التقييم السريري)
                       </h4>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
                         {consultationResult.soap_notes?.assessment}
                       </p>
                     </div>
 
                     {/* Plan (P) */}
-                    <div className="glass rounded-2xl p-5 border border-slate-800">
-                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-md bg-emerald-500/20 flex items-center justify-center text-[11px]">
+                    <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-emerald-700 mb-2 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-black">
                           P
                         </span>
                         Plan (الخطة العلاجية والتعليمات)
                       </h4>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
                         {consultationResult.soap_notes?.plan}
                       </p>
                     </div>
@@ -449,37 +450,37 @@ export default function DoctorCoPilotPage() {
                   {/* Drug-Drug Interaction Safety Alert Box */}
                   {consultationResult.drug_interactions && (
                     <div
-                      className={`rounded-2xl p-4 border ${
+                      className={`rounded-2xl p-5 border shadow-sm ${
                         consultationResult.drug_interactions.safe_to_prescribe
-                          ? "bg-emerald-950/40 border-emerald-500/30 text-emerald-200"
-                          : "bg-rose-950/40 border-rose-500/40 text-rose-200"
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-950"
+                          : "bg-rose-50 border-2 border-rose-400 text-rose-950"
                       }`}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-3.5">
                         {consultationResult.drug_interactions.safe_to_prescribe ? (
-                          <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                          <ShieldCheck className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
                         ) : (
-                          <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                          <AlertTriangle className="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
                         )}
                         <div>
-                          <h4 className="font-bold text-sm">
+                          <h4 className="font-black text-sm">
                             {consultationResult.drug_interactions.safe_to_prescribe
-                              ? "فحص أمان الأدوية: الروشتة آمنة تماماً ولا يوجد تعارض دوائي ✅"
-                              : "⚠️ تنبيه طبي خطير: تم رصد تعارض بين الأدوية الموصوفة!"}
+                              ? "فحص أمان الأدوية: الروشتة آمنة تماماً ولا يوجد أي تعارض دوائي ✅"
+                              : "⚠️ تحذير طبي خطير: تم رصد تداخل وتعارض بين الأدوية الموصوفة!"}
                           </h4>
                           {!consultationResult.drug_interactions.safe_to_prescribe && (
-                            <div className="mt-2 space-y-1.5 text-xs text-rose-300">
+                            <div className="mt-3 space-y-2 text-xs">
                               {consultationResult.drug_interactions.interactions.map((item, idx) => (
-                                <div key={idx} className="p-2 rounded-xl bg-rose-900/30 border border-rose-800/40">
+                                <div key={idx} className="p-3 rounded-xl bg-white border border-rose-300 text-rose-950 shadow-2xs">
                                   <p>
-                                    <strong>الأدوية:</strong> {item.drugs?.join(" + ")} (
-                                    <span className="text-rose-400 font-bold">{item.severity}</span>)
+                                    <strong>الأدوية المتعارضة:</strong> {item.drugs?.join(" + ")} (
+                                    <span className="text-rose-700 font-bold">{item.severity}</span>)
                                   </p>
-                                  <p>
-                                    <strong>التأثير:</strong> {item.clinical_effect}
+                                  <p className="mt-1">
+                                    <strong>التأثير السريري:</strong> {item.clinical_effect}
                                   </p>
-                                  <p className="text-rose-200 font-medium">
-                                    💡 <strong>التوصية:</strong> {item.recommendation}
+                                  <p className="text-rose-800 font-bold mt-1">
+                                    💡 <strong>التوصية البديلة:</strong> {item.recommendation}
                                   </p>
                                 </div>
                               ))}
@@ -491,9 +492,9 @@ export default function DoctorCoPilotPage() {
                   )}
 
                   {/* Smart Prescription (Rx) Table */}
-                  <div className="glass rounded-3xl p-6 border border-slate-800">
-                    <h3 className="font-bold text-base text-white mb-4 flex items-center gap-2">
-                      <Pill className="w-5 h-5 text-accent-400" />
+                  <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                    <h3 className="font-extrabold text-base text-slate-900 mb-4 flex items-center gap-2">
+                      <Pill className="w-5 h-5 text-teal-600" />
                       الروشتة الطبية الذكية (Prescription Rx)
                     </h3>
 
@@ -501,40 +502,40 @@ export default function DoctorCoPilotPage() {
                       <div className="overflow-x-auto">
                         <table className="w-full text-right text-xs sm:text-sm">
                           <thead>
-                            <tr className="border-b border-slate-800 text-slate-400">
-                              <th className="pb-3 font-semibold">الدواء</th>
-                              <th className="pb-3 font-semibold">الجرعة</th>
-                              <th className="pb-3 font-semibold">التكرار</th>
-                              <th className="pb-3 font-semibold">المدة</th>
-                              <th className="pb-3 font-semibold">التعليمات</th>
+                            <tr className="border-b border-slate-200 text-slate-500 bg-slate-50">
+                              <th className="py-3 px-4 font-bold rounded-r-xl">اسم الدواء</th>
+                              <th className="py-3 px-3 font-bold">الجرعة</th>
+                              <th className="py-3 px-3 font-bold">التكرار</th>
+                              <th className="py-3 px-3 font-bold">المدة</th>
+                              <th className="py-3 px-4 font-bold rounded-l-xl">تعليمات الاستخدام</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-800/50">
+                          <tbody className="divide-y divide-slate-100">
                             {consultationResult.prescription.map((rx, idx) => (
-                              <tr key={idx} className="text-slate-200">
-                                <td className="py-3 font-bold text-brand-400">{rx.name}</td>
-                                <td className="py-3">{rx.dosage}</td>
-                                <td className="py-3">{rx.frequency}</td>
-                                <td className="py-3">{rx.duration}</td>
-                                <td className="py-3 text-slate-400 text-xs">{rx.instructions}</td>
+                              <tr key={idx} className="text-slate-800 hover:bg-teal-50/30 transition-colors">
+                                <td className="py-3.5 px-4 font-black text-teal-800">{rx.name}</td>
+                                <td className="py-3.5 px-3 font-semibold">{rx.dosage}</td>
+                                <td className="py-3.5 px-3">{rx.frequency}</td>
+                                <td className="py-3.5 px-3">{rx.duration}</td>
+                                <td className="py-3.5 px-4 text-slate-600 text-xs font-medium">{rx.instructions}</td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
                       </div>
                     ) : (
-                      <p className="text-xs text-slate-500">لا توجد أدوية مضافة في هذه الاستشارة.</p>
+                      <p className="text-xs text-slate-500">لا توجد أدوية مسجلة في هذه الجلسة.</p>
                     )}
                   </div>
                 </motion.div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center p-12 glass rounded-3xl border border-dashed border-slate-800 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-brand-500/10 flex items-center justify-center text-3xl mb-4">
+                <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-12 bg-white rounded-3xl border-2 border-dashed border-slate-200 text-center shadow-xs">
+                  <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center text-3xl mb-4 text-teal-600 shadow-xs">
                     🩺
                   </div>
-                  <h3 className="font-bold text-lg text-white mb-1">مساحة عمل المساعد السريري الذكي</h3>
-                  <p className="text-xs sm:text-sm text-slate-400 max-w-md">
-                    سجل صوتاً أو اضغط على &quot;توليد تقرير SOAP والروشتة فوراً&quot; لعرض التحليل الطبي والاستدلال السريري هنا.
+                  <h3 className="font-black text-lg text-slate-900 mb-1">مساحة عمل المساعد السريري الذكي</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed">
+                    سجل صوتاً أو اضغط على &quot;توليد تقرير SOAP والروشتة فوراً&quot; لعرض التشخيص والاستدلال السريري والروشتة هنا.
                   </p>
                 </div>
               )}
@@ -549,12 +550,12 @@ export default function DoctorCoPilotPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Image Upload Column */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="glass rounded-3xl p-6 border border-slate-800 shadow-xl">
-                <h3 className="font-bold text-base text-white mb-3 flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-brand-400" />
+              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                <h3 className="font-extrabold text-base text-slate-900 mb-2 flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-teal-600" />
                   رفع وفحص الأشعة أو صورة التحاليل
                 </h3>
-                <p className="text-xs text-slate-400 mb-6">
+                <p className="text-xs text-slate-500 mb-6">
                   ارفع صورة أشعة سينية (X-Ray)، رنين (MRI)، مقطعية (CT)، أو صورة تقرير معملي لتحليلها لحظياً عبر GPT-4o Multimodal.
                 </p>
 
@@ -571,8 +572,8 @@ export default function DoctorCoPilotPage() {
                       onClick={() => setImageType(m.id)}
                       className={`py-2 rounded-xl text-xs font-bold transition-all ${
                         imageType === m.id
-                          ? "bg-brand-500 text-white shadow-md shadow-brand-500/20"
-                          : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+                          ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
+                          : "bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200"
                       }`}
                     >
                       {m.label}
@@ -581,7 +582,7 @@ export default function DoctorCoPilotPage() {
                 </div>
 
                 {/* Dropzone / Preview */}
-                <div className="relative border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-3xl p-6 text-center cursor-pointer transition-colors mb-4 overflow-hidden min-h-[220px] flex flex-col items-center justify-center">
+                <div className="relative border-2 border-dashed border-slate-300 hover:border-teal-500 bg-slate-50 hover:bg-teal-50/20 rounded-3xl p-6 text-center cursor-pointer transition-colors mb-4 overflow-hidden min-h-[220px] flex flex-col items-center justify-center">
                   <input
                     type="file"
                     accept="image/*"
@@ -599,13 +600,13 @@ export default function DoctorCoPilotPage() {
                     <img
                       src={imagePreview}
                       alt="Medical Scan"
-                      className="max-h-52 w-auto object-contain rounded-xl shadow-lg"
+                      className="max-h-52 w-auto object-contain rounded-xl shadow-md border border-slate-200"
                     />
                   ) : (
                     <div>
-                      <Upload className="w-10 h-10 text-brand-400 mx-auto mb-2" />
-                      <p className="text-xs font-semibold text-white">اضغط لاختيار صورة الأشعة أو اسحبها هنا</p>
-                      <p className="text-[11px] text-slate-500 mt-1">JPEG, PNG, DICOM</p>
+                      <Upload className="w-10 h-10 text-teal-600 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-slate-800">اضغط لاختيار صورة الأشعة أو اسحبها هنا</p>
+                      <p className="text-[11px] text-slate-400 mt-1">JPEG, PNG, DICOM</p>
                     </div>
                   )}
                 </div>
@@ -620,14 +621,14 @@ export default function DoctorCoPilotPage() {
                     );
                     setClinicalContext("Chest X-Ray PA View: Patient presents with cough and fever 38.5C.");
                   }}
-                  className="text-xs text-brand-400 hover:underline mb-4 block"
+                  className="text-xs font-bold text-teal-700 hover:underline mb-4 block"
                 >
                   📷 تجربة عينة أشعة سينية حقيقية (Chest X-Ray)
                 </button>
 
                 {/* Context Input */}
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     السياق السريري وشكوى المريض:
                   </label>
                   <input
@@ -635,14 +636,14 @@ export default function DoctorCoPilotPage() {
                     value={clinicalContext}
                     onChange={(e) => setClinicalContext(e.target.value)}
                     placeholder="مثال: ألم في الصدر مع كحة وارتفاع حرارة..."
-                    className="w-full rounded-xl bg-slate-900 border border-slate-800 p-3 text-xs text-slate-200 focus:outline-none focus:border-brand-500"
+                    className="w-full rounded-xl bg-slate-50 border border-slate-300 p-3 text-xs text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-all shadow-inner"
                   />
                 </div>
 
                 <button
                   onClick={handleAnalyzeImage}
                   disabled={isAnalyzingImage}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold text-sm shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-700 hover:to-sky-700 text-white font-extrabold text-sm shadow-md shadow-teal-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {isAnalyzingImage ? (
                     <>
@@ -665,41 +666,41 @@ export default function DoctorCoPilotPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="glass rounded-3xl p-6 border border-slate-800 shadow-xl space-y-6"
+                  className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-6"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+                  <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                     <div>
-                      <span className="text-xs text-slate-400 font-medium">نوع الفحص والمنطقة التشريحية</span>
-                      <h2 className="text-xl font-black text-white">
+                      <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">نوع الفحص والمنطقة التشريحية</span>
+                      <h2 className="text-xl font-black text-slate-900">
                         {imagingResult.modality} — {imagingResult.anatomical_region}
                       </h2>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30 text-xs font-bold">
+                    <span className="px-3.5 py-1.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-bold">
                       Quality: {imagingResult.quality_assessment}
                     </span>
                   </div>
 
                   {/* Impression Box */}
-                  <div className="p-4 rounded-2xl bg-slate-900/80 border border-brand-500/30 glow-brand">
-                    <h4 className="text-xs font-bold text-brand-400 uppercase mb-1">الانطباع التشخيصي (Diagnostic Impression):</h4>
-                    <p className="text-sm font-semibold text-slate-100 leading-relaxed">
+                  <div className="p-5 rounded-2xl bg-teal-50/70 border border-teal-200">
+                    <h4 className="text-xs font-bold text-teal-800 uppercase mb-1.5">الانطباع التشخيصي (Diagnostic Impression):</h4>
+                    <p className="text-sm font-bold text-slate-900 leading-relaxed">
                       {imagingResult.impression}
                     </p>
                   </div>
 
                   {/* Structured Findings */}
                   <div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-3">الملاحظات التشريحية المنظمة (Findings):</h4>
-                    <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase mb-3">الملاحظات التشريحية المنظمة (Findings):</h4>
+                    <div className="space-y-2.5">
                       {imagingResult.findings?.map((f, idx) => (
                         <div
                           key={idx}
-                          className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-xs"
+                          className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                         >
-                          <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${f.is_abnormal ? "bg-rose-500" : "bg-emerald-400"}`} />
+                          <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${f.is_abnormal ? "bg-rose-500" : "bg-emerald-500"}`} />
                           <div>
-                            <strong className="text-slate-200">{f.structure}:</strong>{" "}
-                            <span className="text-slate-400">{f.observation}</span>
+                            <strong className="text-slate-900 font-bold">{f.structure}:</strong>{" "}
+                            <span className="text-slate-600">{f.observation}</span>
                           </div>
                         </div>
                       ))}
@@ -708,8 +709,8 @@ export default function DoctorCoPilotPage() {
 
                   {/* Recommendations */}
                   {imagingResult.recommendations?.length > 0 && (
-                    <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 text-xs text-cyan-200">
-                      <h4 className="font-bold mb-1.5 text-cyan-300">التوصيات السريرية والمتابعة:</h4>
+                    <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200 text-xs text-sky-900">
+                      <h4 className="font-black mb-1.5 text-sky-900">التوصيات السريرية والمتابعة:</h4>
                       <ul className="list-disc list-inside space-y-1">
                         {imagingResult.recommendations.map((r, i) => (
                           <li key={i}>{r}</li>
@@ -719,12 +720,12 @@ export default function DoctorCoPilotPage() {
                   )}
                 </motion.div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center p-12 glass rounded-3xl border border-dashed border-slate-800 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-accent-500/10 flex items-center justify-center text-3xl mb-4">
+                <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-12 bg-white rounded-3xl border-2 border-dashed border-slate-200 text-center shadow-xs">
+                  <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center text-3xl mb-4 text-teal-600">
                     🔬
                   </div>
-                  <h3 className="font-bold text-lg text-white mb-1">محلل الأشعة والتحاليل بالرؤية الحاسوبية</h3>
-                  <p className="text-xs sm:text-sm text-slate-400 max-w-md">
+                  <h3 className="font-black text-lg text-slate-900 mb-1">محلل الأشعة والتحاليل بالرؤية الحاسوبية</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed">
                     ارفع صورة الفحص من اليسار واضغط على فحص الأشعة لعرض مسودة التقرير الإشعاعي والملاحظات هنا.
                   </p>
                 </div>
@@ -738,27 +739,27 @@ export default function DoctorCoPilotPage() {
         {/* ======================================================== */}
         {activeTab === "guidelines" && (
           <div className="max-w-4xl mx-auto space-y-6">
-            <div className="glass rounded-3xl p-6 border border-slate-800">
-              <h3 className="font-bold text-base text-white mb-2 flex items-center gap-2">
-                <Search className="w-5 h-5 text-brand-400" />
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+              <h3 className="font-extrabold text-base text-slate-900 mb-2 flex items-center gap-2">
+                <Search className="w-5 h-5 text-teal-600" />
                 البحث في البروتوكولات العلاجية المبنية على الدليل (Evidence-Based Guidelines)
               </h3>
-              <p className="text-xs text-slate-400 mb-4">
+              <p className="text-xs text-slate-500 mb-4">
                 ابحث عن أي تشخيص (مثل: Hypertension, Diabetes, Sinusitis, Asthma) للاطلاع على أدوية الخط الأول والتوصيات.
               </p>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2.5">
                 <input
                   type="text"
                   value={guidelineSearch}
                   onChange={(e) => setGuidelineSearch(e.target.value)}
                   placeholder="اكتب اسم المرض أو التشخيص..."
-                  className="flex-1 rounded-2xl bg-slate-900 border border-slate-800 p-3.5 text-sm text-slate-200 focus:outline-none focus:border-brand-500"
+                  className="flex-1 rounded-2xl bg-slate-50 border border-slate-300 p-3.5 text-sm text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white shadow-inner transition-all"
                 />
                 <button
                   onClick={handleSearchGuidelines}
                   disabled={isLoadingGuideline}
-                  className="px-6 py-3.5 rounded-2xl bg-brand-500 hover:bg-brand-400 text-white font-bold text-sm shadow-md shadow-brand-500/25 transition-all flex items-center gap-2"
+                  className="px-7 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md shadow-teal-600/25 transition-all flex items-center gap-2"
                 >
                   {isLoadingGuideline ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                   بحث
@@ -770,18 +771,18 @@ export default function DoctorCoPilotPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass rounded-3xl p-6 border border-slate-800 space-y-4"
+                className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-4"
               >
-                <h2 className="text-xl font-bold text-gradient">{guidelineResult.condition}</h2>
+                <h2 className="text-xl font-black text-teal-800">{guidelineResult.condition}</h2>
 
                 {guidelineResult.first_line_therapy && (
                   <div>
-                    <h4 className="text-xs font-bold text-brand-400 uppercase mb-2">أدوية الخط الأول (First-Line Therapy):</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase mb-2.5">أدوية الخط الأول (First-Line Therapy):</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       {guidelineResult.first_line_therapy.map((item: any, i: number) => (
-                        <div key={i} className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
-                          <strong className="text-slate-200 block mb-1">{item.class}</strong>
-                          <span className="text-slate-400">{item.examples?.join(", ")}</span>
+                        <div key={i} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+                          <strong className="text-slate-900 block mb-1 font-bold text-sm">{item.class}</strong>
+                          <span className="text-slate-600">{item.examples?.join(", ")}</span>
                         </div>
                       ))}
                     </div>
@@ -789,15 +790,15 @@ export default function DoctorCoPilotPage() {
                 )}
 
                 {guidelineResult.lifestyle_modifications && (
-                  <div className="p-3.5 rounded-xl bg-slate-900/40 border border-slate-800 text-xs text-slate-300">
-                    <strong className="text-accent-400 block mb-1">تعديل نمط الحياة (Lifestyle Modifications):</strong>
+                  <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-xs text-teal-950">
+                    <strong className="text-teal-800 block mb-1 font-bold">تعديل نمط الحياة (Lifestyle Modifications):</strong>
                     {guidelineResult.lifestyle_modifications}
                   </div>
                 )}
 
                 {guidelineResult.red_flags && (
-                  <div className="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/30 text-xs text-rose-300">
-                    <strong className="text-rose-400 block mb-1">علامات الخطر الحرجة (Red Flags):</strong>
+                  <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-950">
+                    <strong className="text-rose-700 block mb-1 font-bold">علامات الخطر الحرجة (Red Flags):</strong>
                     {guidelineResult.red_flags}
                   </div>
                 )}
