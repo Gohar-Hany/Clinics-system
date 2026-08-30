@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
 import { clinicApi, QueuePositionResponse, QueueStateResponse } from "@/services/api";
-import { Search, Users, Activity, Phone, RefreshCw, UserCheck } from "lucide-react";
+import { Search, Users, Activity, Phone, RefreshCw, UserCheck, Clock, Ticket } from "lucide-react";
 
 export default function LiveQueuePage() {
   const [identifier, setIdentifier] = useState("01284709314");
@@ -50,17 +50,17 @@ export default function LiveQueuePage() {
 
       {/* Main Content Area */}
       <div className="flex-1 md:mr-72 flex flex-col min-h-screen">
-        <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-10 space-y-8">
-          {/* Universal Search Box Card */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md text-center max-w-2xl mx-auto">
+        <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
+          {/* Search Card */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs text-center max-w-2xl mx-auto">
             <span className="px-3.5 py-1.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-black inline-block mb-3">
-              البحث الشامل في الطابور (Universal Queue Tracker)
+              نظام الاستعلام المباشر عن الطابور (Universal Queue Tracker)
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">
               تابع دورك في الكشف والوقت المتبقي لحظياً
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 font-medium mb-6">
-              ابحث بـ <strong>رقم هاتفك المحمول</strong>، أو <strong>كود الحجز (REF-XXXX)</strong> لمعرفة دورك دون حفظ أكواد معقدة.
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mb-6">
+              ابحث بـ <strong>رقم هاتفك المحمول</strong>، أو <strong>كود الحجز (REF-XXXX)</strong> لمعرفة دورك في ثوانٍ.
             </p>
 
             <form onSubmit={handleSearchPosition} className="flex gap-2.5">
@@ -71,7 +71,7 @@ export default function LiveQueuePage() {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="أدخل رقم الموبايل (مثال: 01284709314) أو كود الحجز..."
-                  className="w-full rounded-2xl bg-slate-50 border-2 border-slate-300 pr-11 pl-4 py-3.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-600 focus:bg-white transition-all shadow-xs"
+                  className="w-full rounded-2xl bg-slate-50 border-2 border-slate-300 pr-11 pl-4 py-3.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-600 focus:bg-white transition-all shadow-inner"
                 />
               </div>
               <button
@@ -90,7 +90,7 @@ export default function LiveQueuePage() {
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-teal-500 shadow-xl max-w-2xl mx-auto"
+              className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-teal-500 shadow-xs max-w-2xl mx-auto"
             >
               <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                 <div>
@@ -115,13 +115,13 @@ export default function LiveQueuePage() {
                   <p className="text-xs text-amber-800 font-bold mb-1">مرضى قبلك</p>
                   <p className="text-3xl font-black text-amber-600">{patientPosition.patients_ahead}</p>
                 </div>
-                <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200">
-                  <p className="text-xs text-indigo-800 font-bold mb-1">الوقت المتوقع</p>
-                  <p className="text-2xl font-black text-indigo-700">~{patientPosition.estimated_wait_minutes} د</p>
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                  <p className="text-xs text-slate-700 font-bold mb-1">الوقت المتوقع</p>
+                  <p className="text-2xl font-black text-slate-900">~{patientPosition.estimated_wait_minutes} د</p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs sm:text-sm text-slate-800">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs sm:text-sm text-slate-800 font-bold">
                 {patientPosition.patients_ahead === 0 ? (
                   <span className="text-emerald-700 font-black flex items-center justify-center gap-2 text-sm">
                     <UserCheck className="w-5 h-5 text-emerald-600" /> دورك القادم مباشرة! يرجى التوجه لغرفة الكشف.
@@ -136,7 +136,7 @@ export default function LiveQueuePage() {
           )}
 
           {/* Global Clinic Queue Display */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="font-black text-xl text-slate-900 flex items-center gap-2">
@@ -161,7 +161,7 @@ export default function LiveQueuePage() {
             </div>
 
             {/* Current Serving Banner */}
-            <div className="p-8 rounded-3xl bg-gradient-to-r from-teal-600 via-teal-500 to-sky-600 text-white text-center mb-6 shadow-lg shadow-teal-600/20">
+            <div className="p-8 rounded-3xl bg-gradient-to-r from-teal-600 to-sky-600 text-white text-center mb-6 shadow-md shadow-teal-600/15">
               <p className="text-xs text-teal-100 font-bold mb-1 uppercase tracking-wider">
                 جاري الكشف عليه الآن داخل غرفة الطبيب
               </p>
@@ -180,7 +180,7 @@ export default function LiveQueuePage() {
                       key={entry.appointment_id}
                       className={`p-4 rounded-2xl border-2 text-center transition-all ${
                         isServing
-                          ? "bg-teal-50 border-teal-500 text-teal-900 shadow-md shadow-teal-500/10"
+                          ? "bg-teal-50 border-teal-500 text-teal-900 shadow-xs"
                           : "bg-slate-50 border-slate-200 text-slate-800"
                       }`}
                     >
@@ -203,7 +203,7 @@ export default function LiveQueuePage() {
                 })}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 text-center py-8">لا توجد حالات في الطابور حالياً.</p>
+              <p className="text-xs text-slate-400 text-center py-8 font-bold">لا توجد حالات في الطابور حالياً.</p>
             )}
           </div>
         </main>

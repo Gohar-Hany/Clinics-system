@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
 import {
   clinicApi,
@@ -22,6 +22,8 @@ import {
   RefreshCw,
   Eye,
   ShieldCheck,
+  Activity,
+  FileCheck,
 } from "lucide-react";
 
 export default function DoctorCoPilotPage() {
@@ -164,21 +166,17 @@ export default function DoctorCoPilotPage() {
 
       {/* Main Content Area */}
       <div className="flex-1 md:mr-72 flex flex-col min-h-screen">
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
           {/* Header Title Card */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-md">
-            <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-black flex items-center gap-1.5 shadow-2xs">
-                  <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-                  Phase 2 — Doctor AI Co-Pilot
-                </span>
-                <span className="text-xs text-slate-500 font-bold">GPT-4o Multimodal + Whisper</span>
-              </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-xs">
+            <div className="text-right">
+              <span className="px-3.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-black inline-block mb-2">
+                المساعد السريري الذكي للأطباء (Clinical AI Assistant)
+              </span>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                مساعد الطبيب والاستشارات السريرية الذكية
+                المساعد السريري والاستشارات الطبية
               </h1>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
                 تفريغ فوري للمحادثات، توليد تقارير SOAP، روشتات ذكية مع فحص التعارض، وفحص الأشعة بالرؤية الحاسوبية.
               </p>
             </div>
@@ -227,7 +225,7 @@ export default function DoctorCoPilotPage() {
               {/* Left Column */}
               <div className="lg:col-span-5 space-y-6">
                 {/* Voice Recording Card */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-md">
+                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
                   <h3 className="font-black text-base text-slate-900 mb-1.5 flex items-center gap-2">
                     <Mic className="w-5 h-5 text-teal-600" />
                     تسجيل جلسة الكشف المباشرة
@@ -292,7 +290,7 @@ export default function DoctorCoPilotPage() {
                 </div>
 
                 {/* Transcript Input Card */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-md">
+                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-black text-base text-slate-900 flex items-center gap-2">
                       <FileText className="w-5 h-5 text-sky-600" />
@@ -321,7 +319,7 @@ export default function DoctorCoPilotPage() {
                   <button
                     onClick={handleAnalyzeConsultation}
                     disabled={isAnalyzing}
-                    className="w-full mt-4 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-700 hover:to-sky-700 text-white font-black text-sm shadow-md shadow-teal-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full mt-4 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-black text-sm shadow-md shadow-teal-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isAnalyzing ? (
                       <>
@@ -347,7 +345,7 @@ export default function DoctorCoPilotPage() {
                     className="space-y-6"
                   >
                     {/* Diagnosis Banner */}
-                    <div className="bg-white rounded-3xl p-6 border-2 border-teal-500 shadow-md">
+                    <div className="bg-white rounded-3xl p-6 border-2 border-teal-500 shadow-xs">
                       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <div>
                           <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">التشخيص الأولي (Primary Diagnosis)</span>
@@ -443,7 +441,7 @@ export default function DoctorCoPilotPage() {
                     {/* Drug Interactions */}
                     {consultationResult.drug_interactions && (
                       <div
-                        className={`rounded-2xl p-5 border shadow-sm ${
+                        className={`rounded-2xl p-5 border shadow-xs ${
                           consultationResult.drug_interactions.safe_to_prescribe
                             ? "bg-emerald-50 border-emerald-300 text-emerald-950"
                             : "bg-rose-50 border-2 border-rose-400 text-rose-950"
@@ -485,7 +483,7 @@ export default function DoctorCoPilotPage() {
                     )}
 
                     {/* Prescription */}
-                    <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
                       <h3 className="font-black text-base text-slate-900 mb-4 flex items-center gap-2">
                         <Pill className="w-5 h-5 text-teal-600" />
                         الروشتة الطبية الذكية (Prescription Rx)
@@ -522,7 +520,7 @@ export default function DoctorCoPilotPage() {
                     </div>
                   </motion.div>
                 ) : (
-                  <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-12 bg-white rounded-3xl border-2 border-dashed border-slate-300 text-center shadow-xs">
+                  <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-12 bg-white rounded-3xl border border-slate-200 text-center shadow-xs">
                     <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4 text-teal-600 shadow-xs">
                       <Stethoscope className="w-8 h-8" />
                     </div>
@@ -540,7 +538,7 @@ export default function DoctorCoPilotPage() {
           {activeTab === "imaging" && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-5 space-y-6">
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-md">
+                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
                   <h3 className="font-black text-base text-slate-900 mb-2 flex items-center gap-2">
                     <Eye className="w-5 h-5 text-teal-600" />
                     رفع وفحص الأشعة أو صورة التحاليل
@@ -629,7 +627,7 @@ export default function DoctorCoPilotPage() {
                   <button
                     onClick={handleAnalyzeImage}
                     disabled={isAnalyzingImage}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-700 hover:to-sky-700 text-white font-black text-sm shadow-md shadow-teal-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-black text-sm shadow-md shadow-teal-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isAnalyzingImage ? (
                       <>
@@ -652,7 +650,7 @@ export default function DoctorCoPilotPage() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-6"
+                    className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                       <div>
@@ -703,7 +701,7 @@ export default function DoctorCoPilotPage() {
                     )}
                   </motion.div>
                 ) : (
-                  <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-12 bg-white rounded-3xl border-2 border-dashed border-slate-300 text-center shadow-xs">
+                  <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-12 bg-white rounded-3xl border border-slate-200 text-center shadow-xs">
                     <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4 text-teal-600">
                       <Eye className="w-8 h-8" />
                     </div>
@@ -720,7 +718,7 @@ export default function DoctorCoPilotPage() {
           {/* TAB 3: GUIDELINES */}
           {activeTab === "guidelines" && (
             <div className="max-w-4xl mx-auto space-y-6">
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs">
                 <h3 className="font-black text-base text-slate-900 mb-2 flex items-center gap-2">
                   <Search className="w-5 h-5 text-teal-600" />
                   البحث في البروتوكولات العلاجية المبنية على الدليل (Evidence-Based Guidelines)
@@ -752,7 +750,7 @@ export default function DoctorCoPilotPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-4"
+                  className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4"
                 >
                   <h2 className="text-xl font-black text-teal-800">{guidelineResult.condition}</h2>
 

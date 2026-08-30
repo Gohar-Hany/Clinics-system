@@ -12,9 +12,7 @@ import {
   Activity,
   Menu,
   X,
-  ShieldCheck,
-  Building2,
-  ChevronLeft,
+  User,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -23,51 +21,51 @@ export default function Sidebar() {
 
   const navItems = [
     {
-      href: "/chat",
-      label: "احجز موعدك",
-      subtitle: "حجز ذكي بالذكاء الاصطناعي",
-      icon: MessageSquare,
-    },
-    {
-      href: "/queue",
-      label: "الطابور المباشر",
-      subtitle: "تتبع الدور والوقت المتبقي",
-      icon: Users,
+      href: "/clinic",
+      label: "لوحة الريسبشن",
+      subtitle: "إدارة الطابور والكشوفات",
+      icon: LayoutDashboard,
     },
     {
       href: "/doctor",
       label: "مساعد الطبيب الذكي",
-      subtitle: "SOAP Notes & VLM Scanner",
+      subtitle: "تقرير SOAP وفحص الأشعة",
       icon: Stethoscope,
-      badge: "Phase 2",
     },
     {
-      href: "/clinic",
-      label: "لوحة الريسبشن",
-      subtitle: "إدارة الدخول والكشوفات",
-      icon: LayoutDashboard,
+      href: "/queue",
+      label: "شاشة الطابور المباشر",
+      subtitle: "تتبع الدور والوقت المتبقي",
+      icon: Users,
+    },
+    {
+      href: "/chat",
+      label: "حجز موعد بالذكاء الاصطناعي",
+      subtitle: "المساعد الآلي للمرضى",
+      icon: MessageSquare,
     },
   ];
 
   return (
     <>
-      {/* Mobile Top Bar with Hamburger */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+      {/* Mobile Top Bar */}
+      <div className="md:hidden flex items-center justify-between px-5 py-3.5 bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-600 to-sky-600 flex items-center justify-center text-white shadow-xs">
+          <div className="w-8 h-8 rounded-xl bg-teal-600 flex items-center justify-center text-white shadow-xs">
             <Plus className="w-5 h-5 stroke-[3]" />
           </div>
           <span className="font-black text-lg text-slate-900">عيادتي</span>
         </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors"
+          className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+          aria-label="القائمة"
         >
           {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Backdrop for mobile */}
+      {/* Backdrop for mobile drawer */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
@@ -75,35 +73,40 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Main Sidebar */}
+      {/* Main Enterprise Sidebar */}
       <aside
-        className={`fixed top-0 right-0 bottom-0 w-64 sm:w-72 bg-white border-l border-slate-200/90 flex flex-col justify-between z-50 transition-transform duration-300 ease-in-out md:translate-x-0 ${
+        className={`fixed top-0 right-0 bottom-0 w-72 bg-white border-l border-slate-200/90 flex flex-col justify-between z-50 transition-transform duration-300 ease-in-out md:translate-x-0 ${
           isOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"
-        } shadow-sm`}
+        } shadow-xs`}
       >
-        {/* Top Header & Brand */}
-        <div className="p-6">
-          <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-600 via-teal-500 to-sky-600 flex items-center justify-center text-white shadow-md shadow-teal-600/20 group-hover:scale-105 transition-transform">
+        {/* Top Section */}
+        <div className="p-5">
+          {/* Clinic Brand Header */}
+          <Link
+            href="/"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 transition-colors group"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-600 to-sky-600 flex items-center justify-center text-white shadow-md shadow-teal-600/20 group-hover:scale-105 transition-transform shrink-0">
               <Plus className="w-6 h-6 stroke-[3]" />
             </div>
-            <div>
-              <div className="flex items-center gap-1.5">
+            <div className="text-right">
+              <div className="flex items-center gap-2">
                 <span className="font-black text-xl text-slate-900 tracking-tight">عيادتي</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 font-bold border border-teal-200">
-                  Cloud
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 font-extrabold border border-teal-200">
+                  نظام طبي
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium">3eyadaty Smart Healthcare</p>
+              <p className="text-[11px] text-slate-500 font-medium">3eyadaty Clinical Management</p>
             </div>
           </Link>
 
-          {/* Navigation Section */}
-          <div className="mt-8">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-3 block">
-              القائمة الرئيسية
+          {/* Navigation Links */}
+          <div className="mt-6">
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider px-3 mb-2.5 block text-right">
+              الخدمات والأنظمة
             </span>
-            <nav className="space-y-1.5">
+            <nav className="space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -112,35 +115,29 @@ export default function Sidebar() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center justify-between p-3 rounded-2xl transition-all ${
+                    className={`flex items-center gap-3 p-3 rounded-2xl transition-all text-right ${
                       isActive
-                        ? "bg-teal-50 text-teal-900 border border-teal-200/80 shadow-xs font-black"
-                        : "text-slate-600 hover:text-teal-800 hover:bg-slate-50 font-bold"
+                        ? "bg-teal-50 text-teal-950 border border-teal-200/90 shadow-xs"
+                        : "text-slate-700 hover:text-teal-900 hover:bg-slate-50"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-                          isActive
-                            ? "bg-teal-600 text-white shadow-sm"
-                            : "bg-slate-100 text-slate-600 group-hover:text-teal-700"
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div className="text-right">
-                        <span className="text-xs sm:text-sm block">{item.label}</span>
-                        <span className="text-[10px] text-slate-400 font-medium block">
-                          {item.subtitle}
-                        </span>
-                      </div>
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                        isActive
+                          ? "bg-teal-600 text-white shadow-sm"
+                          : "bg-slate-100 text-slate-600 group-hover:text-teal-700"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
                     </div>
-
-                    {item.badge && (
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-black border border-sky-200">
-                        {item.badge}
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-xs sm:text-sm block truncate ${isActive ? "font-black" : "font-bold"}`}>
+                        {item.label}
                       </span>
-                    )}
+                      <span className="text-[11px] text-slate-500 font-medium block truncate">
+                        {item.subtitle}
+                      </span>
+                    </div>
                   </Link>
                 );
               })}
@@ -148,21 +145,24 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* Bottom Section: Live Status & Clinic Info */}
-        <div className="p-5 border-t border-slate-100 bg-slate-50/60 m-3 rounded-2xl space-y-3">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-bold text-slate-700 text-[11px]">حالة السيرفر: نشط</span>
+        {/* Bottom Section: Doctor Profile & Cloud Server Status */}
+        <div className="p-4 border-t border-slate-200 bg-slate-50/70">
+          <div className="flex items-center gap-3 p-2 rounded-xl bg-white border border-slate-200/90 shadow-2xs mb-2.5">
+            <div className="w-9 h-9 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center shrink-0">
+              <Stethoscope className="w-4 h-4" />
             </div>
-            <span className="text-[10px] font-bold text-teal-800 bg-teal-100/60 px-2 py-0.5 rounded-md">
-              Railway Live
-            </span>
+            <div className="flex-1 min-w-0 text-right">
+              <p className="text-xs font-black text-slate-900 truncate">د. جوهر هاني</p>
+              <p className="text-[10px] text-slate-500 font-bold truncate">استشاري الباطنة والقلب</p>
+            </div>
           </div>
 
-          <div className="text-[11px] text-slate-500 font-medium">
-            <p>العيادة: <strong>د. جوهر هاني</strong></p>
-            <p className="text-[10px] text-slate-400 mt-0.5">استشاري الباطنة والقلب</p>
+          <div className="flex items-center justify-between text-[11px] px-1 text-slate-600 font-bold">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>السيرفر السحابي متصل</span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-medium">v2.4 Live</span>
           </div>
         </div>
       </aside>
