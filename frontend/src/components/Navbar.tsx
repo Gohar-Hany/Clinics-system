@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, Users, Stethoscope, LayoutDashboard, Sparkles, Activity } from "lucide-react";
+import { MessageSquare, Users, Stethoscope, LayoutDashboard, Activity, Plus } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -15,12 +15,12 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 sticky top-0 z-50 shadow-sm">
+    <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 sticky top-0 z-50 shadow-xs">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-600 via-teal-500 to-sky-600 flex items-center justify-center text-xl shadow-md shadow-teal-600/20 group-hover:scale-105 transition-transform text-white">
-            🏥
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 via-teal-500 to-sky-600 flex items-center justify-center text-white shadow-md shadow-teal-600/20 group-hover:scale-105 transition-transform">
+            <Plus className="w-6 h-6 stroke-[3]" />
           </div>
           <div>
             <span className="font-black text-xl text-slate-900 tracking-tight flex items-center gap-1.5">
@@ -42,7 +42,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+                className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
                   isActive
                     ? "bg-teal-600 text-white shadow-md shadow-teal-600/25"
                     : "text-slate-600 hover:text-teal-700 hover:bg-teal-50/70"
@@ -67,9 +67,9 @@ export default function Navbar() {
         </nav>
 
         {/* Live Server Indicator */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] text-emerald-800 font-semibold shadow-xs">
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 font-semibold">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>سيرفر السحابة لايف</span>
+          <span>سيرفر السحابة نشط</span>
         </div>
       </div>
     </header>

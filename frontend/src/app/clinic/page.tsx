@@ -36,12 +36,12 @@ const INITIAL_PATIENTS: Patient[] = [
   { id: "c32e9e05", name: "نورا خالد محمد", phone: "01666777888", queue_number: 6, appointment_time: "12:00", status: "scheduled" },
 ];
 
-const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  scheduled: { label: "محجوز", color: "text-slate-700", bg: "bg-slate-100 border border-slate-300" },
-  checked_in: { label: "وصل العيادة ✅", color: "text-teal-900", bg: "bg-teal-100 border border-teal-300" },
-  in_progress: { label: "جوا الكشف 🔵", color: "text-sky-900", bg: "bg-sky-100 border border-sky-300" },
-  completed: { label: "انتهى الكشف", color: "text-emerald-900", bg: "bg-emerald-100 border border-emerald-300" },
-  no_show: { label: "لم يحضر", color: "text-rose-900", bg: "bg-rose-100 border border-rose-300" },
+const statusConfig: Record<string, { label: string; color: string; bg: string; dot: string }> = {
+  scheduled: { label: "محجوز", color: "text-slate-700", bg: "bg-slate-100 border border-slate-300", dot: "bg-slate-400" },
+  checked_in: { label: "حاضر بالعيادة", color: "text-teal-900", bg: "bg-teal-100 border border-teal-300", dot: "bg-teal-600" },
+  in_progress: { label: "داخل الكشف", color: "text-sky-900", bg: "bg-sky-100 border border-sky-300", dot: "bg-sky-600 animate-pulse" },
+  completed: { label: "انتهى الكشف", color: "text-emerald-900", bg: "bg-emerald-100 border border-emerald-300", dot: "bg-emerald-600" },
+  no_show: { label: "لم يحضر", color: "text-rose-900", bg: "bg-rose-100 border border-rose-300", dot: "bg-rose-600" },
 };
 
 export default function ClinicDashboard() {
@@ -131,7 +131,7 @@ export default function ClinicDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-3xl p-5 border-2 border-teal-500 shadow-md">
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1 block">جوا الكشف الآن</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1 block">داخل الكشف الآن</span>
             <p className="text-4xl font-black text-teal-700">
               {currentServing ? `#${currentServing.queue_number}` : "—"}
             </p>
@@ -201,8 +201,9 @@ export default function ClinicDashboard() {
                       <td className="py-4 px-3 font-black text-slate-700">{p.appointment_time}</td>
                       <td className="py-4 px-3">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-black shadow-2xs ${status.bg} ${status.color}`}
+                          className={`px-3 py-1 rounded-full text-xs font-black shadow-2xs inline-flex items-center gap-1.5 ${status.bg} ${status.color}`}
                         >
+                          <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
                           {status.label}
                         </span>
                       </td>

@@ -3,18 +3,18 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
-import { MessageSquare, Users, Stethoscope, LayoutDashboard, Sparkles, Shield, Zap, ArrowRight, CheckCircle2 } from "lucide-react";
+import { MessageSquare, Users, Stethoscope, LayoutDashboard, Sparkles, Shield, Zap, ArrowRight, Activity } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
       <Navbar />
 
       {/* Hero Section */}
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16 relative overflow-hidden">
         {/* Subtle Ambient Background Highlights */}
-        <div className="absolute top-1/4 -right-20 w-96 h-96 bg-teal-200/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-10 -left-20 w-96 h-96 bg-sky-200/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 -right-20 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 -left-20 w-96 h-96 bg-sky-200/30 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
           {/* Animated Badge */}
@@ -56,7 +56,7 @@ export default function HomePage() {
             {/* Card 1: Chat Booking */}
             <Link
               href="/chat"
-              className="group p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-teal-400 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
+              className="group p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-teal-500 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
             >
               <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all shadow-xs">
                 <MessageSquare className="w-6 h-6" />
@@ -71,7 +71,7 @@ export default function HomePage() {
             {/* Card 2: Live Queue */}
             <Link
               href="/queue"
-              className="group p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-400 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
+              className="group p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-sky-500 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
             >
               <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-sky-600 group-hover:text-white transition-all shadow-xs">
                 <Users className="w-6 h-6" />
@@ -106,7 +106,7 @@ export default function HomePage() {
             {/* Card 4: Reception Dashboard */}
             <Link
               href="/clinic"
-              className="group p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-400 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
+              className="group p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-emerald-500 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
             >
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xs">
                 <LayoutDashboard className="w-6 h-6" />
@@ -121,7 +121,7 @@ export default function HomePage() {
 
           {/* System Pillars */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-10 border-t border-slate-200">
-            <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+            <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
               <div className="w-11 h-11 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600 shrink-0">
                 <Zap className="w-5 h-5" />
               </div>
@@ -131,7 +131,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+            <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
               <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
                 <Shield className="w-5 h-5" />
               </div>
@@ -141,7 +141,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+            <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
               <div className="w-11 h-11 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>

@@ -185,11 +185,16 @@ export default function LiveQueuePage() {
                     <span className="text-xs text-slate-400 font-bold block mb-1">تذكرة</span>
                     <p className="text-3xl font-black text-slate-900">#{entry.queue_number}</p>
                     <span
-                      className={`text-[11px] font-black block mt-2 px-2 py-0.5 rounded-full ${
+                      className={`text-[11px] font-black flex items-center justify-center gap-1.5 mt-2 px-2 py-0.5 rounded-full ${
                         isServing ? "bg-teal-200 text-teal-900" : "bg-slate-200 text-slate-700"
                       }`}
                     >
-                      {isServing ? "🔵 جوا الكشف" : "⏳ في الانتظار"}
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          isServing ? "bg-teal-700 animate-pulse" : "bg-slate-500"
+                        }`}
+                      />
+                      {isServing ? "داخل الكشف" : "في الانتظار"}
                     </span>
                   </div>
                 );

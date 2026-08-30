@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   Send,
   HeartPulse,
+  FileCheck,
 } from "lucide-react";
 
 export default function DoctorCoPilotPage() {
@@ -311,7 +312,7 @@ export default function DoctorCoPilotPage() {
                     }
                     className="text-xs text-teal-700 font-black hover:underline"
                   >
-                    نموذج سكري 🧪
+                    نموذج حالة سكري
                   </button>
                 </div>
 
@@ -361,8 +362,9 @@ export default function DoctorCoPilotPage() {
                         </h2>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black">
-                          Consultation Completed ✅
+                        <span className="px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          اكتمل التحليل السريري
                         </span>
                       </div>
                     </div>
@@ -465,8 +467,8 @@ export default function DoctorCoPilotPage() {
                         <div>
                           <h4 className="font-black text-sm">
                             {consultationResult.drug_interactions.safe_to_prescribe
-                              ? "فحص أمان الأدوية: الروشتة آمنة تماماً ولا يوجد أي تعارض دوائي ✅"
-                              : "⚠️ تحذير طبي خطير: تم رصد تداخل وتعارض بين الأدوية الموصوفة!"}
+                              ? "فحص أمان الأدوية: الروشتة آمنة تماماً ولا يوجد أي تعارض دوائي"
+                              : "تحذير طبي: تم رصد تداخل وتعارض بين الأدوية الموصوفة"}
                           </h4>
                           {!consultationResult.drug_interactions.safe_to_prescribe && (
                             <div className="mt-3 space-y-2 text-xs">
@@ -480,7 +482,7 @@ export default function DoctorCoPilotPage() {
                                     <strong>التأثير السريري:</strong> {item.clinical_effect}
                                   </p>
                                   <p className="text-rose-800 font-bold mt-1">
-                                    💡 <strong>التوصية البديلة:</strong> {item.recommendation}
+                                    <strong>التوصية السريرية البديلة:</strong> {item.recommendation}
                                   </p>
                                 </div>
                               ))}
@@ -530,8 +532,8 @@ export default function DoctorCoPilotPage() {
                 </motion.div>
               ) : (
                 <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-12 bg-white rounded-3xl border-2 border-dashed border-slate-300 text-center shadow-xs">
-                  <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center text-3xl mb-4 text-teal-600 shadow-xs">
-                    🩺
+                  <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4 text-teal-600 shadow-xs">
+                    <Stethoscope className="w-8 h-8" />
                   </div>
                   <h3 className="font-black text-lg text-slate-900 mb-1">مساحة عمل المساعد السريري الذكي</h3>
                   <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-md leading-relaxed">
@@ -623,7 +625,7 @@ export default function DoctorCoPilotPage() {
                   }}
                   className="text-xs font-black text-teal-700 hover:underline mb-4 block"
                 >
-                  📷 تجربة عينة أشعة سينية حقيقية (Chest X-Ray)
+                  تحميل عينة أشعة سينية تجريبية (Chest X-Ray)
                 </button>
 
                 {/* Context Input */}
@@ -721,8 +723,8 @@ export default function DoctorCoPilotPage() {
                 </motion.div>
               ) : (
                 <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-12 bg-white rounded-3xl border-2 border-dashed border-slate-300 text-center shadow-xs">
-                  <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center text-3xl mb-4 text-teal-600">
-                    🔬
+                  <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4 text-teal-600">
+                    <Eye className="w-8 h-8" />
                   </div>
                   <h3 className="font-black text-lg text-slate-900 mb-1">محلل الأشعة والتحاليل بالرؤية الحاسوبية</h3>
                   <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-md leading-relaxed">
