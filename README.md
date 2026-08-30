@@ -16,7 +16,7 @@
   <b>Production-grade, resilient clinic management platform featuring autonomous multi-turn LangGraph AI booking agents, Egyptian Arabic dialect NLP, millisecond-level distributed slot locking, and dynamic live queue tracking with rolling average ETA recalculation.</b>
 </p>
 
-[Frontend Guide (العربية)](FRONTEND_INTEGRATION_GUIDE.md) • [Frontend Guide (English)](FRONTEND_INTEGRATION_GUIDE_EN.md) • [Postman Collection](postman/README.md) • [Live Swagger Docs](https://3eyadaty-api.up.railway.app/docs) • [Live API Health](https://3eyadaty-api.up.railway.app/health)
+[Phase 2 Doctor AI Guide (العربية)](PHASE_2_DOCTOR_AI_GUIDE.md) • [Phase 2 Doctor AI Guide (English)](PHASE_2_DOCTOR_AI_GUIDE_EN.md) • [Full Guide (العربية)](FRONTEND_INTEGRATION_GUIDE.md) • [Full Guide (English)](FRONTEND_INTEGRATION_GUIDE_EN.md) • [Postman Collection](postman/README.md) • [Live Swagger Docs](https://3eyadaty-api.up.railway.app/docs)
 
 </div>
 
