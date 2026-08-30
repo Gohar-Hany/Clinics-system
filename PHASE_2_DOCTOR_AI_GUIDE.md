@@ -1,29 +1,52 @@
-# 🩺 دليل التكامل البرمجي لمساعد الطبيب الذكي (Phase 2 Integration Guide)
+# 🩺 دليل التكامل البرمجي الشامل لمساعد الطبيب الذكي (Phase 2 Master Guide)
 ## نظام "عيادتي" الذكي — خدمات الذكاء الاصطناعي السريري والتشخيص الإشعاعي
 
+> **نسخة الدليل:** v2.0.0 — Production Ready  
 > **موجّه إلى:** مهندس الواجهات الأمامية (Frontend Engineer / Full-Stack Developer)  
-> **الهدف:** الربط مع خدمات المساعد السريري (Doctor AI Co-Pilot)، التسجيل والتفريغ الصوتي (Whisper)، توليد تقارير الـ SOAP، الروشتة الذكية وفحص تعارض الأدوية، وفحص الأشعة بالرؤية الحاسوبية (VLM).
+> **الهدف:** توفير مرجع برمجي متكامل ومغلق بنسبة 100% يحتوي على جميع الـ Endpoints، مع الترويسات، نماذج الطلبات، جداول شرح كل حقل في الـ JSON، معالجة الأخطاء، ونماذج كود TypeScript & React كاملة جاهزة للنسخ واللصق.
 
 ---
 
 ## 📑 فهرس المحتويات
-1. [بيئة التشغيل والترويسات الأساسية (Environment & Headers)](#1-بيئة-التشغيل-والترويسات-الأساسية)
-2. [مرجع الـ APIs الخاصة بمساعد الطبيب (Phase 2 API Reference)](#2-مرجع-الـ-apis-الخاصة-بمساعد-الطبيب)
-   - [2.1 تفريغ وتحليل الاستشارة الصوتية الطبية (Voice-to-SOAP)](#21-تفريغ-وتحليل-الاستشارة-الصوتية-الطبية-voice-to-soap)
-   - [2.2 تحليل الملاحظات النصية المباشرة للطبيب (Text-to-SOAP)](#22-تحليل-الملاحظات-النصية-المباشرة-للطبيب-text-to-soap)
-   - [2.3 فحص الأشعة والتحاليل بالرؤية الحاسوبية (Medical Imaging VLM Scanner)](#23-فحص-الأشعة-والتحاليل-بالرؤية-الحاسوبية-medical-imaging-vlm-scanner)
-   - [2.4 صمام أمان فحص تعارض وتداخل الأدوية (Drug-Drug Interactions Guardrail)](#24-صمام-أمان-فحص-تعارض-وتداخل-الأدوية-drug-drug-interactions-guardrail)
-   - [2.5 البحث في البروتوكولات العلاجية المبنية على الدليل (Evidence-Based Guidelines)](#25-البحث-في-البروتوكولات-العلاجية-المبنية-على-الدليل-evidence-based-guidelines)
-3. [ملفات Postman الجاهزة لـ Phase 2 (Postman Collection)](#3-ملفات-postman-الجاهزة-لـ-phase-2)
-4. [نماذج كود TypeScript & React كاملة للنسخ واللصق](#4-نماذج-كود-typescript--react-كاملة-للنسخ-واللصق)
-   - [4.1 تعريفات الـ Types (`types/doctor.ts`)](#41-تعريفات-الـ-types-typesdoctorts)
-   - [4.2 كود استدعاء الـ APIs (`services/doctorApi.ts`)](#42-كود-استدعاء-الـ-apis-servicesdoctorapits)
-   - [4.3 هوك تسجيل الصوت المباشر من الميكروفون (`hooks/useAudioRecorder.ts`)](#43-هوك-تسجيل-الصوت-المباشر-من-الميكروفون-hooksuseaudiorecorderts)
-   - [4.4 نموذج شاشة مساعد الطبيب الكاملة (`DoctorCoPilot.tsx`)](#44-نموذج-شاشة-مساعد-الطبيب-الكاملة-doctorcopilottsx)
+1. [معمارية النظام وسير البيانات السريرية (Architecture & Data Flow)](#1-معمارية-النظام-وسير-البيانات-السريرية)
+2. [بيئة التشغيل والترويسات الأساسية (Environment & Headers)](#2-بيئة-التشغيل-والترويسات-الأساسية)
+3. [مرجع الـ APIs بالتفصيل (Complete Phase 2 API Reference)](#3-مرجع-الـ-apis-بالتفصيل)
+   - [3.1 تفريغ وتحليل الاستشارة الصوتية الطبية (Voice-to-SOAP)](#31-تفريغ-وتحليل-الاستشارة-الصوتية-الطبية-voice-to-soap)
+   - [3.2 تحليل الملاحظات النصية المباشرة للطبيب (Text-to-SOAP)](#32-تحليل-الملاحظات-النصية-المباشرة-للطبيب-text-to-soap)
+   - [3.3 فحص الأشعة والتحاليل بالرؤية الحاسوبية (Medical Imaging VLM Scanner)](#33-فحص-الأشعة-والتحاليل-بالرؤية-الحاسوبية-medical-imaging-vlm-scanner)
+   - [3.4 صمام أمان فحص تعارض وتداخل الأدوية (Drug-Drug Interactions Guardrail)](#34-صمام-أمان-فحص-تعارض-وتداخل-الأدوية-drug-drug-interactions-guardrail)
+   - [3.5 البحث في البروتوكولات العلاجية المبنية على الدليل (Evidence-Based Guidelines)](#35-البحث-في-البروتوكولات-العلاجية-المبنية-على-الدليل-evidence-based-guidelines)
+4. [قاموس حقول الاستجابة السريرية (JSON Field Dictionary)](#4-قاموس-حقول-الاستجابة-السريرية)
+5. [أكواد وأشكال أخطاء الخادم (Error Handling & HTTP Status Codes)](#5-أكواد-وأشكال-أخطاء-الخادم)
+6. [ملفات Postman الجاهزة لـ Phase 2 (Postman Collection)](#6-ملفات-postman-الجاهزة-لـ-phase-2)
+7. [نماذج كود TypeScript & React كاملة للنسخ واللصق](#7-نماذج-كود-typescript--react-كاملة-للنسخ-واللصق)
+   - [7.1 تعريفات الـ Types (`types/doctor.ts`)](#71-تعريفات-الـ-types-typesdoctorts)
+   - [7.2 كود استدعاء الـ APIs (`services/doctorApi.ts`)](#72-كود-استدعاء-الـ-apis-servicesdoctorapits)
+   - [7.3 هوك تسجيل الصوت المباشر من الميكروفون (`hooks/useAudioRecorder.ts`)](#73-هوك-تسجيل-الصوت-المباشر-من-الميكروفون-hooksuseaudiorecorderts)
+   - [7.4 صفحة مساعد الطبيب الكاملة مع التصميم (`DoctorCoPilot.tsx`)](#74-صفحة-مساعد-الطبيب-الكاملة-مع-التصميم-doctorcopilottsx)
 
 ---
 
-## 1. بيئة التشغيل والترويسات الأساسية
+## 1. معمارية النظام وسير البيانات السريرية
+
+```mermaid
+graph TD
+    DoctorMic[ميكروفون الطبيب / ملف صوتي] -->|Blob / FormData| AudioEndpoint[POST /api/v1/doctor/consultation/audio]
+    DoctorText[ملاحظات الطبيب النصية] -->|JSON Payload| TextEndpoint[POST /api/v1/doctor/consultation/text]
+    DoctorImage[صورة أشعة X-Ray / CT / MRI] -->|Image File / FormData| ImagingEndpoint[POST /api/v1/doctor/consultation/imaging]
+    
+    AudioEndpoint --> Whisper[Whisper Speech-to-Text مع تعزيز المصطلحات]
+    Whisper --> ClinicalAgent[LangGraph Doctor Clinical Agent]
+    TextEndpoint --> ClinicalAgent
+    ImagingEndpoint --> VLMAgent[GPT-4o Multimodal Vision Analyzer]
+    
+    ClinicalAgent --> DrugSafety[Drug-Drug Interaction Rules Engine]
+    DrugSafety --> ResultJSON[Structured JSON: SOAP + Rx + Findings]
+```
+
+---
+
+## 2. بيئة التشغيل والترويسات الأساسية
 
 ### 🌐 العناوين الأساسية (Base URLs):
 * **الخادم السحابي الحي (Live Production API):**  
@@ -41,11 +64,11 @@ X-Clinic-Token: clinic-secret-2026
 
 ---
 
-## 2. مرجع الـ APIs الخاصة بمساعد الطبيب
+## 3. مرجع الـ APIs بالتفصيل
 
 ---
 
-### 2.1 تفريغ وتحليل الاستشارة الصوتية الطبية (Voice-to-SOAP)
+### 3.1 تفريغ وتحليل الاستشارة الصوتية الطبية (Voice-to-SOAP)
 المحرك الرئيسي لتسجيل المحادثة الصوتية بين الطبيب والمريض في غرفة الكشف. يقوم بنسخ الصوت طبياً عبر Whisper مع تعزيز المصطلحات الطبية، ثم استخراج وتوليد تقرير SOAP كامل، تشخيص تفريقي، روشتة ذكية، وفحص تعارض الأدوية فورياً.
 
 * **المسار:** `POST /api/v1/doctor/consultation/audio`
@@ -118,7 +141,7 @@ X-Clinic-Token: clinic-secret-2026
 
 ---
 
-### 2.2 تحليل الملاحظات النصية المباشرة للطبيب (Text-to-SOAP)
+### 3.2 تحليل الملاحظات النصية المباشرة للطبيب (Text-to-SOAP)
 يُستخدم في حال رغبة الطبيب في كتابة أو لصق ملاحظاته السريرية نصياً بدلاً من التسجيل الصوتي.
 
 * **المسار:** `POST /api/v1/doctor/consultation/text`
@@ -135,11 +158,11 @@ X-Clinic-Token: clinic-secret-2026
 ```
 
 #### 📥 استجابة النجاح (Success Response 200 OK):
-*(تُرجع نفس بنية الاستجابة السابقة من تشخيص، كروت SOAP، روشتة، وتحاليل مطلوبة)*.
+*(تُرجع نفس بنية استجابة الـ SOAP السابقة بالكامل)*.
 
 ---
 
-### 2.3 فحص الأشعة والتحاليل بالرؤية الحاسوبية (Medical Imaging VLM Scanner)
+### 3.3 فحص الأشعة والتحاليل بالرؤية الحاسوبية (Medical Imaging VLM Scanner)
 تحليل الأشعة السينية (X-Ray)، الرنين المغناطيسي (MRI)، الأشعة المقطعية (CT)، وصور التحاليل المعملية عبر **GPT-4o Multimodal Vision**.
 
 * **المسار:** `POST /api/v1/doctor/consultation/imaging`
@@ -166,7 +189,7 @@ X-Clinic-Token: clinic-secret-2026
   "findings": [
     {
       "structure": "Right Lower Lobe",
-      "observation": "Patchy alveolar consolidation consistent with focal pneumonia.",
+      "observation": "Patchy alveolar consolidation consistent with focal bacterial pneumonia.",
       "is_abnormal": true
     },
     {
@@ -186,7 +209,7 @@ X-Clinic-Token: clinic-secret-2026
   "impression": "Findings are suggestive of Right Lower Lobe Community-Acquired Bacterial Pneumonia.",
   "confidence_level": "High",
   "recommendations": [
-    "Initiate targeted empirical antibacterial therapy as per respiratory guidelines.",
+    "Initiate targeted empirical antibacterial therapy as per clinical guidelines.",
     "Follow-up post-treatment radiograph in 4 to 6 weeks if symptoms persist."
   ],
   "critical_alert": null
@@ -195,7 +218,7 @@ X-Clinic-Token: clinic-secret-2026
 
 ---
 
-### 2.4 صمام أمان فحص تعارض وتداخل الأدوية (Drug-Drug Interactions Guardrail)
+### 3.4 صمام أمان فحص تعارض وتداخل الأدوية (Drug-Drug Interactions Guardrail)
 فحص فوري لقائمة الأدوية الموصوفة للتأكد من خلوها من التداخلات الدوائية الخطيرة (مثل Warfarin مع Aspirin).
 
 * **المسار:** `POST /api/v1/doctor/prescription/validate`
@@ -232,7 +255,7 @@ X-Clinic-Token: clinic-secret-2026
 
 ---
 
-### 2.5 البحث في البروتوكولات العلاجية المبنية على الدليل (Evidence-Based Guidelines)
+### 3.5 البحث في البروتوكولات العلاجية المبنية على الدليل (Evidence-Based Guidelines)
 استرجاع أدوية الخط الأول، تعديلات نمط الحياة، وعلامات الخطر الحرجة لأي تشخيص طبي.
 
 * **المسار:** `GET /api/v1/doctor/guidelines/search?condition={name}`
@@ -264,7 +287,35 @@ X-Clinic-Token: clinic-secret-2026
 
 ---
 
-## 3. ملفات Postman الجاهزة لـ Phase 2
+## 4. قاموس حقول الاستجابة السريرية (JSON Field Dictionary)
+
+| الحقل في الاستجابة | النوع | المعنى السريري وكيفية عرضه في الفرونت إند |
+| :--- | :---: | :--- |
+| `primary_diagnosis` | `string` | **التشخيص الطبي الأولي والرئيسي** — اعرضه بخط عريض كعنوان بارز في أعلى تقرير الكشف. |
+| `differential_diagnoses` | `Array` | **التشخيصات التفريقية المحتملة** — اعرضها كـ Badges تحتوي اسم المرض ونسبة الاحتمالية `probability`. |
+| `soap_notes.subjective` | `string` | **شكوى المريض والأعراض (S)** — ما رواه المريض أثناء الجلسة وتاريخه العائلي. |
+| `soap_notes.objective` | `string` | **نتائج الفحص والمؤشرات الحيوية (O)** — القياسات السريرية (الضغط، النبض، فحص الصدر). |
+| `soap_notes.assessment` | `string` | **التقييم السريري للطبيب (A)** — التحليل الطبي لمطابقة الأعراض مع التشخيص. |
+| `soap_notes.plan` | `string` | **الخطة العلاجية والتعليمات (P)** — الأدوية، التحاليل المطلوبة، وموعد الإعادة. |
+| `prescription` | `Array` | **جدول الروشتة الذكية** — يحتوي `name`, `dosage`, `frequency`, `duration`, `instructions`. |
+| `drug_interactions.safe_to_prescribe` | `boolean` | `true`: الروشتة آمنة (عرض كارت أخضر)، `false`: يوجد تعارض خطير (عرض كارت أحمر تحذيري بارز). |
+| `findings` (في الأشعة) | `Array` | **الملاحظات التشريحية للأشعة** — تشمل العضو، الملاحظة، وعلامة `is_abnormal` لتلوين الشذوذ بالأحمر. |
+| `impression` (في الأشعة) | `string` | **الانطباع النهائي لطبيب الأشعة** — الخلاصة التشخيصية للفحص الإشعاعي. |
+
+---
+
+## 5. أكواد وأشكال أخطاء الخادم (Error Handling & HTTP Status Codes)
+
+| كود الخطأ (HTTP Status) | السبب المحتمل | شكل رد الخطأ (JSON Error Payload) |
+| :---: | :--- | :--- |
+| **`400 Bad Request`** | لم يتم إرفاق ملف صوتي أو صيغة غير مدعومة | `{"detail": "No audio file uploaded or invalid format"}` |
+| **`401 Unauthorized`** | نسيان إرسال ترويسة `X-Clinic-Token` أو توكن غير صحيح | `{"detail": "Invalid or missing clinic secret token"}` |
+| **`422 Unprocessable`** | حقل إجباري مفقود في الـ JSON Body | `{"detail": [{"loc": ["body", "clinical_notes"], "msg": "field required"}]}` |
+| **`500 Internal Error`** | انقطاع خدمة الـ AI أو مزود الـ LLM | `{"detail": "Clinical reasoning node encountered an upstream service error"}` |
+
+---
+
+## 6. ملفات Postman الجاهزة لـ Phase 2
 
 تم تجهيز كولكشن مستقلة مخصصة لـ Phase 2 في مجلد `postman/`:
 * 📁 **ملف الكولكشن:** `postman/3eyadaty_Phase2_Doctor_AI.postman_collection.json`
@@ -277,9 +328,9 @@ X-Clinic-Token: clinic-secret-2026
 
 ---
 
-## 4. نماذج كود TypeScript & React كاملة للنسخ واللصق
+## 7. نماذج كود TypeScript & React كاملة للنسخ واللصق
 
-### 4.1 تعريفات الـ Types (`types/doctor.ts`)
+### 7.1 تعريفات الـ Types (`types/doctor.ts`)
 ```typescript
 export interface SOAPNotes {
   subjective: string;
@@ -352,7 +403,7 @@ export interface ImagingResponse {
 
 ---
 
-### 4.2 كود استدعاء الـ APIs (`services/doctorApi.ts`)
+### 7.2 كود استدعاء الـ APIs (`services/doctorApi.ts`)
 ```typescript
 const BASE_URL = "https://3eyadaty-api.up.railway.app";
 const CLINIC_TOKEN = "clinic-secret-2026";
@@ -442,7 +493,7 @@ export const doctorApi = {
 
 ---
 
-### 4.3 هوك تسجيل الصوت المباشر من الميكروفون (`hooks/useAudioRecorder.ts`)
+### 7.3 هوك تسجيل الصوت المباشر من الميكروفون (`hooks/useAudioRecorder.ts`)
 ```typescript
 import { useState, useRef } from "react";
 

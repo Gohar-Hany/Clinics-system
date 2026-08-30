@@ -1,28 +1,51 @@
-# 🩺 Doctor AI & Clinical Intelligence Integration Guide (Phase 2)
+# 🩺 Doctor AI & Clinical Intelligence Integration Guide (Phase 2 Master Guide)
 ## 3eyadaty Smart Healthcare System — Clinical AI Co-Pilot & Multimodal VLM Scanner
 
+> **Guide Version:** v2.0.0 — Production Ready  
 > **Target Audience:** Frontend Engineer / Full-Stack Developer  
-> **Scope:** Clinical AI Assistant, Audio Transcription (Whisper), SOAP Notes Generation, Smart Prescription, Drug-Drug Interaction Safety Guardrails, and Multimodal Vision (VLM) Medical Imaging.
+> **Objective:** A 100% self-contained, complete integration guide covering all endpoints, authentication headers, request payloads, JSON field dictionaries, error handling, and ready-to-use TypeScript & React code snippets.
 
 ---
 
 ## 📑 Table of Contents
-1. [Environment & Authentication Headers](#1-environment--authentication-headers)
-2. [Doctor AI API Reference (Phase 2 Endpoints)](#2-doctor-ai-api-reference-phase-2-endpoints)
-   - [2.1 Voice-to-SOAP Audio Consultation (`/api/v1/doctor/consultation/audio`)](#21-voice-to-soap-audio-consultation-apiv1doctorconsultationaudio)
-   - [2.2 Direct Text-to-SOAP Clinical Notes (`/api/v1/doctor/consultation/text`)](#22-direct-text-to-soap-clinical-notes-apiv1doctorconsultationtext)
-   - [2.3 Multimodal Vision Medical Imaging & Lab Scanner (`/api/v1/doctor/consultation/imaging`)](#23-multimodal-vision-medical-imaging--lab-scanner-apiv1doctorconsultationimaging)
-   - [2.4 Drug-Drug Interaction Safety Guardrail (`/api/v1/doctor/prescription/validate`)](#24-drug-drug-interaction-safety-guardrail-apiv1doctorprescriptionvalidate)
-   - [2.5 Evidence-Based Clinical Guidelines (`/api/v1/doctor/guidelines/search`)](#25-evidence-based-clinical-guidelines-apiv1doctorguidelinessearch)
-3. [Standalone Postman Collection](#3-standalone-postman-collection)
-4. [Ready-to-Use TypeScript & React Snippets](#4-ready-to-use-typescript--react-snippets)
-   - [4.1 TypeScript Interfaces (`types/doctor.ts`)](#41-typescript-interfaces-typesdoctorts)
-   - [4.2 API Service Client (`services/doctorApi.ts`)](#42-api-service-client-servicesdoctorapits)
-   - [4.3 Browser Audio Recording Hook (`hooks/useAudioRecorder.ts`)](#43-browser-audio-recording-hook-hooksuseaudiorecorderts)
+1. [System Architecture & Clinical Data Flow](#1-system-architecture--clinical-data-flow)
+2. [Environment & Authentication Headers](#2-environment--authentication-headers)
+3. [Complete Phase 2 API Reference](#3-complete-phase-2-api-reference)
+   - [3.1 Voice-to-SOAP Audio Consultation (`/api/v1/doctor/consultation/audio`)](#31-voice-to-soap-audio-consultation-apiv1doctorconsultationaudio)
+   - [3.2 Direct Text-to-SOAP Clinical Notes (`/api/v1/doctor/consultation/text`)](#32-direct-text-to-soap-clinical-notes-apiv1doctorconsultationtext)
+   - [3.3 Multimodal Vision Medical Imaging & Lab Scanner (`/api/v1/doctor/consultation/imaging`)](#33-multimodal-vision-medical-imaging--lab-scanner-apiv1doctorconsultationimaging)
+   - [3.4 Drug-Drug Interaction Safety Guardrail (`/api/v1/doctor/prescription/validate`)](#34-drug-drug-interaction-safety-guardrail-apiv1doctorprescriptionvalidate)
+   - [3.5 Evidence-Based Clinical Guidelines Search (`/api/v1/doctor/guidelines/search`)](#35-evidence-based-clinical-guidelines-search-apiv1doctorguidelinessearch)
+4. [Clinical JSON Response Field Dictionary](#4-clinical-json-response-field-dictionary)
+5. [Error Handling & HTTP Status Codes](#5-error-handling--http-status-codes)
+6. [Standalone Postman Collection](#6-standalone-postman-collection)
+7. [Ready-to-Use TypeScript & React Snippets](#7-ready-to-use-typescript--react-snippets)
+   - [7.1 TypeScript Interfaces (`types/doctor.ts`)](#71-typescript-interfaces-typesdoctorts)
+   - [7.2 API Service Client (`services/doctorApi.ts`)](#72-api-service-client-servicesdoctorapits)
+   - [7.3 Browser Audio Recording Hook (`hooks/useAudioRecorder.ts`)](#73-browser-audio-recording-hook-hooksuseaudiorecorderts)
 
 ---
 
-## 1. Environment & Authentication Headers
+## 1. System Architecture & Clinical Data Flow
+
+```mermaid
+graph TD
+    DoctorMic[Doctor Microphone / Audio File] -->|Blob / FormData| AudioEndpoint[POST /api/v1/doctor/consultation/audio]
+    DoctorText[Raw Text Clinical Notes] -->|JSON Payload| TextEndpoint[POST /api/v1/doctor/consultation/text]
+    DoctorImage[Chest X-Ray / CT / MRI / Lab] -->|Image File / FormData| ImagingEndpoint[POST /api/v1/doctor/consultation/imaging]
+    
+    AudioEndpoint --> Whisper[Whisper Medical Speech-to-Text]
+    Whisper --> ClinicalAgent[LangGraph Doctor Clinical Agent]
+    TextEndpoint --> ClinicalAgent
+    ImagingEndpoint --> VLMAgent[GPT-4o Multimodal Vision Analyzer]
+    
+    ClinicalAgent --> DrugSafety[Drug-Drug Interaction Rules Engine]
+    DrugSafety --> ResultJSON[Structured JSON: SOAP + Rx + Findings]
+```
+
+---
+
+## 2. Environment & Authentication Headers
 
 ### 🌐 Base URLs:
 * **Live Production Server (Railway Cloud):**  
@@ -40,11 +63,11 @@ X-Clinic-Token: clinic-secret-2026
 
 ---
 
-## 2. Doctor AI API Reference (Phase 2 Endpoints)
+## 3. Complete Phase 2 API Reference
 
 ---
 
-### 2.1 Voice-to-SOAP Audio Consultation (`/api/v1/doctor/consultation/audio`)
+### 3.1 Voice-to-SOAP Audio Consultation (`/api/v1/doctor/consultation/audio`)
 Uploads a doctor-patient audio consultation file recorded from the browser microphone. Transcribes via Whisper with medical terminology priming, then generates structured clinical SOAP notes, differential diagnoses, smart prescriptions, and real-time drug interaction safety checks.
 
 * **HTTP Method:** `POST`
@@ -117,7 +140,7 @@ Uploads a doctor-patient audio consultation file recorded from the browser micro
 
 ---
 
-### 2.2 Direct Text-to-SOAP Clinical Notes (`/api/v1/doctor/consultation/text`)
+### 3.2 Direct Text-to-SOAP Clinical Notes (`/api/v1/doctor/consultation/text`)
 For doctors who prefer typing or pasting raw clinical notes directly instead of audio recording.
 
 * **HTTP Method:** `POST`
@@ -138,7 +161,7 @@ For doctors who prefer typing or pasting raw clinical notes directly instead of 
 
 ---
 
-### 2.3 Multimodal Vision Medical Imaging & Lab Scanner (`/api/v1/doctor/consultation/imaging`)
+### 3.3 Multimodal Vision Medical Imaging & Lab Scanner (`/api/v1/doctor/consultation/imaging`)
 Analyzes Chest X-Rays, Brain/Spine MRIs, CT Scans, and laboratory reports using **GPT-4o Multimodal Vision** to generate structured anatomical observations and diagnostic impressions.
 
 * **HTTP Method:** `POST`
@@ -194,7 +217,7 @@ Analyzes Chest X-Rays, Brain/Spine MRIs, CT Scans, and laboratory reports using 
 
 ---
 
-### 2.4 Drug-Drug Interaction Safety Guardrail (`/api/v1/doctor/prescription/validate`)
+### 3.4 Drug-Drug Interaction Safety Guardrail (`/api/v1/doctor/prescription/validate`)
 Real-time safety interceptor auditing a list of prescribed medications to detect hazardous interactions (e.g. Warfarin + Aspirin).
 
 * **HTTP Method:** `POST`
@@ -231,7 +254,7 @@ Real-time safety interceptor auditing a list of prescribed medications to detect
 
 ---
 
-### 2.5 Evidence-Based Clinical Guidelines (`/api/v1/doctor/guidelines/search`)
+### 3.5 Evidence-Based Clinical Guidelines Search (`/api/v1/doctor/guidelines/search`)
 Query evidence-based first-line therapies, lifestyle modifications, and red-flag alerts for medical conditions.
 
 * **HTTP Method:** `GET`
@@ -263,7 +286,35 @@ Query evidence-based first-line therapies, lifestyle modifications, and red-flag
 
 ---
 
-## 3. Standalone Postman Collection
+## 4. Clinical JSON Response Field Dictionary
+
+| Response Field | Type | Clinical Meaning & UI Recommendation |
+| :--- | :---: | :--- |
+| `primary_diagnosis` | `string` | **Primary Medical Diagnosis** — Render prominently as a bold banner header at the top of the consultation view. |
+| `differential_diagnoses` | `Array` | **Differential Diagnoses** — Render as badges showing condition name and `probability` percentage. |
+| `soap_notes.subjective` | `string` | **Subjective (S)** — Patient symptoms, chief complaints, and family history. |
+| `soap_notes.objective` | `string` | **Objective (O)** — Clinical examination findings, vital signs (BP, HR, RR). |
+| `soap_notes.assessment` | `string` | **Assessment (A)** — Clinical reasoning matching symptoms to diagnosis. |
+| `soap_notes.plan` | `string` | **Plan (P)** — Pharmacological therapy, lab investigations, and follow-up timeline. |
+| `prescription` | `Array` | **Smart Rx Table** — Contains `name`, `dosage`, `frequency`, `duration`, and `instructions`. |
+| `drug_interactions.safe_to_prescribe` | `boolean` | `true`: Safe Rx (green banner), `false`: Hazardous interaction detected (red critical warning card). |
+| `findings` (Imaging) | `Array` | **Anatomical Observations** — Contains structure name, observation text, and `is_abnormal` flag. |
+| `impression` (Imaging) | `string` | **Radiological Impression** — Diagnostic conclusion of the visual scan. |
+
+---
+
+## 5. Error Handling & HTTP Status Codes
+
+| HTTP Status | Trigger Condition | JSON Error Payload |
+| :---: | :--- | :--- |
+| **`400 Bad Request`** | No audio file attached or invalid file format | `{"detail": "No audio file uploaded or invalid format"}` |
+| **`401 Unauthorized`** | Missing or incorrect `X-Clinic-Token` header | `{"detail": "Invalid or missing clinic secret token"}` |
+| **`422 Unprocessable`** | Missing required field in JSON body | `{"detail": [{"loc": ["body", "clinical_notes"], "msg": "field required"}]}` |
+| **`500 Internal Error`** | Upstream AI service error or LLM failure | `{"detail": "Clinical reasoning node encountered an upstream service error"}` |
+
+---
+
+## 6. Standalone Postman Collection
 
 A standalone collection dedicated exclusively to Phase 2 is available at:
 * 📁 **Collection File:** `postman/3eyadaty_Phase2_Doctor_AI.postman_collection.json`
@@ -276,9 +327,9 @@ A standalone collection dedicated exclusively to Phase 2 is available at:
 
 ---
 
-## 4. Ready-to-Use TypeScript & React Snippets
+## 7. Ready-to-Use TypeScript & React Snippets
 
-### 4.1 TypeScript Interfaces (`types/doctor.ts`)
+### 7.1 TypeScript Interfaces (`types/doctor.ts`)
 ```typescript
 export interface SOAPNotes {
   subjective: string;
@@ -351,7 +402,7 @@ export interface ImagingResponse {
 
 ---
 
-### 4.2 API Service Client (`services/doctorApi.ts`)
+### 7.2 API Service Client (`services/doctorApi.ts`)
 ```typescript
 const BASE_URL = "https://3eyadaty-api.up.railway.app";
 const CLINIC_TOKEN = "clinic-secret-2026";
@@ -441,7 +492,7 @@ export const doctorApi = {
 
 ---
 
-### 4.3 Browser Audio Recording Hook (`hooks/useAudioRecorder.ts`)
+### 7.3 Browser Audio Recording Hook (`hooks/useAudioRecorder.ts`)
 ```typescript
 import { useState, useRef } from "react";
 
