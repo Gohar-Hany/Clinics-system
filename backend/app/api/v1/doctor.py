@@ -6,7 +6,7 @@ Smart Prescription Formulation, Drug Interaction Guardrails, and Medical Imaging
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Body
 from typing import Optional, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 import uuid
 import base64
 
@@ -22,10 +22,22 @@ router = APIRouter()
 # === Request & Response Schemas ===
 
 class TextConsultationRequest(BaseModel):
-    transcript: str = Field(..., description="Clinical consultation transcript or dialogue")
+    transcript: Optional[str] = Field(None, description="Clinical consultation transcript or dialogue")
+    clinical_notes: Optional[str] = Field(None, description="Alternative field for clinical notes")
     clinic_id: str = Field("default-clinic", description="Clinic ID")
     patient_phone: Optional[str] = Field(None, description="Patient phone number")
     patient_history: Optional[dict] = Field(None, description="Prior patient medical history / notes")
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_text(cls, data):
+        if isinstance(data, dict):
+            text = data.get("transcript") or data.get("clinical_notes")
+            if not text:
+                raise ValueError("Must provide either 'transcript' or 'clinical_notes'")
+            data["transcript"] = text
+            data["clinical_notes"] = text
+        return data
 
 
 class PrescriptionValidationRequest(BaseModel):
@@ -113,6 +125,7 @@ async def analyze_audio_consultation(
     }
 
 
+@router.post("/consultation/text")
 @router.post("/consultation/analyze-text")
 async def analyze_text_consultation(
     request: TextConsultationRequest,
@@ -124,6 +137,7 @@ async def analyze_text_consultation(
     and returns full structured SOAP notes, differential diagnosis, and prescription.
     Protected: Requires X-Clinic-Token header.
     """
+    transcript_value = request.transcript or request.clinical_notes or ""
     initial_state = {
         "messages": [],
         "clinic_id": request.clinic_id,
@@ -134,7 +148,7 @@ async def analyze_text_consultation(
         "error": None,
         "appointment_id": str(uuid.uuid4()),
         "audio_storage_url": "",
-        "transcript": request.transcript,
+        "transcript": transcript_value,
         "symptoms_extracted": [],
         "patient_history": request.patient_history or {},
         "ai_analysis": None,
@@ -245,6 +259,7 @@ async def validate_prescription_drugs(
     }
 
 
+@router.get("/guidelines/search")
 @router.get("/guidelines")
 async def get_clinical_guideline(
     condition: str,
