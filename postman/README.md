@@ -8,7 +8,7 @@ Complete professional Postman documentation adhering to the **Enterprise Postman
 
 | File | Type | Description |
 | :--- | :---: | :--- |
-| [`3eyadaty_Clinic_API.postman_collection.json`](3eyadaty_Clinic_API.postman_collection.json) | Collection | All 14 endpoints organized into CRUD and Query subfolders with Markdown documentation, schemas, and headers. |
+| [`3eyadaty_Clinic_API.postman_collection.json`](3eyadaty_Clinic_API.postman_collection.json) | Collection | Complete collection covering all system endpoints (Chat, Queue, Doctor AI, SOAP, Rx, VLM Imaging, Appointments). |
 | [`3eyadaty_Production.postman_environment.json`](3eyadaty_Production.postman_environment.json) | Environment | Pre-configured variables for the Live Cloud API (`https://3eyadaty-api.up.railway.app`). |
 | [`3eyadaty_Development.postman_environment.json`](3eyadaty_Development.postman_environment.json) | Environment | Pre-configured variables for Local Development (`http://localhost:8000`). |
 
@@ -46,12 +46,19 @@ Complete professional Postman documentation adhering to the **Enterprise Postman
 │
 ├── 📁 ⏱️ Live Queue Operations
 │   └── 📁 CRUD Operations
-│       ├── 🔵 GET Live Queue Position by Appointment ID
+│       ├── 🔵 GET Live Queue Position by Appointment ID / Phone / Reference Code
 │       ├── 🔵 GET Reception Full Queue State
 │       ├── 🟢 POST Patient Arrival Check-In
 │       ├── 🟢 POST Start Next Consultation
 │       ├── 🟢 POST Complete Consultation & Recalculate ETA
 │       └── 🔴 POST Skip / Cancel No-Show Patient
+│
+├── 📁 🩺 Doctor Assistant & Medical Co-Pilot
+│   ├── 🟢 POST Analyze Audio Consultation (Whisper + SOAP Generator)
+│   ├── 🟢 POST Analyze Text Consultation (Clinical Notes + SOAP Generator)
+│   ├── 🟢 POST Analyze Medical Imaging (GPT-4o Multimodal VLM - XRay/MRI/CT/Lab)
+│   ├── 🟢 POST Validate Prescription & Drug Interactions Guardrail
+│   └── 🔵 GET Clinical Evidence-Based Guidelines Search
 │
 └── 📁 📅 Appointments Management
     ├── 📁 CRUD Operations
