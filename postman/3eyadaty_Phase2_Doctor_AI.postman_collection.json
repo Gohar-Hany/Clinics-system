@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "3eyadaty-phase2-doctor-ai-co-pilot",
+		"name": "🩺 3eyadaty — Doctor AI & Clinical Co-Pilot (Phase 2)",
+		"description": "Dedicated Enterprise Postman Collection for Phase 2: Voice-to-SOAP Clinical Consultation, Medical Imaging VLM Scanner (GPT-4o), Drug-Drug Interaction Safety Guardrail, and Evidence-Based Guidelines.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://3eyadaty-api.up.railway.app",
+			"type": "string"
+		},
+		{
+			"key": "clinic_token",
+			"value": "clinic-secret-2026",
+			"type": "string"
+		},
+		{
+			"key": "clinic_id",
+			"value": "default-clinic",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🎙️ 1. Analyze Audio Consultation (Whisper + SOAP Generator)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Clinic-Token",
+						"value": "{{clinic_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"description": "Recorded consultation audio file (MP3, WAV, M4A, WEBM)"
+						},
+						{
+							"key": "clinic_id",
+							"value": "{{clinic_id}}",
+							"type": "text"
+						},
+						{
+							"key": "patient_phone",
+							"value": "01284709314",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/doctor/consultation/audio",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"consultation",
+						"audio"
+					]
+				},
+				"description": "Upload a doctor-patient audio consultation file. Transcribes via Whisper with medical terminology bias and generates complete SOAP notes, differential diagnosis, smart Rx, and drug interaction checks."
+			}
+		},
+		{
+			"name": "📝 2. Analyze Text Clinical Notes (Direct SOAP Generator)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Clinic-Token",
+						"value": "{{clinic_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"clinical_notes\": \"المريض: يا دكتور بقالي 4 أيام بشتكي من صداع مستمر في مؤخرة الرأس وزغللة في العين مع دوخة، ولما قست الضغط كان 160 على 100. الفحص: الضغط 160/100 والنبض 78 bpm. الخطة: بدء Amlodipine 5mg مع Concor 2.5mg صباحاً ومتابعة وظائف كلى ورسم قلب ECG بعد أسبوعين.\",\n  \"clinic_id\": \"{{clinic_id}}\",\n  \"patient_phone\": \"01284709314\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/doctor/consultation/text",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"consultation",
+						"text"
+					]
+				},
+				"description": "Direct text clinical notes to SOAP notes generator, differential diagnoses, and smart structured prescription."
+			}
+		},
+		{
+			"name": "🔬 3. Analyze Medical Imaging & Lab Reports (GPT-4o Multimodal VLM)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Clinic-Token",
+						"value": "{{clinic_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "image_file",
+							"type": "file",
+							"description": "Chest X-Ray, MRI, CT, or Lab Report Image"
+						},
+						{
+							"key": "image_url",
+							"value": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg/600px-Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg",
+							"type": "text",
+							"description": "Fallback Image URL if no file is attached"
+						},
+						{
+							"key": "image_type",
+							"value": "xray",
+							"type": "text",
+							"description": "Modality: xray | mri | ct | lab_report"
+						},
+						{
+							"key": "clinical_context",
+							"value": "Chest X-Ray PA View: Patient presents with persistent productive cough, fever 38.5C, and localized crackles.",
+							"type": "text"
+						},
+						{
+							"key": "clinic_id",
+							"value": "{{clinic_id}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/doctor/consultation/imaging",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"consultation",
+						"imaging"
+					]
+				},
+				"description": "Analyzes radiological scans (X-Ray, MRI, CT) and laboratory blood work using GPT-4o Vision to generate structured anatomical findings and diagnostic impressions."
+			}
+		},
+		{
+			"name": "⚠️ 4. Validate Prescription & Drug-Drug Interactions Guardrail",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Clinic-Token",
+						"value": "{{clinic_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"medications\": [\n    \"Warfarin 5mg\",\n    \"Aspirin 81mg\",\n    \"Panadol 500mg\"\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/doctor/prescription/validate",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"prescription",
+						"validate"
+					]
+				},
+				"description": "Safety interceptor auditing combinations of prescribed medications to detect hazardous interactions (e.g. Warfarin + Aspirin) with severity levels and clinical recommendations."
+			}
+		},
+		{
+			"name": "📚 5. Search Clinical Evidence-Based Guidelines",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Clinic-Token",
+						"value": "{{clinic_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/doctor/guidelines/search?condition=Hypertension",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"guidelines",
+						"search"
+					],
+					"query": [
+						{
+							"key": "condition",
+							"value": "Hypertension"
+						}
+					]
+				},
+				"description": "Search clinical guidelines and evidence-based protocols (e.g. Hypertension, Diabetes, Asthma, Sinusitis) for first-line therapies and red flags."
+			}
+		}
+	]
+}
