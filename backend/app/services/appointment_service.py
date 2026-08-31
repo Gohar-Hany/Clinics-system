@@ -18,7 +18,10 @@ logger = logging.getLogger(__name__)
 # Clinic Schedule Config
 CLINIC_OPEN_HOUR = 9
 CLINIC_CLOSE_HOUR = 17
-WEEKLY_OFF_DAY = 4 # 4 = Friday (0=Monday, 6=Sunday)
+SLOT_DURATION_MINUTES = 30
+LAST_SLOT_HOUR = 16
+LAST_SLOT_MINUTE = 30
+WEEKLY_OFF_DAY = 4  # 4 = Friday (0=Monday, 6=Sunday)
 
 
 def normalize_time(time_str: str) -> str:
@@ -36,6 +39,27 @@ def normalize_time(time_str: str) -> str:
         except ValueError:
             pass
     return time_str
+
+
+def calculate_slot_queue_number(time_str: str) -> int:
+    """
+    Calculate the chronological queue ticket number for a slot based on clinic opening time (09:00 AM).
+    09:00 -> Ticket #1
+    09:30 -> Ticket #2
+    10:00 -> Ticket #3
+    ...
+    16:30 -> Ticket #16
+    """
+    try:
+        parts = time_str.split(":")
+        h, m = int(parts[0]), int(parts[1])
+        total_minutes = (h - CLINIC_OPEN_HOUR) * 60 + m
+        if total_minutes < 0:
+            return 1
+        slot_index = (total_minutes // SLOT_DURATION_MINUTES) + 1
+        return max(1, slot_index)
+    except Exception:
+        return 1
 
 
 class AppointmentService:
@@ -111,17 +135,20 @@ class AppointmentService:
 
         # 4. Working hours filter
         start_hour = CLINIC_OPEN_HOUR
-        end_hour = CLINIC_CLOSE_HOUR
+        end_hour = LAST_SLOT_HOUR
+        end_minute = LAST_SLOT_MINUTE
+
         if time_range == "morning":
-            end_hour = 12
+            end_hour = 11
+            end_minute = 30
         elif time_range == "afternoon":
             start_hour = 12
 
         all_slots = []
         current = datetime.strptime(f"{date_str} {start_hour:02d}:00", "%Y-%m-%d %H:%M")
-        end = datetime.strptime(f"{date_str} {end_hour:02d}:00", "%Y-%m-%d %H:%M")
+        end = datetime.strptime(f"{date_str} {end_hour:02d}:{end_minute:02d}", "%Y-%m-%d %H:%M")
 
-        while current < end:
+        while current <= end:
             slot_time = current.strftime("%H:%M")
             is_locked = await redis_service.client.exists(f"lock:slot:{doctor_id}:{date_str}:{slot_time}")
 
@@ -134,9 +161,10 @@ class AppointmentService:
                 all_slots.append({
                     "time": slot_time,
                     "formatted": current.strftime("%I:%M %p"),
+                    "queue_number": calculate_slot_queue_number(slot_time),
                     "available": True,
                 })
-            current += timedelta(minutes=30)
+            current += timedelta(minutes=SLOT_DURATION_MINUTES)
 
         return {
             "success": True,
@@ -161,8 +189,10 @@ class AppointmentService:
         Atomically book an appointment slot with full enterprise validations:
         - Past date & past time rejection
         - Off-day rejection
-        - Out-of-hours rejection
+        - Out-of-hours & last-slot rejection
+        - Slot alignment validation
         - Double-booking prevention
+        - Chronological queue number assignment
         """
         # Clean & normalize inputs
         time_str = normalize_time(time_str)
@@ -195,18 +225,33 @@ class AppointmentService:
                 "message": f"العيادة في إجازة أسبوعية رسمية يوم الجمعة ({date_str}). أقرب يوم عمل متاح هو السبت ({next_working_day}).",
             }
 
-        # 3. Validate working hours
+        # 3. Validate working hours and slot boundaries
         try:
-            hour = int(time_str.split(":")[0])
-            minute = int(time_str.split(":")[1]) if ":" in time_str else 0
-            if hour < CLINIC_OPEN_HOUR or (hour >= CLINIC_CLOSE_HOUR and minute > 0) or hour > CLINIC_CLOSE_HOUR:
+            parts = time_str.split(":")
+            hour = int(parts[0])
+            minute = int(parts[1]) if len(parts) > 1 else 0
+
+            # Reject before 09:00 or after 16:30 (Clinic closes at 17:00; last consultation starts 16:30)
+            if (hour < CLINIC_OPEN_HOUR) or (hour > LAST_SLOT_HOUR) or (hour == LAST_SLOT_HOUR and minute > LAST_SLOT_MINUTE):
                 return {
                     "success": False,
                     "error": "outside_working_hours",
-                    "message": f"عفواً، مواعيد العمل بالعيادة من 09:00 صباحاً حتى 05:00 مساءً فقط. الموعد {time_str} خارج أوقات العمل الرسمية.",
+                    "message": f"عفواً، مواعيد العمل بالعيادة من 09:00 صباحاً حتى 05:00 مساءً فقط (آخر موعد كشف متاح يبدأ 04:30 مساءً). الموعد {time_str} خارج أوقات العمل الرسمية.",
+                }
+
+            # Enforce 30-minute intervals
+            if minute not in (0, 30):
+                return {
+                    "success": False,
+                    "error": "invalid_slot_time",
+                    "message": f"عفواً، المواعيد بالعيادة تبدأ على رأس النصف ساعة (مثل: {hour:02d}:00 أو {hour:02d}:30). الموعد {time_str} غير متوافق مع جدول الكشوفات.",
                 }
         except Exception:
-            pass
+            return {
+                "success": False,
+                "error": "invalid_time_format",
+                "message": f"صيغة الوقت غير صحيحة ({time_str}). يرجى استخدام صيغة 24 ساعة (مثال: 09:30 أو 14:00).",
+            }
 
         # 4. Check if past time on today
         if req_date == now.date():
@@ -242,7 +287,7 @@ class AppointmentService:
             }
 
         try:
-            # 6. Strict Check: Is this slot already booked?
+            # 7. Strict Check: Is this slot already booked?
             is_booked = await redis_service.client.sismember(
                 self._doctor_date_slots_key(doctor_id, date_str),
                 time_str
@@ -254,9 +299,9 @@ class AppointmentService:
                     "message": f"عفواً، الموعد الساعة {time_str} يوم {date_str} محجوز بالفعل! يرجى اختيار موعد متاح آخر.",
                 }
 
-            # 7. Create appointment record
+            # 8. Create appointment record with chronological queue ticket number
             appointment_id = str(uuid.uuid4())
-            queue_number = await redis_service.get_next_queue_number(clinic_id, doctor_id, date_str)
+            queue_number = calculate_slot_queue_number(time_str)
 
             ref_code = f"REF-{appointment_id[:4].upper()}"
             appt_data = {
@@ -274,7 +319,7 @@ class AppointmentService:
                 "created_at": datetime.now().isoformat(),
             }
 
-            # 8. Save appointment & mark slot as permanently booked
+            # 9. Save appointment & mark slot as permanently booked
             await redis_service.client.set(self._appointment_key(appointment_id), json.dumps(appt_data))
             await redis_service.client.set(f"ref_code:{appointment_id[:4].upper()}", appointment_id)
             await redis_service.client.set(f"ref_code:{ref_code}", appointment_id)
@@ -282,10 +327,10 @@ class AppointmentService:
             await redis_service.client.set(self._slot_key(doctor_id, date_str, time_str), appointment_id)
             await redis_service.client.sadd(self._patient_appointments_key(patient_phone), appointment_id)
 
-            # 9. Add to live queue
+            # 10. Add to live queue with slot chronological queue score
             await redis_service.add_to_queue(clinic_id, doctor_id, date_str, appointment_id, queue_number)
 
-            logger.info(f"Appointment booked: {appointment_id} ({ref_code}) for {patient_phone} at {date_str} {time_str} (Queue #{queue_number})")
+            logger.info(f"Appointment booked: {appointment_id} ({ref_code}) for {patient_phone} at {date_str} {time_str} (Queue Ticket #{queue_number})")
 
             return {
                 "success": True,
@@ -295,7 +340,7 @@ class AppointmentService:
                 "doctor_id": doctor_id,
                 "date": date_str,
                 "time": time_str,
-                "message": f"تم الحجز بنجاح ✅ يوم {date_str} الساعة {time_str}. رقمك في الطابور: {queue_number} (كود الحجز: {ref_code})",
+                "message": f"تم الحجز بنجاح ✅ يوم {date_str} الساعة {time_str}. رقمك في الطابور: #{queue_number} (كود الحجز: {ref_code})",
             }
         finally:
             await lock_service.release_slot_lock(doctor_id, date_str, time_str)
@@ -378,11 +423,36 @@ class AppointmentService:
         doctor_id: str = "default-doctor",
         clinic_id: str = "default-clinic",
     ) -> dict:
-        """Reschedule an existing appointment to a new date/time slot."""
+        """Reschedule an existing appointment to a new date/time slot atomically."""
         new_time = normalize_time(new_time)
         new_date = new_date.strip()
 
-        # 1. Check if new slot is already booked
+        # 1. Pre-validate working hours on new slot
+        try:
+            parts = new_time.split(":")
+            hour = int(parts[0])
+            minute = int(parts[1]) if len(parts) > 1 else 0
+
+            if (hour < CLINIC_OPEN_HOUR) or (hour > LAST_SLOT_HOUR) or (hour == LAST_SLOT_HOUR and minute > LAST_SLOT_MINUTE):
+                return {
+                    "success": False,
+                    "error": "outside_working_hours",
+                    "message": f"عفواً، مواعيد العمل بالعيادة من 09:00 صباحاً حتى 05:00 مساءً فقط (آخر موعد متاح يبدأ 04:30 مساءً). الموعد {new_time} خارج أوقات العمل.",
+                }
+            if minute not in (0, 30):
+                return {
+                    "success": False,
+                    "error": "invalid_slot_time",
+                    "message": f"عفواً، المواعيد بالعيادة تبدأ على رأس النصف ساعة (مثل: {hour:02d}:00 أو {hour:02d}:30).",
+                }
+        except Exception:
+            return {
+                "success": False,
+                "error": "invalid_time_format",
+                "message": f"صيغة الوقت غير صحيحة ({new_time}).",
+            }
+
+        # 2. Check if new slot is already booked
         is_booked = await redis_service.client.sismember(
             self._doctor_date_slots_key(doctor_id, new_date),
             new_time
@@ -394,7 +464,7 @@ class AppointmentService:
                 "message": f"عفواً، الموعد الجديد الساعة {new_time} يوم {new_date} محجوز بالفعل لمريض آخر. يرجى اختيار موعد آخر.",
             }
 
-        # 2. Cancel old appointment
+        # 3. Cancel old appointment safely
         cancel_res = await self.cancel_appointment(
             appointment_id=appointment_id,
             patient_phone=patient_phone,
@@ -406,7 +476,7 @@ class AppointmentService:
         if not cancel_res.get("success"):
             return cancel_res
 
-        # 3. Book new slot
+        # 4. Book new slot
         book_res = await self.book_appointment(
             patient_phone=patient_phone,
             date_str=new_date,
@@ -415,7 +485,7 @@ class AppointmentService:
             clinic_id=clinic_id,
         )
         if book_res.get("success"):
-            book_res["message"] = f"تم تعديل موعدك بنجاح ✅ الموعد الجديد: يوم {new_date} الساعة {new_time}. رقمك الجديد في الطابور: {book_res.get('queue_number')}"
+            book_res["message"] = f"تم تعديل موعدك بنجاح ✅ الموعد الجديد: يوم {new_date} الساعة {new_time}. رقمك الجديد في الطابور: #{book_res.get('queue_number')}"
 
         return book_res
 

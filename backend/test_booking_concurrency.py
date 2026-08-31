@@ -48,7 +48,7 @@ async def run_direct_service_tests():
     )
     print(f"Patient 1 Booking Result: success={res1.get('success')}, queue={res1.get('queue_number')}")
     assert res1["success"] is True
-    assert res1["queue_number"] == 1
+    assert res1["queue_number"] == 7
     appt1_id = res1["appointment_id"]
 
     # 3. Duplicate Booking Test: Patient 2 tries to book the EXACT SAME SLOT (12:00 PM)
@@ -84,7 +84,7 @@ async def run_direct_service_tests():
     )
     print(f"Patient 2 Booking Result: success={res3.get('success')}, queue={res3.get('queue_number')}")
     assert res3["success"] is True
-    assert res3["queue_number"] == 2
+    assert res3["queue_number"] == 8
     appt2_id = res3["appointment_id"]
 
     # 6. Cancellation: Patient 1 cancels 12:00 PM

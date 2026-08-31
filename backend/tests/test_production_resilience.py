@@ -215,14 +215,16 @@ async def test_category_3_dynamic_queue():
 
     clinic_id = "clinic-dyn-1"
     doctor_id = "doc-dyn-1"
-    today_str = datetime.now().strftime("%Y-%m-%d")
+    future_date = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    if datetime.strptime(future_date, "%Y-%m-%d").weekday() == 4:
+        future_date = (datetime.now() + timedelta(days=4)).strftime("%Y-%m-%d")
 
     # 3.1 Duration Drift & Rolling Average Recalculation
     t0 = time.perf_counter()
     # Book 3 patients
-    res_p1 = await appointment_service.book_appointment("01077770001", today_str, "09:00", doctor_id, clinic_id)
-    res_p2 = await appointment_service.book_appointment("01077770002", today_str, "09:30", doctor_id, clinic_id)
-    res_p3 = await appointment_service.book_appointment("01077770003", today_str, "10:00", doctor_id, clinic_id)
+    res_p1 = await appointment_service.book_appointment("01077770001", future_date, "09:00", doctor_id, clinic_id)
+    res_p2 = await appointment_service.book_appointment("01077770002", future_date, "09:30", doctor_id, clinic_id)
+    res_p3 = await appointment_service.book_appointment("01077770003", future_date, "10:00", doctor_id, clinic_id)
 
     # Complete Patient 1 with an elongated 45-minute consultation (Drift)
     await queue_engine.complete_consultation(
@@ -230,7 +232,7 @@ async def test_category_3_dynamic_queue():
         doctor_id=doctor_id,
         appointment_id=res_p1["appointment_id"],
         duration_minutes=45,
-        queue_date=today_str,
+        queue_date=future_date,
     )
 
     # Check Patient 3's new ETA
@@ -238,7 +240,7 @@ async def test_category_3_dynamic_queue():
         clinic_id=clinic_id,
         doctor_id=doctor_id,
         appointment_id=res_p3["appointment_id"],
-        queue_date=today_str,
+        queue_date=future_date,
     )
     dur = (time.perf_counter() - t0) * 1000
     passed_3_1 = (pos_p3.get("avg_consultation_minutes") >= 30)
