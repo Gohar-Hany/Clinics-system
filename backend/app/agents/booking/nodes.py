@@ -151,7 +151,6 @@ def get_booking_llm():
 
 async def booking_agent_node(state: BookingState) -> dict:
     """Main booking agent node — processes messages and calls tools."""
-    # Check if user mentioned a new phone number in the latest message (Identity override)
     latest_msg = state["messages"][-1] if state.get("messages") else None
     patient_phone = state.get("patient_phone")
 
@@ -172,5 +171,17 @@ async def booking_agent_node(state: BookingState) -> dict:
     }
 
 
-# Create the tool execution node
-booking_tools_node = ToolNode(BOOKING_TOOLS)
+def should_continue(state: BookingState) -> str:
+    """Determine whether to route to tools or END."""
+    messages = state.get("messages", [])
+    if not messages:
+        return "end"
+    last_message = messages[-1]
+    if hasattr(last_message, "tool_calls") and last_message.tool_calls:
+        return "tools"
+    return "end"
+
+
+# Create the tool execution node and aliases
+booking_tool_node = ToolNode(BOOKING_TOOLS)
+booking_tools_node = booking_tool_node
