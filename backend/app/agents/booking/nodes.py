@@ -32,11 +32,15 @@ def extract_phone(text: str) -> str | None:
 
 
 def get_calendar_context() -> str:
-    """Generate dynamic 10-day calendar mapping with Arabic weekdays and holiday annotations."""
+    """Generate dynamic 21-day calendar mapping with Arabic weekdays and holiday annotations."""
     today = datetime.now()
-    lines = ["## تقويم الأيام القادمة والتواريخ الدقيقة (استخدم هذه التواريخ بدقة):"]
+    today_name = WEEKDAYS_AR.get(today.strftime("%A"), today.strftime("%A"))
+    lines = [
+        f"## تاريخ اليوم الحالي: {today.strftime('%Y-%m-%d')} ({today_name})",
+        "## تقويم الأيام القادمة والتواريخ الدقيقة (استخدم هذه التواريخ بدقة، ويمكن الحجز في أي تاريخ مستقبلي):",
+    ]
 
-    for i in range(10):
+    for i in range(21):
         d = today + timedelta(days=i)
         day_name = WEEKDAYS_AR.get(d.strftime("%A"), d.strftime("%A"))
         iso = d.strftime("%Y-%m-%d")
@@ -48,7 +52,7 @@ def get_calendar_context() -> str:
         elif i == 1:
             label = f"- غداً / بكره ({day_name}): {iso}{holiday_tag}"
         else:
-            label = f"- يوم {day_name} القادم: {iso}{holiday_tag}"
+            label = f"- يوم {day_name} ({iso}): {iso}{holiday_tag}"
         lines.append(label)
 
     return "\n".join(lines)
