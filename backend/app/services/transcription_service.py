@@ -14,10 +14,11 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-# Medical & Clinical Prompt Priming for Whisper
+# Medical & Clinical Terminology Guide for Speech-to-Text
 WHISPER_MEDICAL_PROMPT = (
-    "استشارة طبية سريرية، شكوى المريض، فحص سريري، ضغط الدم 160/100، نبض القلب 88، رسم قلب ECG، "
-    "تحاليل وظائف كلى، صداع، زغللة، دوخة، أملوديبين Amlodipine، كونكور Concor، سكر وضغط."
+    "استشارة سريرية طبية، شكوى المريض والأعراض، الفحص السريري، العلامات الحيوية، "
+    "ضغط الدم، نبض القلب، الحرارة، تشخيص فارق، رسم قلب ECG، تحاليل مخبرية، "
+    "وظائف كبد وكلى، أدوية وعلاجات، روشتة طبية، تعليمات ومتابعة."
 )
 
 
