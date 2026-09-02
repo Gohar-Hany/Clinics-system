@@ -1,7 +1,7 @@
 """
 Audio Transcription Service — High-accuracy medical consultation speech-to-text.
 Handles Egyptian Arabic dialect with mixed English medical nomenclature.
-Supports Whisper API (OpenAI / OpenRouter) and resilient fallback.
+Powered by Multimodal Audio AI (Gemini 2.5 Flash via OpenRouter) and OpenAI Whisper.
 """
 
 import httpx
@@ -14,12 +14,13 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-# Medical & Clinical Prompt Priming for Whisper
-WHISPER_PROMPT = (
-    "Clinical consultation encounter, patient chief complaint, history of present illness, "
-    "physical examination, assessment, diagnosis, prescription, dosage, frequency, "
-    "Hypertension, Diabetes Mellitus, Amoxicillin, Paracetamol, Blood Pressure 120/80, "
-    "ECG, Chest X-Ray, HbA1c, Renal Function Panel, Amlodipine, Concor, Metformin."
+# Medical & Clinical Prompt Priming
+MEDICAL_TRANSCRIPTION_PROMPT = (
+    "You are an expert clinical medical transcriptionist for the 3eyadaty healthcare system. "
+    "Transcribe this doctor-patient consultation audio recording verbatim in Egyptian Arabic and English. "
+    "Ensure 100% precision for vital signs (Blood Pressure e.g. 160/100, Heart Rate/Pulse e.g. 88 bpm), "
+    "symptom durations, anatomical locations (forehead, occipital, chest), medications, and diagnostic requests. "
+    "Do not hallucinate, omit, or alter any numbers or medical terms."
 )
 
 
@@ -34,72 +35,95 @@ class TranscriptionService:
         prompt: Optional[str] = None,
     ) -> dict:
         """
-        Transcribe audio recording of doctor-patient consultation.
-        
-        Args:
-            audio_bytes: Raw binary bytes of the audio recording
-            filename: Audio filename with extension (e.g. .mp3, .wav, .m4a, .webm)
-            language: Base language code ('ar' for Arabic)
-            prompt: Optional custom priming prompt for vocabulary boosting
-        
-        Returns:
-            Dict containing transcript text, duration, and status
+        Transcribe audio recording of doctor-patient consultation with multimodal AI.
         """
         settings = get_settings()
-        api_key = settings.OPENAI_API_KEY or settings.OPENROUTER_API_KEY
-        custom_prompt = prompt or WHISPER_PROMPT
+        b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
+        ext = filename.split(".")[-1].lower() if "." in filename else "mp3"
+        audio_format = "mp3" if ext in ("mp3", "mpeg") else ("wav" if ext == "wav" else "mp3")
 
-        # 1. Try OpenAI / Whisper API if key is available
-        if api_key:
+        # 1. Primary: High-Accuracy Multimodal Audio Transcription via OpenRouter (Gemini 2.5 Flash)
+        if settings.OPENROUTER_API_KEY:
             try:
-                # OpenAI Whisper endpoint
-                url = "https://api.openai.com/v1/audio/transcriptions"
-                headers = {"Authorization": f"Bearer {api_key}"}
-                
-                files = {
-                    "file": (filename, audio_bytes, "audio/mpeg")
+                payload = {
+                    "model": "google/gemini-2.5-flash",
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": prompt or MEDICAL_TRANSCRIPTION_PROMPT
+                                },
+                                {
+                                    "type": "input_audio",
+                                    "input_audio": {
+                                        "data": b64_audio,
+                                        "format": audio_format
+                                    }
+                                }
+                            ]
+                        }
+                    ]
                 }
-                data = {
-                    "model": "whisper-1",
-                    "language": language,
-                    "prompt": custom_prompt,
-                    "response_format": "verbose_json",
-                }
-
-                async with httpx.AsyncClient(timeout=120.0) as client:
-                    response = await client.post(url, headers=headers, files=files, data=data)
-                    
-                    if response.status_code == 200:
-                        res_json = response.json()
-                        text = res_json.get("text", "").strip()
-                        duration = res_json.get("duration", 0.0)
-                        logger.info(f"Whisper transcription succeeded ({len(text)} chars, {duration:.1f}s)")
+                async with httpx.AsyncClient(timeout=90.0) as client:
+                    resp = await client.post(
+                        f"{settings.OPENROUTER_BASE_URL}/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
+                            "Content-Type": "application/json",
+                        },
+                        json=payload,
+                    )
+                    if resp.status_code == 200:
+                        res_json = resp.json()
+                        text = res_json["choices"][0]["message"]["content"].strip()
+                        logger.info(f"Multimodal Audio transcription succeeded ({len(text)} chars)")
                         return {
                             "success": True,
                             "transcript": text,
-                            "duration_seconds": duration,
+                            "duration_seconds": round(len(audio_bytes) / 16000, 1),
+                            "language": language,
+                            "provider": "google/gemini-2.5-flash",
+                        }
+                    else:
+                        logger.warning(f"OpenRouter audio API returned {resp.status_code}: {resp.text}")
+            except Exception as e:
+                logger.warning(f"Multimodal audio transcription failed: {e}")
+
+        # 2. Secondary: OpenAI Whisper if OPENAI_API_KEY is configured
+        if settings.OPENAI_API_KEY:
+            try:
+                url = "https://api.openai.com/v1/audio/transcriptions"
+                headers = {"Authorization": f"Bearer {settings.OPENAI_API_KEY}"}
+                files = {"file": (filename, audio_bytes, f"audio/{audio_format}")}
+                data = {
+                    "model": "whisper-1",
+                    "language": language,
+                    "prompt": prompt or MEDICAL_TRANSCRIPTION_PROMPT,
+                    "response_format": "verbose_json",
+                }
+                async with httpx.AsyncClient(timeout=90.0) as client:
+                    response = await client.post(url, headers=headers, files=files, data=data)
+                    if response.status_code == 200:
+                        res_json = response.json()
+                        return {
+                            "success": True,
+                            "transcript": res_json.get("text", "").strip(),
+                            "duration_seconds": res_json.get("duration", 0.0),
                             "language": res_json.get("language", language),
                             "provider": "openai-whisper",
                         }
             except Exception as e:
-                logger.warning(f"Whisper API error: {e}, falling back to clinical text simulation")
+                logger.warning(f"Whisper fallback failed: {e}")
 
-        # 2. Resilient Fallback Simulation for testing without external audio credits
+        # 3. Graceful Fallback if offline
         return {
-            "success": True,
-            "transcript": (
-                "المريض: يا دكتور بقالي 3 أيام عندي صداع شديد مستمر في الجبهة مع زغللة في العين ودوخة خفيفة، "
-                "وبقيس الضغط في البيت لقيته 150 على 95. كمان حاسس بإرهاق عام ومش قادر أركز في الشغل.\n"
-                "الطبيب: تمام، هل بتاخد أي أدوية للضغط حالياً أو عندك تاريخ وراثي لمرض السكر أو الضغط في العيلة؟\n"
-                "المريض: لا مش باخد أدوية منتظمة، بس باخد بروفين عشان الصداع، والوالد كان عنده ضغط.\n"
-                "الطبيب: البروفين ممكن يرفع الضغط ومينفعش نكرره. الفحص السريري: الضغط 150/95، النبض 82، الصدر سليم. "
-                "التشخيص: ارتفاع مبدئي في ضغط الدم المرحلة الأولى Stage 1 Hypertension. "
-                "الخطة العلاجية: هنبدأ Amiloride/Amlodipine 5mg قرص صباحاً، مع Panadol عند اللزوم، ونوقف الـ Brufen تماماً، "
-                "ونعمل تحليل وظائف كلى وعمل فحص دوري للضغط يومياً ونشوفك في الاستشارة بعد أسبوعين."
-            ),
-            "duration_seconds": 95.0,
-            "language": "ar",
-            "provider": "clinical-engine-fallback",
+            "success": False,
+            "error": "transcription_unavailable",
+            "transcript": "لم يتمكن النظام من معالجة الصوت لعدم توفر اتصال بالخدمة السحابية.",
+            "duration_seconds": 0.0,
+            "provider": "none"
         }
 
     async def transcribe_base64(
@@ -109,7 +133,6 @@ class TranscriptionService:
     ) -> dict:
         """Decode base64 string and transcribe."""
         try:
-            # Strip data url prefix if present (e.g. data:audio/mp3;base64,...)
             if "," in base64_audio:
                 base64_audio = base64_audio.split(",")[1]
             raw_bytes = base64.b64decode(base64_audio)
