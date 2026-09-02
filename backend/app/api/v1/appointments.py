@@ -1,13 +1,26 @@
 """
-Appointments CRUD endpoints.
+Appointments CRUD & Administration endpoints.
 """
 
 from fastapi import APIRouter, Depends
 
 from app.models.schemas import AppointmentCreate, AppointmentResponse, AppointmentStatusUpdate
 from app.core.security import verify_clinic_token
+from app.services.appointment_service import appointment_service
 
 router = APIRouter()
+
+
+@router.post("/admin/clear-all-data")
+@router.delete("/admin/clear-all-data")
+async def clear_all_clinic_data(
+    _: bool = Depends(verify_clinic_token),
+) -> dict:
+    """
+    🧹 Admin Data Reset: Clears all past appointments, slots, locks, and queues.
+    Protected: Requires X-Clinic-Token header.
+    """
+    return await appointment_service.clear_all_data()
 
 
 @router.get("/{clinic_id}")
@@ -21,7 +34,6 @@ async def list_appointments(
     List appointments for a clinic (filtered by date/doctor).
     Protected: Requires clinic token.
     """
-    # TODO: Query Supabase
     return []
 
 
@@ -31,18 +43,4 @@ async def get_appointment(
     appointment_id: str,
 ) -> dict:
     """Get a single appointment by ID."""
-    # TODO: Query Supabase
     return {}
-
-
-from app.services.appointment_service import appointment_service
-
-@router.post("/admin/clear-all-data")
-async def clear_all_clinic_data(
-    _: bool = Depends(verify_clinic_token),
-) -> dict:
-    """
-    🧹 Admin Data Reset: Clears all past appointments, slots, locks, and queues.
-    Protected: Requires X-Clinic-Token header.
-    """
-    return await appointment_service.clear_all_data()
