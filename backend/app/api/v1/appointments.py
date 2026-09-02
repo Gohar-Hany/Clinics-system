@@ -35,15 +35,14 @@ async def get_appointment(
     return {}
 
 
-@router.patch("/{appointment_id}/status")
-async def update_appointment_status(
-    appointment_id: str,
-    update: AppointmentStatusUpdate,
+from app.services.appointment_service import appointment_service
+
+@router.post("/admin/clear-all-data")
+async def clear_all_clinic_data(
     _: bool = Depends(verify_clinic_token),
 ) -> dict:
     """
-    Update appointment status.
-    Protected: Requires clinic token.
+    🧹 Admin Data Reset: Clears all past appointments, slots, locks, and queues.
+    Protected: Requires X-Clinic-Token header.
     """
-    # TODO: Update in Supabase + sync with Redis queue
-    return {"appointment_id": appointment_id, "status": update.status}
+    return await appointment_service.clear_all_data()

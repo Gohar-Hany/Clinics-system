@@ -509,5 +509,30 @@ class AppointmentService:
                     pass
         return sorted(results, key=lambda x: (x.get("date", ""), x.get("time", "")))
 
+    async def clear_all_data(self) -> dict:
+        """Completely reset and flush all appointment, slot, queue, and patient data."""
+        try:
+            client = redis_service.client
+            if hasattr(client, "_store"):
+                # InMemoryRedis
+                client._store.clear()
+                client._sorted_sets.clear()
+                client._hashes.clear()
+                client._lists.clear()
+                client._sets.clear()
+            else:
+                # Real Redis server (e.g. on Railway)
+                patterns = ["appointment:*", "patient_appts:*", "doctor_slots:*", "slot:*", "lock:*", "queue:*", "time_history:*", "avg_time:*"]
+                for p in patterns:
+                    keys = await client.keys(p)
+                    if keys:
+                        await client.delete(*keys)
+
+            logger.info("All clinic appointment and queue data successfully cleared.")
+            return {"success": True, "message": "تم مسح جميع الحجوزات والبيانات السابقة بنجاح وإعادة تصفير النظام بالكامل."}
+        except Exception as e:
+            logger.error(f"Error clearing clinic data: {e}")
+            return {"success": False, "error": str(e)}
+
 
 appointment_service = AppointmentService()
