@@ -14,11 +14,12 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-# Medical & Clinical Terminology Guide for Speech-to-Text
+# Medical & Clinical Bilingual Terminology Guide for Speech-to-Text
 WHISPER_MEDICAL_PROMPT = (
-    "استشارة سريرية طبية، شكوى المريض والأعراض، الفحص السريري، العلامات الحيوية، "
-    "ضغط الدم، نبض القلب، الحرارة، تشخيص فارق، رسم قلب ECG، تحاليل مخبرية، "
-    "وظائف كبد وكلى، أدوية وعلاجات، روشتة طبية، تعليمات ومتابعة."
+    "استشارة طبية سريرية، Doctor-patient clinical encounter, chief complaint شكوى المريض, "
+    "vital signs علامات حيوية (blood pressure mmHg, pulse bpm, temperature), physical examination, "
+    "ECG رسم قلب, Lab tests تحاليل مخبرية (CBC, Renal & Liver function), diagnosis تشخيص, "
+    "prescription أدوية وروشتة علاجية, medications dosage, patient instructions تعليمات ومتابعة."
 )
 
 
