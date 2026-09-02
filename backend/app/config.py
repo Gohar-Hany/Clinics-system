@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     IMAGING_MODEL: str = "google/gemini-2.0-flash-001"
 
     # === Speech-to-Text ===
+    GROQ_API_KEY: str = ""
     GOOGLE_CLOUD_STT_CREDENTIALS: str = ""
     OPENAI_API_KEY: str = ""
 
