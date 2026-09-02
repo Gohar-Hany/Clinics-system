@@ -217,22 +217,32 @@ async def get_queue_position(
         appts = await appointment_service.get_patient_appointments(patient_phone)
         active = [a for a in appts if a.get("status") == "scheduled"]
         if active:
-            # Check if there is an appointment today
             today_appts = [a for a in active if a.get("date") == today_str]
+            future_appts = [a for a in active if a.get("date", "") > today_str]
+            past_appts = [a for a in active if a.get("date", "") < today_str]
+
             if today_appts:
                 target_appt_id = today_appts[-1]["id"]
                 target_date = today_str
                 appt_details = today_appts[-1]
-            else:
-                # Active appointment is on a future date!
-                next_appt = active[0]
+            elif future_appts:
+                next_appt = future_appts[0]
                 return {
                     "success": True,
                     "is_today": False,
+                    "is_future": True,
                     "appointment_date": next_appt.get("date"),
                     "appointment_time": next_appt.get("time"),
                     "queue_number": next_appt.get("queue_number"),
-                    "message": f"موعدك القادم مسجل ليوم {next_appt.get('date')} الساعة {next_appt.get('time')} ورقمك في الطابور هو {next_appt.get('queue_number')}. سيبدأ الطابور المباشر لحجزك في يوم الكشف المحدد وليس اليوم.",
+                    "message": f"موعدك القادم مسجل ليوم {next_appt.get('date')} الساعة {next_appt.get('time')} ورقمك في الطابور هو {next_appt.get('queue_number')}. سيبدأ الطابور المباشر لحجزك في يوم الكشف المحدد.",
+                }
+            elif past_appts:
+                last_appt = past_appts[-1]
+                return {
+                    "success": False,
+                    "is_past": True,
+                    "appointment_date": last_appt.get("date"),
+                    "message": f"كان لديك موعد سابق بتاريخ {last_appt.get('date')} وقد انتهى. لا توجد حجوزات قادمة نشطة برقمك حالياً. هل ترغب في حجز موعد جديد؟",
                 }
 
     if not target_appt_id:
