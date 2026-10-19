@@ -75,7 +75,8 @@ def _make(rng: random.Random, date_str: str, time_str: str, name: str, status: s
     }
 
 
-async def seed_demo_data() -> dict:
+async def seed_demo_data(as_of: str | None = None) -> dict:
+    """`as_of` (HH:MM) lays out today as if it were that time — handy for demos after hours."""
     await appointment_service.clear_all_data()
     rng = random.Random(42)
     now = clinic_now()
@@ -88,8 +89,9 @@ async def seed_demo_data() -> dict:
     # --- Today: a realistic flow around the current time ---
     if now.weekday() != WEEKLY_OFF_DAY:
         todays_slots = [s for s in slots if rng.random() < 0.75]
-        past = [s for s in todays_slots if s <= now.strftime("%H:%M")]
-        future = [s for s in todays_slots if s > now.strftime("%H:%M")]
+        cutoff = as_of or now.strftime("%H:%M")
+        past = [s for s in todays_slots if s <= cutoff]
+        future = [s for s in todays_slots if s > cutoff]
         durations = []
 
         for i, slot in enumerate(past):

@@ -74,3 +74,6 @@ scratch/
 
 # Local archive (moved-out media & dead code)
 .archive/
+
+# Demo recordings
+demo-video/

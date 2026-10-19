@@ -4,7 +4,7 @@ Appointments endpoints — reception desk operations and day lists.
 
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.core.clock import clinic_today_str
@@ -44,13 +44,14 @@ async def clear_all_clinic_data(
 
 @router.post("/admin/seed-demo")
 async def seed_demo_data(
+    as_of: Optional[str] = Query(None, pattern=r"^\d{2}:\d{2}$", description="Lay out today as if it were HH:MM"),
     _: bool = Depends(verify_clinic_token),
 ) -> dict:
     """
     🧪 Replace ALL data with a realistic demo day (for demos / UI development).
     Protected: Requires X-Clinic-Token header.
     """
-    return await demo_seed.seed_demo_data()
+    return await demo_seed.seed_demo_data(as_of)
 
 
 @router.get("/slots")

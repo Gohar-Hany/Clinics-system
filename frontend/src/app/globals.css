@@ -158,3 +158,10 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Fields draw their own focus ring (ring-2); skip the global outline so it isn't doubled */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
