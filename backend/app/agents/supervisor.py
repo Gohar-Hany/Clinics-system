@@ -4,10 +4,8 @@ Routes patient messages to the appropriate subgraph based on intent detection.
 Retains patient phone context across multi-turn conversations.
 """
 
-import re
-from typing import Literal
-from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_openai import ChatOpenAI
+import json
+from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, END, START
 
 from app.agents.booking.state import BookingState
@@ -17,8 +15,9 @@ from app.agents.booking.nodes import (
     should_continue as booking_should_continue,
     extract_phone,
 )
-from app.config import get_settings
+from app.agents.booking.tools import DOCTOR_ID
 from app.core.checkpointer import get_checkpointer
+from app.services.appointment_service import appointment_service
 
 
 SupervisorState = BookingState
@@ -116,11 +115,77 @@ def create_supervisor_graph() -> StateGraph:
     return graph
 
 
+_compiled_graph = None
+_compiled_for = None
+
+
 def get_compiled_graph():
-    """Get compiled supervisor graph with checkpointer."""
-    graph = create_supervisor_graph()
+    """Compiled supervisor graph, built once per checkpointer instance."""
+    global _compiled_graph, _compiled_for
     checkpointer = get_checkpointer()
-    return graph.compile(checkpointer=checkpointer)
+    if _compiled_graph is None or _compiled_for is not checkpointer:
+        _compiled_graph = create_supervisor_graph().compile(checkpointer=checkpointer)
+        _compiled_for = checkpointer
+    return _compiled_graph
+
+
+async def extract_turn_data(turn_messages: list) -> dict:
+    """
+    Structured data for the chat UI, taken ONLY from this turn's tool results
+    (offered slots, a confirmed booking, a cancellation).
+    """
+    data: dict = {}
+    for msg in turn_messages:
+        if getattr(msg, "type", None) != "tool":
+            continue
+        try:
+            result = json.loads(msg.content) if isinstance(msg.content, str) else msg.content
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(result, dict) or not result.get("success"):
+            continue
+
+        name = getattr(msg, "name", "")
+        if name == "check_availability" and result.get("total_available") and not result.get("requested_time_available"):
+            # Buttons only when the patient still has to choose (no time yet, or the asked time is taken)
+            # The model only saw a few suggestions; the UI gets every free slot as a button.
+            full = await appointment_service.get_available_slots(DOCTOR_ID, result["date"])
+            data["slots"] = {
+                "date": result.get("date"),
+                "day_label": result.get("day_label"),
+                "options": [{"time": s["time"], "label": s["formatted"]} for s in full.get("available_slots", [])],
+            }
+        elif name == "propose_booking":
+            data.pop("slots", None)
+            data["proposal"] = {
+                "patient_name": result.get("patient_name"),
+                "patient_phone": result.get("patient_phone"),
+                "date": result.get("date"),
+                "time": result.get("time"),
+                "day_label": result.get("day_label"),
+                "time_label": result.get("time_label"),
+                "queue_number": result.get("queue_number"),
+            }
+        elif name in ("confirm_booking", "reschedule_appointment") and result.get("appointment_id"):
+            data.pop("slots", None)
+            data.pop("proposal", None)
+            data["booking"] = {
+                "reference_code": result.get("reference_code"),
+                "queue_number": result.get("queue_number"),
+                "date": result.get("date"),
+                "time": result.get("time"),
+                "day_label": result.get("day_label"),
+                "time_label": result.get("time_label"),
+                "patient_name": result.get("patient_name"),
+                "patient_phone": result.get("patient_phone"),
+                "rescheduled": name == "reschedule_appointment",
+            }
+            # Backwards-compatible flat fields
+            data["appointment_id"] = result.get("appointment_id")
+            data["queue_number"] = result.get("queue_number")
+        elif name == "cancel_appointment":
+            data["cancelled"] = {"date": result.get("date"), "time": result.get("time")}
+    return data
 
 
 # ╔══════════════════════════════════════════════╗
@@ -163,46 +228,25 @@ async def invoke_agent(
     # Invoke the graph
     result = await compiled_graph.ainvoke(input_state, config=config)
 
-    # Extract the last AI message with text content
-    response_text = ""
     messages = result.get("messages", [])
-    for msg in reversed(messages):
+
+    # This turn = everything after the latest human message
+    last_human = max((i for i, m in enumerate(messages) if getattr(m, "type", None) == "human"), default=-1)
+    turn_messages = messages[last_human + 1:]
+
+    response_text = ""
+    for msg in reversed(turn_messages):
         content = getattr(msg, "content", "")
-        if getattr(msg, "type", None) == "ai" or hasattr(msg, "tool_calls"):
-            if content and isinstance(content, str) and content.strip():
-                response_text = content.strip()
-                break
-
-    if not response_text and messages:
-        last = messages[-1]
-        response_text = getattr(last, "content", str(last))
-
-    # Look for tool results in state or messages
-    queue_number = result.get("queue_number")
-    appointment_id = result.get("appointment_id")
-    final_phone = result.get("patient_phone") or active_phone
-
-    for msg in reversed(messages):
-        if getattr(msg, "type", None) == "tool" and hasattr(msg, "content"):
-            try:
-                import json
-                tool_data = json.loads(msg.content) if isinstance(msg.content, str) else msg.content
-                if isinstance(tool_data, dict):
-                    if "queue_number" in tool_data and not queue_number:
-                        queue_number = tool_data["queue_number"]
-                    if "appointment_id" in tool_data and not appointment_id:
-                        appointment_id = tool_data["appointment_id"]
-                    if "patient_phone" in tool_data and not final_phone:
-                        final_phone = tool_data["patient_phone"]
-            except Exception:
-                pass
+        if getattr(msg, "type", None) == "ai" and isinstance(content, str) and content.strip():
+            response_text = content.strip()
+            break
+    if not response_text:
+        response_text = "معلش، حصلت لخبطة بسيطة. ممكن تقولي تاني حضرتك محتاج إيه؟"
 
     return {
         "response": response_text,
         "thread_id": thread_id,
         "intent": result.get("intent"),
-        "patient_id": result.get("patient_id"),
-        "patient_phone": final_phone,
-        "appointment_id": appointment_id,
-        "queue_number": queue_number,
+        "patient_phone": result.get("patient_phone") or active_phone,
+        **(await extract_turn_data(turn_messages)),
     }

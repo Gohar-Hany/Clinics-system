@@ -22,6 +22,15 @@ backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
+def future_workday(days_ahead: int) -> str:
+    """A non-Friday date `days_ahead` days from today (tests must never hardcode dates)."""
+    from datetime import date, timedelta
+    d = date.today() + timedelta(days=days_ahead)
+    if d.weekday() == 4:
+        d += timedelta(days=1)
+    return d.strftime("%Y-%m-%d")
+
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
@@ -210,7 +219,7 @@ async def test_category_3_reschedule():
 
     doctor_id = "doc-resched-1"
     clinic_id = "clinic-resched-1"
-    test_date = "2026-10-14"
+    test_date = future_workday(25)
 
     # Step 1: Patient A books 10:00 AM
     t0 = time.perf_counter()
@@ -326,7 +335,7 @@ async def test_category_5_edge_cases():
     t0 = time.perf_counter()
     res_night = await appointment_service.book_appointment(
         patient_phone="01099998888",
-        date_str="2026-10-10",
+        date_str=future_workday(26),
         time_str="03:00",
     )
     dur = (time.perf_counter() - t0) * 1000
@@ -336,7 +345,7 @@ async def test_category_5_edge_cases():
     t0 = time.perf_counter()
     res_late = await appointment_service.book_appointment(
         patient_phone="01099998888",
-        date_str="2026-10-10",
+        date_str=future_workday(26),
         time_str="23:00",
     )
     dur = (time.perf_counter() - t0) * 1000
@@ -351,7 +360,7 @@ async def test_category_5_edge_cases():
     # Test 5.4: Double Cancellation (Cancel an already cancelled appointment)
     res_book = await appointment_service.book_appointment(
         patient_phone="01044445555",
-        date_str="2026-10-12",
+        date_str=future_workday(27),
         time_str="10:00",
     )
     appt_id = res_book["appointment_id"]
@@ -366,7 +375,7 @@ async def test_category_5_edge_cases():
     t0 = time.perf_counter()
     res_norm = await appointment_service.book_appointment(
         patient_phone="01044446666",
-        date_str="2026-10-13",
+        date_str=future_workday(28),
         time_str="12 pm",
     )
     dur = (time.perf_counter() - t0) * 1000

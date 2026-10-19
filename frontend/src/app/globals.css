@@ -1,116 +1,160 @@
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════ */
-/*        Clean Healthcare Design System       */
-/* ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   عيادتي — Brand tokens (from the logo: navy · teal · orange)
+   Contrast rules: logo teal (#03CBBE) is a FILL with navy text
+   (7.3:1) — never white text on it. Interactive teal = brand-600
+   (#007D75, 5:1 with white).
+   ═══════════════════════════════════════════════════════════ */
 
 @theme {
-  /* Medical Teal & Emerald */
-  --color-brand-50: #f0fdfa;
-  --color-brand-100: #ccfbf1;
-  --color-brand-200: #99f6e4;
-  --color-brand-300: #5eead4;
-  --color-brand-400: #2dd4bf;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0d9488;
-  --color-brand-700: #0f766e;
-  --color-brand-800: #115e59;
+  --font-sans: var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
 
-  /* Clinical Sky Blue */
-  --color-sky-50: #f0f9ff;
-  --color-sky-100: #e0f2fe;
-  --color-sky-200: #bae6fd;
-  --color-sky-300: #7dd3fc;
-  --color-sky-400: #38bdf8;
-  --color-sky-500: #0ea5e9;
-  --color-sky-600: #0284c7;
-  --color-sky-700: #0369a1;
+  /* Navy — the logo background; primary ink and dark surfaces */
+  --color-navy-50: #f1f5f8;
+  --color-navy-100: #e3e9ef;
+  --color-navy-200: #c5d1db;
+  --color-navy-300: #9aacbb;
+  --color-navy-600: #3e5a70;
+  --color-navy-700: #2c475c;
+  --color-navy-800: #20384a;
+  --color-navy-900: #162937;
+  --color-navy-950: #0f1f2b;
 
-  /* Accent Blue */
-  --color-accent-500: #2563eb;
-  --color-accent-600: #1d4ed8;
+  /* Teal — logo teal is brand-400 */
+  --color-brand-50: #e8fbf9;
+  --color-brand-100: #c5f4f0;
+  --color-brand-200: #8fe9e2;
+  --color-brand-300: #4ddcd2;
+  --color-brand-400: #03cbbe;
+  --color-brand-500: #00a196;
+  --color-brand-600: #007d75;
+  --color-brand-700: #00665f;
+  --color-brand-800: #054f4a;
+  --color-brand-900: #083f3b;
 
-  /* Status Colors */
-  --color-success-500: #10b981;
-  --color-warning-500: #f59e0b;
-  --color-error-500: #ef4444;
+  /* Orange — logo orange is accent-400 */
+  --color-accent-50: #fff5e6;
+  --color-accent-100: #ffe7c2;
+  --color-accent-200: #ffd391;
+  --color-accent-300: #ffc46e;
+  --color-accent-400: #ffab36;
+  --color-accent-500: #f59311;
+  --color-accent-700: #a35a00;
+  --color-accent-800: #7a4300;
+  --color-accent-900: #5c3300;
+
+  /* Grays tinted toward the brand navy (overrides Tailwind slate) */
+  --color-slate-50: #f4f7f9;
+  --color-slate-100: #e9eef2;
+  --color-slate-200: #d8e0e7;
+  --color-slate-300: #bcc8d3;
+  --color-slate-400: #8d9eae;
+  --color-slate-500: #66788a;
+  --color-slate-600: #4a5c6d;
+  --color-slate-700: #364857;
+  --color-slate-800: #243644;
+  --color-slate-900: #162937;
+
+  /* Surfaces & ink (all text tokens ≥ 4.5:1 on white and canvas) */
+  --color-canvas: #f2f5f8;
+  --color-surface: #ffffff;
+  --color-line: #dce3ea;
+  --color-line-strong: #c3cdd7;
+  --color-ink: #162937;
+  --color-ink-2: #3a4b5a;
+  --color-ink-3: #56687a;
+
+  /* Visit states (validated CVD-safe set; navy = "inside now") */
+  --color-st-scheduled: #03cbbe;
+  --color-st-waiting: #f59311;
+  --color-st-inside: #162937;
+  --color-st-done: #7b61ff;
+  --color-st-noshow: #e5484d;
+  --color-st-free: #eef2f6;
+
+  /* Chart */
+  --color-chart-bar: #00a196;
+  --color-chart-today: #162937;
+  --color-chart-track: #d9f5f2;
+  --color-chart-grid: #e6ebf0;
+  --color-chart-accent: #ffab36;
+
+  --radius-card: 1rem;
+  --shadow-card: 0 1px 2px rgba(22, 41, 55, 0.06), 0 2px 6px rgba(22, 41, 55, 0.04);
+  --shadow-pop: 0 16px 40px -12px rgba(22, 41, 55, 0.35);
 }
 
-/* ═══════════════════════════════════════════ */
-/*          Global Healthcare Styles           */
-/* ═══════════════════════════════════════════ */
+html {
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
-  background-color: #f8fafc;
-  color: #0f172a;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  background: var(--color-canvas);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom modern scrollbar */
+:focus-visible {
+  outline: 3px solid var(--color-brand-400);
+  outline-offset: 2px;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
+  background: #bcc8d3;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
 }
 
-/* Crisp Clean Glassmorphism */
-.glass {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+/* Subtle medical cross pattern for dark brand surfaces */
+.bg-cross-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M20 14h4v6h6v4h-6v6h-4v-6h-6v-4h6z' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/svg%3E");
 }
 
-.glass-light {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(241, 245, 249, 0.9);
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+.typing-dot {
+  animation: typing 1.2s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  animation: rise 0.25s ease-out both;
 }
 
-/* Medical Glow & Elevation */
-.glow-brand {
-  box-shadow: 0 10px 30px -5px rgba(13, 148, 136, 0.12),
-              0 4px 12px -2px rgba(2, 132, 199, 0.08);
+@keyframes live-ping {
+  0% { box-shadow: 0 0 0 0 rgba(3, 203, 190, 0.55); }
+  100% { box-shadow: 0 0 0 8px rgba(3, 203, 190, 0); }
+}
+.live-dot {
+  animation: live-ping 1.6s ease-out infinite;
 }
 
-.glow-card {
-  box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
-}
-
-/* High Contrast Gradient Text */
-.text-gradient {
-  background: linear-gradient(135deg, #0f766e 0%, #0284c7 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-emerald {
-  background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Pulse indicator */
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.08); }
-}
-
-.pulse-dot {
-  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

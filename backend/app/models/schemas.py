@@ -80,6 +80,15 @@ class QueuePositionResponse(BaseModel):
     total_in_queue: int
     avg_consultation_minutes: int
     estimated_wait_minutes: int
+    status: Optional[str] = None
+    appointment_id: Optional[str] = None
+    reference_code: Optional[str] = None
+    patient_name: Optional[str] = None
+    scheduled_date: Optional[str] = None
+    scheduled_time: Optional[str] = None
+    day_label: Optional[str] = None
+    time_label: Optional[str] = None
+    is_today: Optional[bool] = None
 
 
 class QueueStateResponse(BaseModel):

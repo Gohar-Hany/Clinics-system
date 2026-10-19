@@ -2,12 +2,14 @@
 Chat endpoint — Patient booking chat via LangGraph Supervisor Agent.
 """
 
+import logging
 import uuid
 from fastapi import APIRouter
 
 from app.models.schemas import ChatRequest, ChatResponse
 from app.agents.supervisor import invoke_agent
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -51,8 +53,9 @@ async def chat_with_agent(request: ChatRequest) -> ChatResponse:
 
     except Exception as e:
         # Graceful error handling
+        logger.exception("Chat agent failed for thread %s", thread_id)
         return ChatResponse(
-            response=f"عفواً، حصلت مشكلة تقنية. حاول تاني بعد شوية. 🙏",
+            response="معلش، حصلت مشكلة تقنية عندنا. جرّب تبعت رسالتك تاني بعد لحظات.",
             thread_id=thread_id,
             intent="error",
             data={"error": str(e)},

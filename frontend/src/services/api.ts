@@ -1,6 +1,5 @@
 /**
- * 3eyadaty (عيادتي) — Unified Frontend API Client
- * Connects to Railway Cloud Backend or Local Dev Server
+ * عيادتي — Frontend API client for the FastAPI backend.
  */
 
 export const API_BASE_URL =
@@ -10,48 +9,161 @@ export const CLINIC_TOKEN =
 export const DEFAULT_CLINIC_ID = "default-clinic";
 export const DEFAULT_DOCTOR_ID = "default-doctor";
 
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
+async function request<T>(path: string, init: RequestInit = {}, staff = false): Promise<T> {
+  const headers = new Headers(init.headers);
+  if (staff) headers.set("X-Clinic-Token", CLINIC_TOKEN);
+  if (init.body && typeof init.body === "string") headers.set("Content-Type", "application/json");
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/api/v1${path}`, { ...init, headers, cache: "no-store" });
+  } catch {
+    throw new ApiError(0, "مش قادرين نوصل للسيرفر. اتأكد من الاتصال بالإنترنت وجرب تاني.");
+  }
+  if (!res.ok) {
+    let detail = res.statusText;
+    try {
+      const body = await res.json();
+      detail = typeof body.detail === "string" ? body.detail : detail;
+    } catch {}
+    throw new ApiError(res.status, detail);
+  }
+  return res.json();
+}
+
+// ───────────────────────── Types ─────────────────────────
+
+export type AppointmentStatus =
+  | "scheduled"
+  | "checked_in"
+  | "in_progress"
+  | "completed"
+  | "no_show"
+  | "cancelled";
+
+export interface Appointment {
+  id: string;
+  reference_code: string;
+  patient_name?: string;
+  patient_phone: string;
+  date: string;
+  time: string;
+  status: AppointmentStatus;
+  queue_number: number;
+  notes?: string;
+  source?: "ai_chat" | "reception";
+  created_at: string;
+  checked_in_at?: string;
+  started_at?: string;
+  completed_at?: string;
+  duration_minutes?: number;
+}
+
+export interface SlotOption {
+  time: string;
+  label: string;
+}
+
+export interface BookingSummary {
+  reference_code: string;
+  queue_number: number;
+  date: string;
+  time: string;
+  day_label: string;
+  time_label: string;
+  patient_name?: string;
+  patient_phone?: string;
+  rescheduled?: boolean;
+}
+
+export interface BookingProposal {
+  patient_name: string;
+  patient_phone: string;
+  date: string;
+  time: string;
+  day_label: string;
+  time_label: string;
+  queue_number: number;
+}
+
 export interface ChatResponse {
   response: string;
   thread_id: string;
-  intent: string;
+  intent: string | null;
   data?: {
     patient_phone?: string;
-    appointment_id?: string;
-    queue_number?: number;
-    reference_code?: string;
-    date?: string;
-    time?: string;
-  };
+    slots?: { date: string; day_label: string; options: SlotOption[] };
+    booking?: BookingSummary;
+    proposal?: BookingProposal;
+    cancelled?: { date: string; time: string };
+    error?: string;
+  } | null;
 }
 
-export interface QueuePositionResponse {
-  status: "waiting" | "in_progress" | "completed" | "cancelled" | "not_found";
+export interface QueuePosition {
   queue_number: number;
   current_serving: number;
   patients_ahead: number;
   total_in_queue: number;
   avg_consultation_minutes: number;
   estimated_wait_minutes: number;
-  estimated_turn_time: string | null;
-  appointment_id?: string;
-  reference_code?: string;
-  scheduled_date?: string;
-  message?: string;
-}
-
-export interface QueueEntry {
+  status: AppointmentStatus;
   appointment_id: string;
-  queue_number: number;
-  patient_name?: string;
-  status?: string;
+  reference_code: string;
+  patient_name: string | null;
+  scheduled_date: string;
+  scheduled_time: string;
+  day_label: string;
+  time_label: string;
+  is_today: boolean;
 }
 
-export interface QueueStateResponse {
-  entries: QueueEntry[];
-  current_serving: number;
-  total: number;
+export interface QueueDisplay {
+  date: string;
+  now_serving: number | null;
+  waiting: { queue_number: number; time: string; arrived: boolean }[];
+  completed_count: number;
   avg_consultation_minutes: number;
 }
+
+export interface ClinicInfo {
+  clinic_name: string;
+  doctor_name: string;
+  doctor_specialty: string;
+  address: string;
+  phone: string;
+  consultation_fee: string;
+  hours: { open: string; close: string; last_slot: string; slot_minutes: number; off_days: string[] };
+}
+
+export interface DashboardOverview {
+  date: string;
+  generated_at: string;
+  is_off_day: boolean;
+  counts: Record<AppointmentStatus, number> & { total: number };
+  capacity: { slots_per_day: number; booked: number; utilization_pct: number };
+  now_serving: Appointment | null;
+  waiting: Appointment[];
+  avg_consultation_minutes: number;
+  avg_consultation_today: number | null;
+  new_bookings_today: number;
+  upcoming_7_days: number;
+  hourly: { hour: string; count: number }[];
+  upcoming_days: { date: string; weekday: string; is_off_day: boolean; count: number; capacity: number }[];
+  upcoming_list: Appointment[];
+  recent_bookings: Appointment[];
+  sources: { ai_chat: number; reception: number };
+}
+
+export type StatusAction = "check_in" | "start" | "complete" | "no_show" | "cancel";
+
+// Doctor co-pilot (Phase 2)
 
 export interface SOAPNotes {
   subjective: string;
@@ -78,18 +190,10 @@ export interface DrugInteraction {
 export interface ConsultationResponse {
   success: boolean;
   consultation_id: string;
-  transcription?: {
-    transcript: string;
-    duration_seconds: number;
-    provider: string;
-  };
+  transcription?: { transcript: string; duration_seconds: number; provider: string };
   soap_notes: SOAPNotes;
   primary_diagnosis: string;
-  differential_diagnoses: Array<{
-    diagnosis: string;
-    probability: string;
-    rationale: string;
-  }>;
+  differential_diagnoses: Array<{ diagnosis: string; probability: string; rationale: string }>;
   vital_signs: Record<string, string>;
   symptoms_extracted: string[];
   prescription: PrescriptionItem[];
@@ -110,11 +214,7 @@ export interface ImagingAnalysisResponse {
   modality: string;
   anatomical_region: string;
   quality_assessment: string;
-  findings: Array<{
-    structure: string;
-    observation: string;
-    is_abnormal: boolean;
-  }>;
+  findings: Array<{ structure: string; observation: string; is_abnormal: boolean }>;
   abnormal_flags: string[];
   impression: string;
   confidence_level: string;
@@ -122,186 +222,87 @@ export interface ImagingAnalysisResponse {
   critical_alert: string | null;
 }
 
+export interface GuidelineResult {
+  condition: string;
+  [key: string]: unknown;
+}
+
+// ───────────────────────── Calls ─────────────────────────
+
 export const clinicApi = {
-  // === 1. AI Chat ===
-  sendMessage: async (params: {
-    message: string;
-    clinicId?: string;
-    threadId?: string | null;
-    patientPhone?: string | null;
-  }): Promise<ChatResponse> => {
-    const res = await fetch(`${API_BASE_URL}/api/v1/chat`, {
+  // Patient
+  getClinicInfo: () => request<ClinicInfo>("/clinic/info"),
+
+  sendMessage: (params: { message: string; threadId?: string | null; patientPhone?: string | null }) =>
+    request<ChatResponse>("/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: params.message,
-        clinic_id: params.clinicId || DEFAULT_CLINIC_ID,
+        clinic_id: DEFAULT_CLINIC_ID,
         thread_id: params.threadId || undefined,
         patient_phone: params.patientPhone || undefined,
       }),
-    });
-    if (!res.ok) throw new Error(`Chat API error: ${res.statusText}`);
-    return res.json();
+    }),
+
+  getQueuePosition: (identifier: string) =>
+    request<QueuePosition>(
+      `/queue/position/${DEFAULT_CLINIC_ID}/${DEFAULT_DOCTOR_ID}/${encodeURIComponent(identifier.trim())}`
+    ),
+
+  getQueueDisplay: () => request<QueueDisplay>(`/queue/display/${DEFAULT_CLINIC_ID}/${DEFAULT_DOCTOR_ID}`),
+
+  // Staff
+  getDashboard: (date?: string) =>
+    request<DashboardOverview>(`/dashboard/overview${date ? `?date=${date}` : ""}`, {}, true),
+
+  listAppointments: (date?: string) =>
+    request<{ date: string; appointments: Appointment[]; total: number }>(
+      `/appointments${date ? `?date=${date}` : ""}`,
+      {},
+      true
+    ),
+
+  getSlots: (date: string) =>
+    request<{ success: boolean; available_slots?: { time: string; formatted: string }[]; message: string }>(
+      `/appointments/slots?date=${date}`
+    ),
+
+  createWalkIn: (body: { patient_name: string; patient_phone: string; date: string; time: string; notes?: string }) =>
+    request<{ reference_code: string; queue_number: number }>("/appointments", { method: "POST", body: JSON.stringify(body) }, true),
+
+  updateStatus: (appointmentId: string, action: StatusAction) =>
+    request<{ success: boolean; appointment: Appointment }>(
+      `/appointments/${appointmentId}/status`,
+      { method: "POST", body: JSON.stringify({ action }) },
+      true
+    ),
+
+  seedDemo: () => request<{ message: string }>("/appointments/admin/seed-demo", { method: "POST" }, true),
+
+  // Doctor co-pilot
+  analyzeAudioConsultation: (audioBlob: Blob, filename = "consultation.webm", patientPhone?: string) => {
+    const form = new FormData();
+    form.append("file", audioBlob, filename);
+    form.append("clinic_id", DEFAULT_CLINIC_ID);
+    if (patientPhone) form.append("patient_phone", patientPhone);
+    return request<ConsultationResponse>("/doctor/consultation/audio", { method: "POST", body: form }, true);
   },
 
-  // === 2. Live Queue Tracking ===
-  getQueuePosition: async (
-    identifier: string,
-    clinicId: string = DEFAULT_CLINIC_ID,
-    doctorId: string = DEFAULT_DOCTOR_ID
-  ): Promise<QueuePositionResponse> => {
-    const res = await fetch(
-      `${API_BASE_URL}/api/v1/queue/position/${clinicId}/${doctorId}/${encodeURIComponent(
-        identifier
-      )}`
-    );
-    if (!res.ok) throw new Error(`Queue Position error: ${res.statusText}`);
-    return res.json();
+  analyzeTextConsultation: (transcript: string, patientPhone?: string) =>
+    request<ConsultationResponse>(
+      "/doctor/consultation/analyze-text",
+      { method: "POST", body: JSON.stringify({ transcript, clinic_id: DEFAULT_CLINIC_ID, patient_phone: patientPhone }) },
+      true
+    ),
+
+  analyzeMedicalImaging: (params: { imageFile?: File; imageType?: string; clinicalContext?: string }) => {
+    const form = new FormData();
+    if (params.imageFile) form.append("image_file", params.imageFile);
+    form.append("image_type", params.imageType || "xray");
+    if (params.clinicalContext) form.append("clinical_context", params.clinicalContext);
+    return request<ImagingAnalysisResponse>("/doctor/consultation/imaging", { method: "POST", body: form }, true);
   },
 
-  getQueueState: async (
-    clinicId: string = DEFAULT_CLINIC_ID,
-    doctorId: string = DEFAULT_DOCTOR_ID,
-    date?: string
-  ): Promise<QueueStateResponse> => {
-    const url = date
-      ? `${API_BASE_URL}/api/v1/queue/state/${clinicId}/${doctorId}?queue_date=${date}`
-      : `${API_BASE_URL}/api/v1/queue/state/${clinicId}/${doctorId}`;
-    const res = await fetch(url, {
-      headers: { "X-Clinic-Token": CLINIC_TOKEN },
-    });
-    if (!res.ok) throw new Error(`Queue State error: ${res.statusText}`);
-    return res.json();
-  },
-
-  // === 3. Queue Reception Actions ===
-  checkIn: async (appointmentId: string) => {
-    const res = await fetch(
-      `${API_BASE_URL}/api/v1/queue/check-in/${appointmentId}?clinic_id=${DEFAULT_CLINIC_ID}&doctor_id=${DEFAULT_DOCTOR_ID}`,
-      {
-        method: "POST",
-        headers: { "X-Clinic-Token": CLINIC_TOKEN },
-      }
-    );
-    return res.json();
-  },
-
-  startConsultation: async (appointmentId: string, queueNumber: number = 1) => {
-    const res = await fetch(
-      `${API_BASE_URL}/api/v1/queue/start/${appointmentId}?clinic_id=${DEFAULT_CLINIC_ID}&doctor_id=${DEFAULT_DOCTOR_ID}&queue_number=${queueNumber}`,
-      {
-        method: "POST",
-        headers: { "X-Clinic-Token": CLINIC_TOKEN },
-      }
-    );
-    return res.json();
-  },
-
-  completeConsultation: async (
-    appointmentId: string,
-    durationMinutes: number = 20
-  ) => {
-    const res = await fetch(
-      `${API_BASE_URL}/api/v1/queue/complete/${appointmentId}?clinic_id=${DEFAULT_CLINIC_ID}&doctor_id=${DEFAULT_DOCTOR_ID}&duration_minutes=${durationMinutes}`,
-      {
-        method: "POST",
-        headers: { "X-Clinic-Token": CLINIC_TOKEN },
-      }
-    );
-    return res.json();
-  },
-
-  // === 4. Doctor AI Co-Pilot & Audio (Phase 2) ===
-  analyzeAudioConsultation: async (
-    audioBlob: Blob,
-    filename: string = "consultation.mp3",
-    patientPhone?: string
-  ): Promise<ConsultationResponse> => {
-    const formData = new FormData();
-    formData.append("file", audioBlob, filename);
-    formData.append("clinic_id", DEFAULT_CLINIC_ID);
-    if (patientPhone) formData.append("patient_phone", patientPhone);
-
-    const res = await fetch(`${API_BASE_URL}/api/v1/doctor/consultation/audio`, {
-      method: "POST",
-      headers: { "X-Clinic-Token": CLINIC_TOKEN },
-      body: formData,
-    });
-    if (!res.ok) throw new Error(`Audio Consultation error: ${res.statusText}`);
-    return res.json();
-  },
-
-  analyzeTextConsultation: async (
-    transcript: string,
-    patientPhone?: string
-  ): Promise<ConsultationResponse> => {
-    const res = await fetch(
-      `${API_BASE_URL}/api/v1/doctor/consultation/analyze-text`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Clinic-Token": CLINIC_TOKEN,
-        },
-        body: JSON.stringify({
-          transcript,
-          clinic_id: DEFAULT_CLINIC_ID,
-          patient_phone: patientPhone,
-        }),
-      }
-    );
-    if (!res.ok) throw new Error(`Text Consultation error: ${res.statusText}`);
-    return res.json();
-  },
-
-  analyzeMedicalImaging: async (params: {
-    imageFile?: File;
-    imageUrl?: string;
-    imageType?: string;
-    clinicalContext?: string;
-  }): Promise<ImagingAnalysisResponse> => {
-    const formData = new FormData();
-    if (params.imageFile) formData.append("image_file", params.imageFile);
-    if (params.imageUrl) formData.append("image_url", params.imageUrl);
-    formData.append("image_type", params.imageType || "xray");
-    if (params.clinicalContext)
-      formData.append("clinical_context", params.clinicalContext);
-
-    const res = await fetch(
-      `${API_BASE_URL}/api/v1/doctor/consultation/imaging`,
-      {
-        method: "POST",
-        headers: { "X-Clinic-Token": CLINIC_TOKEN },
-        body: formData,
-      }
-    );
-    if (!res.ok) throw new Error(`Imaging analysis error: ${res.statusText}`);
-    return res.json();
-  },
-
-  validatePrescription: async (medications: string[]) => {
-    const res = await fetch(`${API_BASE_URL}/api/v1/doctor/prescription/validate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Clinic-Token": CLINIC_TOKEN,
-      },
-      body: JSON.stringify({ medications }),
-    });
-    if (!res.ok) throw new Error(`Prescription validation error`);
-    return res.json();
-  },
-
-  getClinicalGuidelines: async (condition: string) => {
-    const res = await fetch(
-      `${API_BASE_URL}/api/v1/doctor/guidelines?condition=${encodeURIComponent(
-        condition
-      )}`,
-      {
-        headers: { "X-Clinic-Token": CLINIC_TOKEN },
-      }
-    );
-    if (!res.ok) throw new Error(`Guidelines error`);
-    return res.json();
-  },
+  getClinicalGuidelines: (condition: string) =>
+    request<GuidelineResult>(`/doctor/guidelines?condition=${encodeURIComponent(condition)}`, {}, true),
 };

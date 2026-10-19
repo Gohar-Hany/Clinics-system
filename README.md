@@ -7,8 +7,8 @@
 [![LangGraph](https://img.shields.io/badge/LangGraph-Agentic_AI-FF6F00?style=for-the-badge&logo=langchain&logoColor=white)](https://langchain-ai.github.io/langgraph/)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Redis](https://img.shields.io/badge/Redis-Distributed_Locks-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
-[![Next.js](https://img.shields.io/badge/Next.js-15_App_Router-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
-[![Tests](https://img.shields.io/badge/Tests-39%2F39_Passing_(100%25)-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](backend/run_all_tests.py)
+[![Next.js](https://img.shields.io/badge/Next.js-16_App_Router-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
+[![Tests](https://img.shields.io/badge/Tests-4%2F4_suites_passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](backend/run_all_tests.py)
 [![Postman](https://img.shields.io/badge/Postman-v2.1.0_Collection-FF6C37?style=for-the-badge&logo=postman&logoColor=white)](postman/README.md)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
@@ -16,7 +16,7 @@
   <b>Production-grade, resilient clinic management platform featuring autonomous multi-turn LangGraph AI booking agents, Egyptian Arabic dialect NLP, millisecond-level distributed slot locking, and dynamic live queue tracking with rolling average ETA recalculation.</b>
 </p>
 
-[Phase 2 Doctor AI Guide (العربية)](PHASE_2_DOCTOR_AI_GUIDE.md) • [Phase 2 Doctor AI Guide (English)](PHASE_2_DOCTOR_AI_GUIDE_EN.md) • [Full Guide (العربية)](FRONTEND_INTEGRATION_GUIDE.md) • [Full Guide (English)](FRONTEND_INTEGRATION_GUIDE_EN.md) • [Postman Collection](postman/README.md) • [Live Swagger Docs](https://3eyadaty-api.up.railway.app/docs)
+[Phase 2 Doctor AI Guide (العربية)](docs/PHASE_2_DOCTOR_AI_GUIDE.md) • [Phase 2 Doctor AI Guide (English)](docs/PHASE_2_DOCTOR_AI_GUIDE_EN.md) • [Full Guide (العربية)](docs/FRONTEND_INTEGRATION_GUIDE.md) • [Full Guide (English)](docs/FRONTEND_INTEGRATION_GUIDE_EN.md) • [Postman Collection](postman/README.md) • [Live Swagger Docs](https://3eyadaty-api.up.railway.app/docs)
 
 </div>
 
@@ -121,13 +121,33 @@ Execute all 39 enterprise tests across all 4 suites:
 python backend/run_all_tests.py
 ```
 
-### 5. Run Frontend (Next.js 15)
+### 5. Run Frontend (Next.js 16)
 ```bash
 cd frontend
 npm install
+# point the UI at your local backend
+echo NEXT_PUBLIC_API_URL=http://localhost:8000 > .env.local
+echo NEXT_PUBLIC_CLINIC_TOKEN=<same value as CLINIC_CONFIG_TOKEN> >> .env.local
 npm run dev
 ```
 Frontend runs at `http://localhost:3000`.
+
+| Page | Who | What |
+| :--- | :--- | :--- |
+| `/` | Patients | Landing: book or track your turn |
+| `/chat` | Patients | AI booking chat (Egyptian Arabic / English), slot buttons, booking card |
+| `/queue` | Patients | Track your turn by phone or `REF-XXXX`, live waiting-room board |
+| `/dashboard` | Staff | KPIs, today's slot timeline, who's inside / waiting, 2-week booking load, recent bookings |
+| `/reception` | Staff | Day list, check-in → consultation → done, no-show / cancel, walk-in booking |
+| `/doctor` | Staff | SOAP report & Rx from a recording or transcript, imaging analysis, guidelines |
+
+> **No Docker?** The backend falls back to an in-memory store, so data resets when the server restarts.
+> Use **Dashboard → "ملء النظام ببيانات تجريبية"** (or `POST /api/v1/appointments/admin/seed-demo`) to fill a realistic demo day.
+
+### Clinic profile
+Set these in `backend/.env` — they appear in the UI and the booking agent uses them to answer patients:
+`CLINIC_NAME`, `DOCTOR_NAME`, `DOCTOR_SPECIALTY`, `CLINIC_ADDRESS`, `CLINIC_PHONE`, `CONSULTATION_FEE`, `CLINIC_TIMEZONE` (default `Africa/Cairo`).
+Anything left empty, the agent says reception will confirm instead of inventing it.
 
 ---
 
@@ -135,19 +155,24 @@ Frontend runs at `http://localhost:3000`.
 
 | Endpoint | Method | Purpose | Key Parameters / Payload |
 | :--- | :---: | :--- | :--- |
-| `/api/v1/chat` | `POST` | AI Booking & Inquiries | `message`, `clinic_id`, `thread_id`, `patient_phone` |
-| `/api/v1/queue/position/{clinic}/{doc}/{appt}` | `GET` | Patient Live Queue Tracker | `queue_number`, `current_serving`, `estimated_wait_minutes` |
-| `/api/v1/queue/state/{clinic}/{doc}` | `GET` | Reception Live Queue Dashboard | `entries`, `current_serving`, `avg_consultation_minutes` |
-| `/api/v1/queue/check-in/{appt}` | `POST` | Patient Arrival Check-In | `clinic_id`, `doctor_id` |
-| `/api/v1/queue/start/{appt}` | `POST` | Start Consultation Room | `queue_number`, `clinic_id`, `doctor_id` |
-| `/api/v1/queue/complete/{appt}` | `POST` | Finish Consultation & Update ETA | `duration_minutes`, `clinic_id`, `doctor_id` |
-| `/api/v1/queue/cancel/{appt}` | `POST` | Skip No-Show Patient | `clinic_id`, `doctor_id` |
-| `/api/v1/appointments/{clinic}` | `GET` | List Clinic Appointments | `date`, `doctor_id` |
-| `/health` | `GET` | Healthcheck & Cloud Monitoring | System status & version |
+| `/api/v1/chat` | `POST` | AI booking & inquiries | `message`, `clinic_id`, `thread_id`, `patient_phone` → `response`, `data.slots`, `data.booking` |
+| `/api/v1/clinic/info` | `GET` | Public clinic profile & hours | — |
+| `/api/v1/queue/position/{clinic}/{doc}/{phone\|REF\|id}` | `GET` | Patient queue tracker | status, patients ahead, ETA, day/time |
+| `/api/v1/queue/display/{clinic}/{doc}` | `GET` | Public waiting-room board (ticket numbers only) | — |
+| `/api/v1/dashboard/overview` 🔒 | `GET` | Dashboard KPIs & charts | `date` |
+| `/api/v1/appointments` 🔒 | `GET` | Day list | `date`, `status` |
+| `/api/v1/appointments` 🔒 | `POST` | Walk-in booking | `patient_name`, `patient_phone`, `date`, `time`, `notes` |
+| `/api/v1/appointments/{id}/status` 🔒 | `POST` | Visit lifecycle | `action`: `check_in` · `start` · `complete` · `no_show` · `cancel` |
+| `/api/v1/appointments/slots` | `GET` | Free slots for a day | `date` |
+| `/api/v1/appointments/admin/seed-demo` 🔒 | `POST` | Replace all data with a demo day | — |
+| `/api/v1/queue/check-in·start·complete·cancel/{id}` 🔒 | `POST` | Legacy reception actions (now map to the lifecycle) | — |
+| `/health` | `GET` | Healthcheck | — |
+
+🔒 = requires the `X-Clinic-Token` header.
 
 For full request/response schemas, TypeScript types, and React hooks, see:
-- 📖 **[Frontend Integration Guide (Arabic)](FRONTEND_INTEGRATION_GUIDE.md)**
-- 📖 **[Frontend Integration Guide (English)](FRONTEND_INTEGRATION_GUIDE_EN.md)**
+- 📖 **[Frontend Integration Guide (Arabic)](docs/FRONTEND_INTEGRATION_GUIDE.md)**
+- 📖 **[Frontend Integration Guide (English)](docs/FRONTEND_INTEGRATION_GUIDE_EN.md)**
 
 ---
 
@@ -155,20 +180,20 @@ For full request/response schemas, TypeScript types, and React hooks, see:
 
 ```text
 ======================================================================
-🏥 CLINIC MANAGEMENT SYSTEM — MASTER ENTERPRISE TEST SUITE RUNNER
+📊 MASTER SUITE FINAL AUDIT REPORT
 ======================================================================
-  1. Exact User Scenario & Phone Memory Suite        : ✅ PASSED (14.96s)
-  2. Concurrency & Slot Isolation Suite              : ✅ PASSED (15.42s)
-  3. Enterprise 18-Test Comprehensive Suite          : ✅ PASSED (23.48s)
-  4. Production Resilience & Security Suite          : ✅ PASSED (12.46s)
+  1. Exact User Scenario & Phone Memory Suite        : ✅ PASSED (15.95s)
+  2. Concurrency & Slot Isolation Suite              : ✅ PASSED (11.98s)
+  3. Enterprise 18-Test Comprehensive Suite          : ✅ PASSED (20.39s)
+  4. Production Resilience & Security Suite          : ✅ PASSED (14.18s)
 ----------------------------------------------------------------------
 Total Suites Executed : 4
 Passed Suites         : 4
-Failed Suites         : 0 (39 / 39 Tests Passing)
-Total Execution Time  : 66.31s
-System Health Status  : 100% PRODUCTION READY 🚀
+Failed Suites         : 0
+Total Execution Time  : 62.50s
 ======================================================================
 ```
+Suites 1, 3 and 4 talk to the live LLM and expect the backend on `localhost:8000`.
 
 ---
 
@@ -192,25 +217,27 @@ This repository includes a production-ready `Dockerfile` and `railway.json`.
 
 ```
 Clinics-system/
-├── FRONTEND_INTEGRATION_GUIDE.md    # Complete Developer Handoff (Arabic)
-├── FRONTEND_INTEGRATION_GUIDE_EN.md # Complete Developer Handoff (English)
-├── README.md                        # Master Documentation
-├── railway.json                     # Railway Cloud Deployment Config
-├── docker-compose.yml               # Local Full-Stack Container Orchestration
+├── README.md
+├── docs/                            # Integration guides, Phase 2 guides, original plan
+├── postman/                         # Postman collections & environments
+├── supabase/migrations/             # SQL schema
+├── railway.json · Dockerfile        # Railway deployment (backend)
+├── docker-compose.yml               # Local full stack (API, worker, Redis, Postgres)
 ├── backend/
-│   ├── Dockerfile                   # Production Python 3.12 Container
-│   ├── Procfile                     # Process File for Cloud Deployments
-│   ├── requirements.txt             # Python Dependencies
-│   ├── run_all_tests.py             # Master Test Runner (39 Tests)
+│   ├── run_all_tests.py             # Runs every suite
 │   ├── app/
-│   │   ├── main.py                  # FastAPI Entrypoint & Lifecycle
-│   │   ├── config.py                # Pydantic Settings & Env Config
-│   │   ├── core/                    # Arabic NLP, Checkpointer, Security
-│   │   ├── agents/                  # LangGraph Supervisor & Booking Subgraphs
-│   │   ├── api/v1/                  # REST Endpoints (Chat, Queue, Appointments)
-│   │   └── services/                # Business Logic & Redis Distributed Engine
-│   └── tests/                       # Enterprise & Production Test Suites
-└── frontend/                        # Next.js 15 App Router Frontend
+│   │   ├── main.py · config.py
+│   │   ├── core/                    # Clinic clock, Arabic NLP, checkpointer, security
+│   │   ├── agents/                  # LangGraph supervisor, booking / doctor / imaging agents
+│   │   ├── api/v1/                  # chat, queue, appointments, dashboard, doctor
+│   │   └── services/                # appointments & lifecycle, Redis, locking, demo data
+│   └── tests/                       # suites + tests/scripts (live/HTTP scripts)
+└── frontend/src/
+    ├── app/(patient)/               # /chat, /queue
+    ├── app/(staff)/                 # /dashboard, /reception, /doctor
+    ├── components/                  # UI kit, shells, chat markdown, dashboard charts
+    ├── lib/                         # formatting, status labels, polling hooks
+    └── services/api.ts              # typed API client
 ```
 
 ---

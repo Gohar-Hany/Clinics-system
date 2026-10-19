@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    // The reception screen used to live at /clinic
+    return [{ source: "/clinic", destination: "/reception", permanent: true }];
+  },
 };
 
 export default nextConfig;

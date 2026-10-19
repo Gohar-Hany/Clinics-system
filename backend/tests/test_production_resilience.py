@@ -258,21 +258,21 @@ async def test_category_3_dynamic_queue():
         clinic_id=clinic_id,
         doctor_id=doctor_id,
         appointment_id=res_p2["appointment_id"],
-        queue_date=today_str,
+        queue_date=future_date,
     )
     # Start Patient 3's consultation (now current_serving = 3)
     await queue_engine.start_consultation(
         clinic_id=clinic_id,
         doctor_id=doctor_id,
         queue_number=3,
-        queue_date=today_str,
+        queue_date=future_date,
     )
 
     pos_p3_after = await queue_engine.get_position(
         clinic_id=clinic_id,
         doctor_id=doctor_id,
         appointment_id=res_p3["appointment_id"],
-        queue_date=today_str,
+        queue_date=future_date,
     )
     dur_3_2 = (time.perf_counter() - t0) * 1000
     passed_3_2 = (pos_p3_after.get("patients_ahead") == 0)

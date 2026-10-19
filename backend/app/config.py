@@ -55,6 +55,15 @@ class Settings(BaseSettings):
     CLINIC_SECRET_PATH: str = "my-clinic"
     CLINIC_CONFIG_TOKEN: str = "change-me-in-production"
 
+    # === Clinic Profile (shown in the UI and given to the booking agent) ===
+    CLINIC_NAME: str = "عيادات النخبة"
+    DOCTOR_NAME: str = "د. جوهر هاني"
+    DOCTOR_SPECIALTY: str = "استشاري الباطنة والقلب"
+    CLINIC_ADDRESS: str = ""
+    CLINIC_PHONE: str = ""
+    CONSULTATION_FEE: str = ""
+    CLINIC_TIMEZONE: str = "Africa/Cairo"
+
     # === Queue Settings ===
     DEFAULT_AVG_CONSULTATION_MINUTES: int = 20
     QUEUE_ROLLING_AVG_COUNT: int = 20

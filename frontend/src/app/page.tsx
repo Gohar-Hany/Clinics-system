@@ -1,165 +1,107 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import Sidebar from "@/components/Sidebar";
-import { MessageSquare, Users, Stethoscope, LayoutDashboard, Sparkles, Shield, Zap, ArrowRight } from "lucide-react";
+import { ArrowLeft, CalendarPlus, Clock, HeartPulse, MapPin, MessageCircle, ShieldCheck, Stethoscope, Ticket } from "lucide-react";
+import { Logo } from "@/components/Brand";
+import { useClinicInfo } from "@/lib/hooks";
+import { formatTime } from "@/lib/format";
 
 export default function HomePage() {
+  const info = useClinicInfo();
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col md:flex-row font-sans">
-      <Sidebar />
+    <div className="flex min-h-dvh flex-col">
+      {/* Hero */}
+      <section className="bg-cross-pattern relative overflow-hidden bg-navy-900 text-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-5">
+          <Logo tone="light" />
+          <Link href="/dashboard" className="rounded-lg px-3 py-1.5 text-sm font-bold text-navy-200 ring-1 ring-white/15 hover:bg-white/5 hover:text-white">
+            دخول فريق العيادة
+          </Link>
+        </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 md:mr-72 flex flex-col min-h-screen">
-        <main className="flex-1 flex items-center justify-center px-4 sm:px-8 py-10 sm:py-14 relative overflow-hidden">
-          {/* Subtle Ambient Background Highlights */}
-          <div className="absolute top-1/4 -right-20 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-10 -left-20 w-96 h-96 bg-sky-200/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="mx-auto max-w-5xl px-4 pt-8 pb-28 text-center sm:pt-14 sm:pb-36">
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-bold text-white ring-1 ring-white/15">
+            <Stethoscope className="size-4 text-brand-400" />
+            {info ? `${info.doctor_name} — ${info.doctor_specialty}` : "أهلاً بحضرتك"}
+          </p>
+          <h1 className="text-4xl font-black tracking-tight sm:text-6xl">{info?.clinic_name ?? "عيادتي"}</h1>
+          <p className="mx-auto mt-4 max-w-xl text-lg font-medium text-navy-200">
+            احجز موعدك في أقل من دقيقة، واعرف دورك وإنت في البيت
+            <span className="mt-1 block font-bold text-brand-400">من غير مكالمات ولا انتظار.</span>
+          </p>
+        </div>
+      </section>
 
-          <div className="max-w-5xl w-full mx-auto text-center relative z-10">
-            {/* Animated Badge */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs sm:text-sm font-bold mb-6 shadow-xs"
-            >
-              <Sparkles className="w-4 h-4 text-teal-600" />
-              <span>نظام إدارة العيادات الذكي المتكامل بالذكاء الاصطناعي السحابي</span>
-            </motion.div>
+      <main className="relative z-10 mx-auto -mt-20 w-full max-w-5xl flex-1 px-4 pb-12 sm:-mt-24">
+        {/* The two things a patient comes for */}
+        <section className="grid gap-4 sm:grid-cols-2">
+          <Link
+            href="/chat"
+            className="group rounded-2xl bg-brand-400 p-6 text-navy-900 shadow-[var(--shadow-pop)] ring-1 ring-brand-300 transition hover:bg-brand-300 sm:p-8"
+          >
+            <span className="mb-5 flex size-12 items-center justify-center rounded-xl bg-navy-900 text-brand-400">
+              <CalendarPlus className="size-6" />
+            </span>
+            <h2 className="text-2xl font-black">احجز موعد</h2>
+            <p className="mt-1.5 font-medium text-navy-800">قول اليوم اللي يناسبك، والمساعد يحجزلك ويأكدلك فوراً.</p>
+            <span className="mt-6 inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 font-bold text-white">
+              ابدأ الحجز
+              <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
+            </span>
+          </Link>
 
-            {/* Title */}
-            <motion.h1
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1, duration: 0.5 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 tracking-tight text-slate-900 leading-tight"
-            >
-              رعاية طبية أذكى مع <span className="text-gradient">عيادتي 3eyadaty</span>
-            </motion.h1>
+          <Link
+            href="/queue"
+            className="group rounded-2xl bg-surface p-6 shadow-[var(--shadow-pop)] ring-1 ring-line transition hover:ring-brand-400 sm:p-8"
+          >
+            <span className="mb-5 flex size-12 items-center justify-center rounded-xl bg-accent-400 text-navy-900">
+              <Ticket className="size-6" />
+            </span>
+            <h2 className="text-2xl font-black text-ink">تابع دورك</h2>
+            <p className="mt-1.5 font-medium text-ink-2">برقم موبايلك أو كود الحجز: اعرف فاضل قدامك كام واحد ووقت دخولك.</p>
+            <span className="mt-6 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 font-bold text-brand-700 ring-1 ring-inset ring-brand-300">
+              اعرف دورك
+              <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
+            </span>
+          </Link>
+        </section>
 
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="text-base sm:text-lg text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed font-normal"
-            >
-              احجز مواعيدك بالذكاء الاصطناعي في ثوانٍ، تابع دورك لحظياً في الطابور برقم هاتفك، واستفد من مساعد سريري ذكي لتوليد تقارير SOAP وفحص الأشعة VLM.
-            </motion.p>
+        <section className="mt-4 grid gap-4 sm:grid-cols-3">
+          <InfoTile icon={<Clock className="size-5" />} title="مواعيد العمل">
+            {info
+              ? `يومياً ${formatTime(info.hours.open, true)} – ${formatTime(info.hours.close, true)}، و${info.hours.off_days.join("، ")} إجازة`
+              : "…"}
+          </InfoTile>
+          <InfoTile icon={<MessageCircle className="size-5" />} title="احجز بكلامك">
+            اكتب زي ما بتتكلم: «عايز أحجز بكره الساعة 11» — بالعربي أو الإنجليزي.
+          </InfoTile>
+          <InfoTile icon={info?.address ? <MapPin className="size-5" /> : <ShieldCheck className="size-5" />} title={info?.address ? "العنوان" : "تأكيد فوري"}>
+            {info?.address || "بتاخد رقم دور وكود حجز فوراً، وتقدر تعدّل أو تلغي في أي وقت."}
+          </InfoTile>
+        </section>
 
-            {/* Action Navigation Cards */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14"
-            >
-              {/* Card 1: Chat Booking */}
-              <Link
-                href="/chat"
-                className="group p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-teal-500 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all shadow-xs">
-                  <MessageSquare className="w-6 h-6" />
-                </div>
-                <h3 className="font-extrabold text-lg text-slate-900 mb-1">احجز موعدك</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">حجز ذكي فوري بالعامية المصرية والإنجليزية</p>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 mt-4 group-hover:translate-x-[-4px] transition-transform">
-                  ابدأ الحجز الآن <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Link>
+        <p className="mt-6 flex items-center justify-center gap-2 text-sm font-medium text-ink-2">
+          <HeartPulse className="size-4 text-rose-600" />
+          للحالات الطارئة اتصل بالإسعاف فوراً على <strong className="text-ink">123</strong>
+        </p>
+      </main>
 
-              {/* Card 2: Live Queue */}
-              <Link
-                href="/queue"
-                className="group p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-sky-500 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-sky-600 group-hover:text-white transition-all shadow-xs">
-                  <Users className="w-6 h-6" />
-                </div>
-                <h3 className="font-extrabold text-lg text-slate-900 mb-1">الطابور المباشر</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">تتبع دورك والوقت التقديري برقم هاتفك</p>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 mt-4 group-hover:translate-x-[-4px] transition-transform">
-                  متابعة الطابور <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Link>
+      <footer className="border-t border-line bg-surface py-5 text-center text-sm text-ink-3">
+        © {new Date().getFullYear()} {info?.clinic_name ?? "عيادتي"}
+      </footer>
+    </div>
+  );
+}
 
-              {/* Card 3: Doctor AI Co-Pilot */}
-              <Link
-                href="/doctor"
-                className="group p-6 rounded-3xl bg-white border border-teal-200 shadow-md shadow-teal-600/5 hover:shadow-2xl hover:border-teal-500 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-all shadow-md shadow-teal-600/20">
-                  <Stethoscope className="w-6 h-6" />
-                </div>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <h3 className="font-extrabold text-lg text-slate-900">مساعد الطبيب</h3>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 font-black">
-                    Phase 2
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 leading-relaxed">تسجيل صوتي، تقرير SOAP، فحص الأشعة VLM</p>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 mt-4 group-hover:translate-x-[-4px] transition-transform">
-                  دخول الطبيب <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Link>
-
-              {/* Card 4: Reception Dashboard */}
-              <Link
-                href="/clinic"
-                className="group p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-emerald-500 transition-all duration-300 hover:scale-[1.02] text-right relative overflow-hidden"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xs">
-                  <LayoutDashboard className="w-6 h-6" />
-                </div>
-                <h3 className="font-extrabold text-lg text-slate-900 mb-1">لوحة الريسبشن</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">إدارة وصول المرضى وبدء وإنهاء الكشوفات</p>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 mt-4 group-hover:translate-x-[-4px] transition-transform">
-                  لوحة التحكم <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Link>
-            </motion.div>
-
-            {/* System Pillars */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 border-t border-slate-200">
-              <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <div className="w-11 h-11 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600 shrink-0">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900">سرعة استجابة فائقة</h4>
-                  <p className="text-xs text-slate-500">استعلامات Redis بأقل من 200ms</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-                  <Shield className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900">أمان دوائي مشدد</h4>
-                  <p className="text-xs text-slate-500">فحص فوري لتداخلات الأدوية الخطيرة</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3.5 text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <div className="w-11 h-11 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 shrink-0">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900">استدلال سريري متقدم</h4>
-                  <p className="text-xs text-slate-500">GPT-4o Multimodal + Whisper</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-
-        {/* Footer */}
-        <footer className="py-5 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
-          <p>عيادتي (3eyadaty) — المنصة الذكية لإدارة العيادات الطبية © 2026</p>
-        </footer>
+function InfoTile({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl bg-surface p-5 ring-1 ring-line">
+      <div className="mb-2 flex items-center gap-2.5">
+        <span className="flex size-9 items-center justify-center rounded-lg bg-brand-50 text-brand-700">{icon}</span>
+        <h3 className="font-bold text-ink">{title}</h3>
       </div>
+      <p className="text-sm font-medium text-ink-2">{children}</p>
     </div>
   );
 }

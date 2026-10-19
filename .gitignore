@@ -17,8 +17,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+backend/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -70,3 +71,6 @@ Thumbs.db
 .system_generated/
 brain/
 scratch/
+
+# Local archive (moved-out media & dead code)
+.archive/

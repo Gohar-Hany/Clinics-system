@@ -9,14 +9,14 @@ from app.config import get_settings
 
 
 async def verify_clinic_token(
-    x_clinic_token: str = Header(..., alias="X-Clinic-Token"),
+    x_clinic_token: str | None = Header(None, alias="X-Clinic-Token"),
 ) -> bool:
     """
     Verify clinic access token from request header.
     MVP: Simple token comparison (upgrade to JWT later).
     """
     settings = get_settings()
-    if x_clinic_token != settings.CLINIC_CONFIG_TOKEN:
+    if not x_clinic_token or x_clinic_token != settings.CLINIC_CONFIG_TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid clinic access token",

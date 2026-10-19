@@ -29,12 +29,12 @@ python_exe = sys.executable
 suites = [
     {
         "name": "1. Exact User Scenario & Phone Memory Suite",
-        "file": os.path.join(backend_dir, "test_user_scenario.py"),
+        "file": os.path.join(backend_dir, "tests", "scripts", "test_user_scenario.py"),
         "category": "Multi-Turn Dialogue & Calendar Mapping",
     },
     {
         "name": "2. Concurrency & Slot Isolation Suite",
-        "file": os.path.join(backend_dir, "test_booking_concurrency.py"),
+        "file": os.path.join(backend_dir, "tests", "scripts", "test_booking_concurrency.py"),
         "category": "Distributed Slot Locking & Race Conditions",
     },
     {
@@ -59,6 +59,7 @@ def run_suite(suite_info):
     t0 = time.perf_counter()
     env = os.environ.copy()
     env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONPATH"] = backend_dir  # scripts live in tests/ but import the app package
 
     res = subprocess.run(
         [python_exe, suite_info["file"]],

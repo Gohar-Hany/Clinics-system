@@ -3,7 +3,7 @@ Redis client service — With in-memory fallback for local dev without Docker.
 """
 
 import redis.asyncio as aioredis
-from typing import Optional
+from fnmatch import fnmatchcase
 import logging
 
 logger = logging.getLogger(__name__)
@@ -27,9 +27,16 @@ class InMemoryRedis:
         return len(members)
 
     async def srem(self, key, *members):
+        removed = 0
         if key in self._sets:
             for m in members:
-                self._sets[key].discard(str(m))
+                if str(m) in self._sets[key]:
+                    self._sets[key].discard(str(m))
+                    removed += 1
+        return removed
+
+    async def scard(self, key):
+        return len(self._sets.get(key, set()))
 
     async def smembers(self, key):
         return set(self._sets.get(key, set()))
@@ -49,12 +56,22 @@ class InMemoryRedis:
     async def get(self, key):
         return self._store.get(key)
 
+    def _all_stores(self):
+        return (self._store, self._sorted_sets, self._hashes, self._lists, self._sets)
+
     async def delete(self, *keys):
         for key in keys:
-            self._store.pop(key, None)
+            for store in self._all_stores():
+                store.pop(key, None)
 
     async def exists(self, key):
-        return 1 if key in self._store else 0
+        return 1 if any(key in store for store in self._all_stores()) else 0
+
+    async def keys(self, pattern="*"):
+        found = set()
+        for store in self._all_stores():
+            found.update(k for k in store if fnmatchcase(k, pattern))
+        return list(found)
 
     async def zadd(self, key, mapping):
         if key not in self._sorted_sets:
@@ -66,8 +83,11 @@ class InMemoryRedis:
         self._sorted_sets[key].sort(key=lambda x: x[1])
 
     async def zrem(self, key, *members):
-        if key in self._sorted_sets:
-            self._sorted_sets[key] = [(m, s) for m, s in self._sorted_sets[key] if m not in members]
+        if key not in self._sorted_sets:
+            return 0
+        before = len(self._sorted_sets[key])
+        self._sorted_sets[key] = [(m, s) for m, s in self._sorted_sets[key] if m not in members]
+        return before - len(self._sorted_sets[key])
 
     async def zscore(self, key, member):
         if key in self._sorted_sets:
@@ -235,9 +255,11 @@ class RedisService:
     async def add_to_queue(self, clinic_id, doctor_id, date, appointment_id, queue_number):
         queue_key = self._queue_key(clinic_id, doctor_id, date)
         meta_key = self._queue_meta_key(clinic_id, doctor_id, date)
+        already_queued = await self.client.zscore(queue_key, appointment_id) is not None
         pipe = self.client.pipeline()
         pipe.zadd(queue_key, {appointment_id: queue_number})
-        pipe.hincrby(meta_key, "total", 1)
+        if not already_queued:
+            pipe.hincrby(meta_key, "total", 1)
         if not await self.client.hexists(meta_key, "current_serving"):
             pipe.hset(meta_key, "current_serving", 0)
         await pipe.execute()
@@ -245,6 +267,8 @@ class RedisService:
     async def remove_from_queue(self, clinic_id, doctor_id, date, appointment_id):
         queue_key = self._queue_key(clinic_id, doctor_id, date)
         meta_key = self._queue_meta_key(clinic_id, doctor_id, date)
+        if await self.client.zscore(queue_key, appointment_id) is None:
+            return
         pipe = self.client.pipeline()
         pipe.zrem(queue_key, appointment_id)
         pipe.hincrby(meta_key, "total", -1)
@@ -266,11 +290,14 @@ class RedisService:
         patient_number = int(score)
         meta = await self.client.hgetall(meta_key)
         current_serving = int(meta.get("current_serving", 0))
-        total = int(meta.get("total", 0))
         avg_time = await self.client.get(avg_key)
         avg_minutes = int(avg_time) if avg_time else 20
 
-        patients_ahead = max(0, patient_number - current_serving)
+        # Slot tickets are chronological but not every slot is booked, so count
+        # the patients really still queued ahead instead of subtracting numbers.
+        entries = await self.client.zrange(queue_key, 0, -1, withscores=True)
+        total = len(entries)
+        patients_ahead = sum(1 for _, s in entries if int(s) < patient_number)
         estimated_wait = patients_ahead * avg_minutes
 
         return {

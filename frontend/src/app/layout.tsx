@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cairo } from "next/font/google";
+import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -10,19 +11,24 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "عيادتي — نظام إدارة العيادات الذكي بالذكاء الاصطناعي",
-  description: "نظام AI متكامل لحجز المواعيد، متابعة الطابور لحظياً، ومساعد الطبيب السريري",
+  title: {
+    default: "عيادتي — احجز موعدك وتابع دورك",
+    template: "%s — عيادتي",
+  },
+  description: "احجز موعدك في ثواني مع المساعد الذكي، وتابع دورك في العيادة لحظة بلحظة.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  themeColor: "#162937",
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#F8FAFC] text-slate-900 font-[family-name:var(--font-cairo)] selection:bg-teal-100 selection:text-teal-900">
-        {children}
+    <html lang="ar" dir="rtl" className={`${cairo.variable} h-full`}>
+      <body className="min-h-full font-sans text-[15px] leading-relaxed">
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );
