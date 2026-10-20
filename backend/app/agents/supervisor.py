@@ -16,7 +16,8 @@ from app.agents.booking.nodes import (
     extract_phone,
 )
 from app.agents.booking.tools import DOCTOR_ID
-from app.core.checkpointer import get_checkpointer
+from app.core.checkpointer import RedisBackedMemorySaver, get_checkpointer
+from app.services.redis_client import redis_service
 from app.services.appointment_service import appointment_service
 
 
@@ -225,8 +226,18 @@ async def invoke_agent(
     if patient_id:
         input_state["patient_id"] = patient_id
 
+    # Serverless hosts recycle the process between requests: restore / persist this
+    # conversation through Redis when one is available.
+    saver = get_checkpointer()
+    persist = isinstance(saver, RedisBackedMemorySaver) and not redis_service.is_memory
+    if persist:
+        await saver.load_thread(redis_service.client, thread_id)
+
     # Invoke the graph
     result = await compiled_graph.ainvoke(input_state, config=config)
+
+    if persist:
+        await saver.save_thread(redis_service.client, thread_id)
 
     messages = result.get("messages", [])
 

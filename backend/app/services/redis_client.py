@@ -222,6 +222,10 @@ class RedisService:
             logger.info("Redis disconnected")
 
     @property
+    def is_memory(self) -> bool:
+        return self._is_memory or self._client is None
+
+    @property
     def client(self):
         if not self._client:
             self._client = InMemoryRedis()
